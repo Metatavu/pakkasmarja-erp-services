@@ -1,6 +1,6 @@
-package fi.metatavu.example.api.impl
+package fi.metatavu.pakkasmarja.services.erp.impl
 
-import fi.metatavu.example.spec.SystemApi
+import fi.metatavu.pakkasmarja.services.erp.api.spec.SystemApi
 import javax.enterprise.context.RequestScoped
 import javax.ws.rs.Produces
 import javax.ws.rs.core.Response
@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response
  * @author Antti Leppä
  */
 @RequestScoped
-class SystemApiImpl: SystemApi, AbstractApi()  {
+class SystemApiImpl: SystemApi, fi.metatavu.pakkasmarja.services.erp.impl.AbstractApi()  {
 
     @Produces("application/json")
     override suspend fun ping(): Response {

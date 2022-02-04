@@ -1,8 +1,8 @@
-package fi.metatavu.example.api.test.functional.tests
+package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
 import io.restassured.RestAssured.given
 import org.hamcrest.CoreMatchers.`is`
-import fi.metatavu.example.api.test.functional.resources.LocalTestProfile
+import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Test

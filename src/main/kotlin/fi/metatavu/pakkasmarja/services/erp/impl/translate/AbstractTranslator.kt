@@ -1,4 +1,4 @@
-package fi.metatavu.example.api.impl.translate
+package fi.metatavu.pakkasmarja.services.erp.impl.translate
 
 /**
  * Abstract translator class

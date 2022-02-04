@@ -1,4 +1,4 @@
-package fi.metatavu.example.api.logging
+package fi.metatavu.pakkasmarja.services.erp.logging
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

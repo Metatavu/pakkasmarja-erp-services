@@ -1,5 +1,6 @@
-package fi.metatavu.example.api.impl
+package fi.metatavu.pakkasmarja.services.erp.impl
 
+import fi.metatavu.pakkasmarja.services.erp.api.model.Error
 import org.eclipse.microprofile.jwt.JsonWebToken
 import java.util.*
 import javax.enterprise.context.RequestScoped
@@ -173,7 +174,7 @@ abstract class AbstractApi {
      * @return error response
      */
     private fun createError(status: Response.Status, message: String): Response {
-        val entity = fi.metatavu.example.model.Error(
+        val entity = Error(
             message = message,
             code = status.statusCode
         )

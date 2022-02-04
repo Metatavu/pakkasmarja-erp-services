@@ -1,4 +1,4 @@
-package fi.metatavu.example.api.test.functional.settings
+package fi.metatavu.pakkasmarja.services.erp.test.functional.settings
 
 /**
  * Settings implementation for test builder

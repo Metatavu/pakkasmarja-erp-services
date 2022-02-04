@@ -1,9 +1,9 @@
-package fi.metatavu.example.api.test.functional.impl
+package fi.metatavu.pakkasmarja.services.erp.test.functional.impl
 
-import fi.metatavu.example.client.infrastructure.ApiClient
-import fi.metatavu.example.client.infrastructure.ClientException
-import fi.metatavu.example.client.infrastructure.ServerException
-import fi.metatavu.example.api.test.functional.TestBuilder
+import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ApiClient
+import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ClientException
+import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ServerException
+import fi.metatavu.pakkasmarja.services.erp.test.functional.TestBuilder
 import org.junit.Assert
 
 /**

@@ -1,12 +1,12 @@
-package fi.metatavu.example.api.test.functional
+package fi.metatavu.pakkasmarja.services.erp.test.functional
 
-import fi.metatavu.example.client.infrastructure.ApiClient
-import fi.metatavu.example.api.test.functional.auth.TestBuilderAuthentication
 import fi.metatavu.jaxrs.test.functional.builder.AbstractAccessTokenTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvider
+import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ApiClient
+import fi.metatavu.pakkasmarja.services.erp.test.functional.auth.TestBuilderAuthentication
 import org.eclipse.microprofile.config.ConfigProvider
 
 /**

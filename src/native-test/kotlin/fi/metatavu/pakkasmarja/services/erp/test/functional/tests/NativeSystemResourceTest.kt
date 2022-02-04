@@ -1,6 +1,6 @@
-package fi.metatavu.example.api.test.functional.tests
+package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
-import fi.metatavu.example.api.test.functional.resources.LocalTestProfile
+import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
 import io.quarkus.test.junit.NativeImageTest
 import io.quarkus.test.junit.TestProfile
 
