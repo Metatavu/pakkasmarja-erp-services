@@ -45,6 +45,16 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
+kotlin {
+    sourceSets {
+        main {
+            languageSettings {
+                optIn("kotlin.RequiresOptIn")
+            }
+        }
+    }
+}
+
 sourceSets["main"].java {
     srcDir("build/generated/api-spec/src/main/kotlin")
 }

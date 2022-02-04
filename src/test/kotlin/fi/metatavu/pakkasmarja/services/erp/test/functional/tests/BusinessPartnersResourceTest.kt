@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 class BusinessPartnersResourceTest {
 
     /**
-     * Tests list Examples
+     * Tests list business partners
      */
     @Test
     fun listBusinessPartners() {
@@ -28,7 +28,16 @@ class BusinessPartnersResourceTest {
                 maxResults = null
             )
 
-            assertEquals(0, listResult.size)
+            assertEquals(1, listResult.size)
+            assertEquals(12345, listResult[0].code)
+            assertEquals("fake@example.com", listResult[0].email)
+            assertNull(listResult[0].addresses)
+            assertNull(listResult[0].bankAccounts)
+            assertNull(listResult[0].companyName)
+            assertNull(listResult[0].federalTaxId)
+            assertNull(listResult[0].phoneNumbers)
+            assertNull(listResult[0].updated)
+            assertNull(listResult[0].vatLiable)
         }
     }
 
