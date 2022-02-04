@@ -20,14 +20,10 @@ val jaxrsFunctionalTestBuilderVersion: String by project
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
 
-    implementation("io.quarkus:quarkus-hibernate-orm")
     implementation("io.quarkus:quarkus-container-image-docker")
-    implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-resteasy-jackson")
-    implementation("io.quarkus:quarkus-liquibase")
-    implementation("io.quarkus:quarkus-jdbc-mysql")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
@@ -37,12 +33,11 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
     testImplementation("org.testcontainers:testcontainers")
-    testImplementation("org.testcontainers:mysql")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
 }
 
-group = "fi.metatavu.example"
+group = "fi.metatavu.pakkasmarja.services.erp"
 version = "1.0.0-SNAPSHOT"
 
 java {
@@ -74,9 +69,9 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     setProperty("generatorName", "kotlin-server")
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-spec")
-    setProperty("apiPackage", "fi.metatavu.example.spec")
-    setProperty("invokerPackage", "fi.metatavu.example.invoker")
-    setProperty("modelPackage", "fi.metatavu.example.model")
+    setProperty("apiPackage", "fi.metatavu.pakkasmarja.services.erp.spec")
+    setProperty("invokerPackage", "fi.metatavu.pakkasmarja.services.erp.invoker")
+    setProperty("modelPackage", "fi.metatavu.pakkasmarja.services.erp.model")
     this.configOptions.put("library", "jaxrs-spec")
     this.configOptions.put("dateLibrary", "java8")
     this.configOptions.put("interfaceOnly", "true")
@@ -91,7 +86,7 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     setProperty("library", "jvm-okhttp3")
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-client")
-    setProperty("packageName", "fi.metatavu.example.client")
+    setProperty("packageName", "fi.metatavu.pakkasmarja.services.erp.client")
     this.configOptions.put("dateLibrary", "string")
     this.configOptions.put("collectionType", "array")
     this.configOptions.put("serializationLibrary", "jackson")
