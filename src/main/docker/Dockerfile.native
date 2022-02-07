@@ -7,11 +7,11 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/example-api .
+# docker build -f src/main/docker/Dockerfile.native -t quarkus/pakkasmarja-erp-services .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/example-api
+# docker run -i --rm -p 8080:8080 quarkus/pakkasmarja-erp-services
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.5
