@@ -1,4 +1,4 @@
-package fi.metatavu.pakkasmarja.services.erp.test.functional.auth
+package fi.metatavu.pakkasmarja.services.erp.test.functional.impl.auth
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenTestBuilderAuthentication

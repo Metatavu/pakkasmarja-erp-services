@@ -6,7 +6,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
 import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvider
 import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ApiClient
-import fi.metatavu.pakkasmarja.services.erp.test.functional.auth.TestBuilderAuthentication
+import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.auth.TestBuilderAuthentication
 import org.eclipse.microprofile.config.ConfigProvider
 
 /**
