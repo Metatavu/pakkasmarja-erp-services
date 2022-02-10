@@ -9,8 +9,6 @@ class LocalTestProfile: QuarkusTestProfile {
 
     override fun getConfigOverrides(): Map<String, String> {
         return mapOf(
-            "quarkus.keycloak.devservices.realm-name" to "pakkasmarja",
-            "quarkus.keycloak.devservices.realm-path" to "kc.json"
         )
     }
 
