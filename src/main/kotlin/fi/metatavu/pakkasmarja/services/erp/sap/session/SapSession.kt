@@ -6,6 +6,13 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
+/**
+ * Closeable Sap session
+ *
+ * @param apiUrl api url
+ * @param routeId route id
+ * @param sessionId session id
+ */
 class SapSession(val apiUrl: String, val routeId: String, val sessionId: String): Closeable {
     override fun close() {
         val client = HttpClient.newHttpClient()
