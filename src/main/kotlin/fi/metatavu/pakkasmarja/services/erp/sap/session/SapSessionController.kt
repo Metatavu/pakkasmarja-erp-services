@@ -34,11 +34,11 @@ class SapSessionController {
      * @return a new SAP session
      */
     fun createSapSession(): SapSession {
-        val client = HttpClient.newHttpClient()
-        val objectMapper = ObjectMapper()
-        val loginInfo = objectMapper.createObjectNode()
-
         try {
+            val client = HttpClient.newHttpClient()
+            val objectMapper = ObjectMapper()
+            val loginInfo = objectMapper.createObjectNode()
+            
             loginInfo.put("CompanyDB", sapCompanyDb)
             loginInfo.put("UserName", sapUserName)
             loginInfo.put("Password", sapUserPassword)
