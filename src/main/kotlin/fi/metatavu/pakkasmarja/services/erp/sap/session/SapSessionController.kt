@@ -15,6 +15,7 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class SapSessionController {
+
     @Inject
     @ConfigProperty(name="fi.metatavu.pakkasmarja.sap-api-url")
     lateinit var sapApiUrl: String
