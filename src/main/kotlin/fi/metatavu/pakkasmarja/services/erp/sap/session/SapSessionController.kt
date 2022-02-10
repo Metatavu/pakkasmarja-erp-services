@@ -10,6 +10,9 @@ import java.net.http.HttpResponse
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
+/**
+ * Sap session controller
+ */
 @ApplicationScoped
 class SapSessionController {
     @Inject
