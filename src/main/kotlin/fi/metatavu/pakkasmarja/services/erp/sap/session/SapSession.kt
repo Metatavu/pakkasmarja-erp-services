@@ -13,7 +13,7 @@ import java.net.http.HttpResponse
  * @param routeId route id
  * @param sessionId session id
  */
-class SapSession(val apiUrl: String, val routeId: String, val sessionId: String): Closeable {
+class SapSession(val apiUrl: String, val routeId: String, val sessionId: String): AutoCloseable {
     /**
      * Closes a SAP session
      */
