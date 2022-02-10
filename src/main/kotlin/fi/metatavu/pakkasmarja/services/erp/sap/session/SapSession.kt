@@ -14,6 +14,9 @@ import java.net.http.HttpResponse
  * @param sessionId session id
  */
 class SapSession(val apiUrl: String, val routeId: String, val sessionId: String): Closeable {
+    /**
+     * Closes a SAP session
+     */
     override fun close() {
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
