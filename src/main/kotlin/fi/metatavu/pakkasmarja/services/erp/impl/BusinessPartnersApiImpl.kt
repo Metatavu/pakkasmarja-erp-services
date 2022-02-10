@@ -2,6 +2,7 @@ package fi.metatavu.pakkasmarja.services.erp.impl
 
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.api.spec.BusinessPartnersApi
+import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject

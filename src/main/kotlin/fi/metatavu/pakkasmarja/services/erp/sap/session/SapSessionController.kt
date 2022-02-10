@@ -62,9 +62,11 @@ class SapSessionController {
     }
 
     /**
-     * Parses headers from a login response
+     * Parses headers from a login response and creates a session using cookies from headers
      *
-     * @param headers
+     * @param headers headers
+     *
+     * @return sap session
      */
     private fun parseLoginResponseHeaders(headers: HttpHeaders): SapSession {
         val cookies = headers.allValues("set-cookie") ?: throw SapSessionLoginException("'set-cookie' not found")
@@ -78,6 +80,13 @@ class SapSessionController {
         return SapSession(apiUrl = sapApiUrl, sessionId = sessionId, routeId = routeId)
     }
 
+    /**
+     * Parses an id from a cookie
+     *
+     * @param cookie a cookie to parse
+     *
+     * @return id
+     */
     private fun parseIdFromCookie(cookie: String): String {
         return cookie.split(";")[0].split("=")[1]
     }
