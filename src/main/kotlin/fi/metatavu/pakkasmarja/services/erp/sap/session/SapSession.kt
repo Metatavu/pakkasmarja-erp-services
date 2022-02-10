@@ -24,11 +24,9 @@ class SapSession(val apiUrl: String, val routeId: String, val sessionId: String)
 
         try {
             val response = client.send(request, HttpResponse.BodyHandlers.ofInputStream())
-            when (val statusCode = response.statusCode()) {
-                204 -> @Suppress {}
-                else -> {
-                    throw SapSessionLogoutException("Status code $statusCode from SAP")
-                }
+            val statusCode = response.statusCode()
+            if (statusCode != 204) {
+                throw SapSessionLogoutException("Status code $statusCode from SAP")
             }
         } catch (e: Exception) {
             throw SapSessionLogoutException("Failed to stop a sap session: " + e.message)
