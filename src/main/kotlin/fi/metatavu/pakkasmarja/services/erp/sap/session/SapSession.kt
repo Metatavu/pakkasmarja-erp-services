@@ -26,6 +26,7 @@ class SapSession(val apiUrl: String, val routeId: String, val sessionId: String)
             val response = client.send(request, HttpResponse.BodyHandlers.ofInputStream())
 
             when (val statusCode = response.statusCode()) {
+                @Suppress
                 204 -> {}
                 else -> {
                     throw SapSessionLogoutException("Status code $statusCode from SAP")
