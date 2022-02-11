@@ -1,8 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
-import fi.metatavu.pakkasmarja.services.erp.test.functional.TestBuilder
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
-import io.quarkus.test.common.DevServicesContext
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.*
@@ -15,9 +13,7 @@ import org.junit.jupiter.api.Test
  */
 @QuarkusTest
 @TestProfile(LocalTestProfile::class)
-class BusinessPartnersResourceTest {
-
-    private lateinit var devServicesContext: DevServicesContext
+class BusinessPartnersResourceTest: AbstractResourceTest() {
 
     /**
      * Tests list business partners
@@ -42,15 +38,6 @@ class BusinessPartnersResourceTest {
             assertNull(listResult[0].updated)
             assertNull(listResult[0].vatLiable)
         }
-    }
-
-    /**
-     * Creates new test builder
-     *
-     * @return new test builder
-     */
-    private fun createTestBuilder(): TestBuilder {
-        return TestBuilder(devServicesContext.devServicesProperties())
     }
 
 }
