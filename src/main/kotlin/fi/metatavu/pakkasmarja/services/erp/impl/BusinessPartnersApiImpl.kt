@@ -20,7 +20,7 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, fi.metatavu.pakkasmarja.serv
     @Inject
     private lateinit var businessPartnersController: fi.metatavu.pakkasmarja.services.erp.sap.BusinessPartnersController
 
-    override suspend fun listBusinessPartners(
+    override fun listBusinessPartners(
         updatedAfter: OffsetDateTime?,
         firstResult: Int?,
         maxResults: Int?
