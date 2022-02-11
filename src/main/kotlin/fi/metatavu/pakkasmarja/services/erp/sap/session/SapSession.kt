@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.sap.session
 
-import java.io.Closeable
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
