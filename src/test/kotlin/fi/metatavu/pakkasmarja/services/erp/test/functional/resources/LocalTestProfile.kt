@@ -12,8 +12,8 @@ class LocalTestProfile: QuarkusTestProfile {
         val keycloakRealm = "pakkasmarja"
 
         return mapOf(
-            "keycloak.url" to keycloakUrl,
-            "quarkus.oidc.auth-server-url" to "$keycloakUrl/realms/$keycloakRealm"
+            // "keycloak.url" to keycloakUrl,
+            // "quarkus.oidc.auth-server-url" to "$keycloakUrl/realms/$keycloakRealm"
         )
     }
 
