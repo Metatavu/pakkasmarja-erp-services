@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
-import fi.metatavu.pakkasmarja.services.erp.test.functional.TestBuilder
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
@@ -14,14 +13,14 @@ import org.junit.jupiter.api.Test
  */
 @QuarkusTest
 @TestProfile(LocalTestProfile::class)
-class BusinessPartnersResourceTest {
+class BusinessPartnersResourceTest: AbstractResourceTest() {
 
     /**
      * Tests list business partners
      */
     @Test
     fun listBusinessPartners() {
-        TestBuilder().use {
+        createTestBuilder().use {
             val listResult = it.manager.businessPartners.listBusinessPartners(
                 updatedAfter = null,
                 firstResult = null,
