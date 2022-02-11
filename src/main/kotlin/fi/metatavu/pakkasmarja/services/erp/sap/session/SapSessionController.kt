@@ -2,6 +2,7 @@ package fi.metatavu.pakkasmarja.services.erp.sap.session
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import java.net.HttpCookie
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpHeaders
@@ -46,8 +47,8 @@ class SapSessionController {
             loginInfo.put("CompanyDB", sapCompanyDb)
             loginInfo.put("UserName", sapUserName)
             loginInfo.put("Password", sapUserPassword)
-            val jsonString = objectMapper.writeValueAsString(loginInfo)
-            val request = HttpRequest.newBuilder(URI("$sapApiUrl/Login")).POST(HttpRequest.BodyPublishers.ofString(jsonString)).build()
+            val jsonBytes = objectMapper.writeValueAsBytes(loginInfo)
+            val request = HttpRequest.newBuilder(URI("$sapApiUrl/Login")).POST(HttpRequest.BodyPublishers.ofByteArray(jsonBytes)).build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofInputStream())
             when (val statusCode = response.statusCode()) {
@@ -73,25 +74,10 @@ class SapSessionController {
      * @return sap session
      */
     private fun parseLoginResponseHeaders(headers: HttpHeaders): SapSession {
-        val cookies = headers.allValues("set-cookie") ?: throw SapSessionLoginException("'set-cookie' not found")
-        val sessionCookie = cookies.findLast { cookie -> cookie.startsWith("B1SESSION") } ?: throw SapSessionLoginException("session cookie not found")
-        val routeCookie = cookies.findLast { cookie -> cookie.startsWith("ROUTEID") } ?: throw SapSessionLoginException("" +
-                "route cookie not found")
-
-        val sessionId = parseIdFromCookie(sessionCookie)
-        val routeId = parseIdFromCookie(routeCookie)
+        val cookies = headers.allValues("set-cookie").map(HttpCookie::parse)
+        val sessionId = cookies.find { cookie -> cookie[0].name == "B1SESSION" }?.get(0)?.value ?: throw SapSessionLoginException("session cookie not found")
+        val routeId = cookies.find { cookie -> cookie[0].name == "ROUTEID" }?.get(0)?.value ?: throw SapSessionLoginException("route cookie not found")
 
         return SapSession(apiUrl = sapApiUrl, sessionId = sessionId, routeId = routeId)
-    }
-
-    /**
-     * Parses an id from a cookie
-     *
-     * @param cookie a cookie to parse
-     *
-     * @return id
-     */
-    private fun parseIdFromCookie(cookie: String): String {
-        return cookie.split(";")[0].split("=")[1]
     }
 }
