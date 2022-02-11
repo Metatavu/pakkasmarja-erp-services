@@ -30,10 +30,11 @@ dependencies {
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    testImplementation("io.quarkus:quarkus-junit5")
+
     testImplementation("com.squareup.okhttp3:okhttp")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
     testImplementation("org.testcontainers:testcontainers")
-    testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
 }
 
@@ -82,10 +83,11 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     setProperty("apiPackage", "${project.group}.api.spec")
     setProperty("invokerPackage", "${project.group}.api.invoker")
     setProperty("modelPackage", "${project.group}.api.model")
+    setProperty("templateDir", "$rootDir/openapi/api-spec")
     this.configOptions.put("library", "jaxrs-spec")
     this.configOptions.put("dateLibrary", "java8")
     this.configOptions.put("interfaceOnly", "true")
-    this.configOptions.put("useCoroutines", "true")
+    this.configOptions.put("useCoroutines", "false")
     this.configOptions.put("returnResponse", "true")
     this.configOptions.put("useSwaggerAnnotations", "false")
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
