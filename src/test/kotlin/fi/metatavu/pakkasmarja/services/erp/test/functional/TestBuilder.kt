@@ -72,6 +72,4 @@ class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenT
         return config["quarkus.oidc.auth-server-url"]!!
     }
 
-
-
 }
