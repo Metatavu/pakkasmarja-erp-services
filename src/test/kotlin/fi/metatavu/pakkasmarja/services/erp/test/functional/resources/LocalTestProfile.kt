@@ -8,7 +8,12 @@ import io.quarkus.test.junit.QuarkusTestProfile
 class LocalTestProfile: QuarkusTestProfile {
 
     override fun getConfigOverrides(): Map<String, String> {
+        val keycloakUrl = "http://localhost:8180"
+        val keycloakRealm = "pakkasmarja"
+
         return mapOf(
+            "keycloak.url" to keycloakUrl,
+            "quarkus.oidc.auth-server-url" to "$keycloakUrl/realms/$keycloakRealm"
         )
     }
 
