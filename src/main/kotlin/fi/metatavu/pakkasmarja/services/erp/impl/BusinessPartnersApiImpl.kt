@@ -25,7 +25,7 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi()  {
     @Inject
     private lateinit var businessPartnerTranslator: BusinessPartnerTranslator
 
-    override suspend fun listBusinessPartners(
+    override fun listBusinessPartners(
         updatedAfter: OffsetDateTime?,
         firstResult: Int?,
         maxResults: Int?

@@ -9,10 +9,12 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import javax.enterprise.context.ApplicationScoped
 
 /**
  * Translator class for SAP business partners
  */
+@ApplicationScoped
 class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner>() {
     /**
      * Translates a business partner from SAP into a format expected by spec
