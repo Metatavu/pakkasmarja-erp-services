@@ -32,7 +32,7 @@ class BusinessPartnersController {
             val resourceUrl = "${sapSession.apiUrl}/BusinessPartners"
             val updatedAfterFilter = updatedAfter?.let { "and ${sapUtils.createdUpdatedAfterFilter(it)}" } ?: ""
             val filter = "\$filter=(CardType eq 'cSupplier' $updatedAfterFilter)"
-            val select = "\$select=CardCode,CardType,CardName,CardForeignName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable";
+            val select = "\$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime";
 
             return sapUtils.getItemsAsJsonNodes(
                 resourceUrl = resourceUrl,

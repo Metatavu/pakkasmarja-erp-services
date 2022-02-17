@@ -1,0 +1,33 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Login",
+        "jsonBody": {
+          "CompanyDB": "TestDB",
+          "UserName": "Jorma",
+          "Password": "jormankoira"
+        }
+      },
+      "response": {
+        "headers": {
+          "set-cookie": ["B1SESSION=ABC", "ROUTEID=DEF"]
+        }
+      }
+    },
+
+    {
+      "request": {
+        "method": "POST",
+        "url": "/Logout",
+        "headers": {
+          "Cookie": "B1SESSION=ABC; ROUTEID=DEF"
+        },
+        "response": {
+          "status": 204
+        }
+      }
+    }
+  ]
+}

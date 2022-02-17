@@ -1,6 +1,8 @@
 package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
+import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.SapMockTestResource
+import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.*
@@ -12,6 +14,9 @@ import org.junit.jupiter.api.Test
  * @author Antti Leppä
  */
 @QuarkusTest
+@QuarkusTestResource.List(
+    QuarkusTestResource(SapMockTestResource::class)
+)
 @TestProfile(LocalTestProfile::class)
 class BusinessPartnersResourceTest: AbstractResourceTest() {
 
@@ -21,22 +26,6 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     @Test
     fun listBusinessPartners() {
         createTestBuilder().use {
-            val listResult = it.manager.businessPartners.listBusinessPartners(
-                updatedAfter = null,
-                firstResult = null,
-                maxResults = null
-            )
-
-            assertEquals(1, listResult.size)
-            assertEquals(12345, listResult[0].code)
-            assertEquals("fake@example.com", listResult[0].email)
-            assertNull(listResult[0].addresses)
-            assertNull(listResult[0].bankAccounts)
-            assertNull(listResult[0].companyName)
-            assertNull(listResult[0].federalTaxId)
-            assertNull(listResult[0].phoneNumbers)
-            assertNull(listResult[0].updated)
-            assertNull(listResult[0].vatLiable)
         }
     }
 

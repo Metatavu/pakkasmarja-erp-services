@@ -1,0 +1,28 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/BusinessPartners/$count?$filter=(CardType eq 'cSupplier' and (UpdateDate gt '2022-02-17' or (UpdateDate eq '2022-02-17' and UpdateTime gt '10:00:00'))",
+        "headers": {
+          "Cookie": "B1SESSION=ABC; ROUTEID=DEF"
+        }
+      },
+      "response": {
+        "body": "195"
+      }
+    },
+
+    {
+      "request": {
+        "method": "GET",
+        "url": "/BusinessPartners?$filter=(CardType eq 'cSupplier' and (UpdateDate gt '2022-02-17' or (UpdateDate eq '2022-02-17' and UpdateTime gt '10:00:00'))&skip=0&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime"
+      },
+      "response": [
+        {
+
+        }
+      ]
+    }
+  ]
+}
