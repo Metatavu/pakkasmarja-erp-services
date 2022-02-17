@@ -1,7 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
-import io.quarkus.test.junit.NativeImageTest
+import io.quarkus.test.junit.QuarkusIntegrationTest
 import io.quarkus.test.junit.TestProfile
 
 /**
@@ -9,7 +9,7 @@ import io.quarkus.test.junit.TestProfile
  *
  * @author Antti Leppä
  */
-@NativeImageTest
+@QuarkusIntegrationTest
 @TestProfile(LocalTestProfile::class)
 class NativeSystemResourceTest: SystemResourceTest() {
 
