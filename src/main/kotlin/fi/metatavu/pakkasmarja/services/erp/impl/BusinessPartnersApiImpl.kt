@@ -2,6 +2,8 @@ package fi.metatavu.pakkasmarja.services.erp.impl
 
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.api.spec.BusinessPartnersApi
+import fi.metatavu.pakkasmarja.services.erp.impl.translate.BusinessPartnerTranslator
+import fi.metatavu.pakkasmarja.services.erp.sap.BusinessPartnersController
 import java.time.OffsetDateTime
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
@@ -15,22 +17,21 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
-class BusinessPartnersApiImpl: BusinessPartnersApi, fi.metatavu.pakkasmarja.services.erp.impl.AbstractApi()  {
+class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi()  {
 
     @Inject
-    private lateinit var businessPartnersController: fi.metatavu.pakkasmarja.services.erp.sap.BusinessPartnersController
+    private lateinit var businessPartnersController: BusinessPartnersController
 
-    override fun listBusinessPartners(
+    @Inject
+    private lateinit var businessPartnerTranslator: BusinessPartnerTranslator
+
+    override suspend fun listBusinessPartners(
         updatedAfter: OffsetDateTime?,
         firstResult: Int?,
         maxResults: Int?
     ): Response {
-        return createOk(listOf(
-            SapBusinessPartner(
-                code = 12345,
-                email = "fake@example.com"
-            )
-        ))
+        return createOk(businessPartnersController.listBusinessPartners(updatedAfter=updatedAfter, firstResult=firstResult, maxResults=maxResults).map(businessPartnerTranslator::translate))
     }
+
 
 }
