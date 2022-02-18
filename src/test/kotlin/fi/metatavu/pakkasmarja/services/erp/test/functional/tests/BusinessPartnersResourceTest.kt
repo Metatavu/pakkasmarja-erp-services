@@ -35,9 +35,9 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
             val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
             val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
-            assertEquals(4, businessPartners.size)
-            val partner = businessPartners.last()
+            assertEquals(3, businessPartners.size)
 
+            val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
             assertEquals(1, partner.code)
             assertEquals("jorma@jorman.com", partner.email)
 
@@ -59,10 +59,9 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
 
             assertEquals("MetaLab", partner.companyName)
             assertEquals("0000000", partner.federalTaxId)
-            assertEquals(SapBusinessPartner.VatLiable.EU, partner.vatLiable)
 
             val expectedDate = LocalDate.of(2022, 2, 18)
-            val expectedTime = LocalTime.of(8, 0, 0)
+            val expectedTime = LocalTime.of(8, 0, 12)
             val expectedDateTime = OffsetDateTime.of(expectedDate, expectedTime, zoneOffset)
             assertEquals(expectedDateTime.toString(), partner.updated)
 

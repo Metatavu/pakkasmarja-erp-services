@@ -45,7 +45,7 @@
             "FederalTaxID": "000000000",
             "VatLiable": "vLiable",
             "UpdatedDate": "2022-02-18",
-            "UpdatedTime": "08:00:00",
+            "UpdatedTime": "08:00:12",
             "BPBankAccounts": [
               {
                 "BICSwiftCode": "SBANFIHH",
@@ -71,7 +71,7 @@
             "FederalTaxID": "00000000",
             "VatLiable": "vExempted",
             "UpdatedDate": "2022-02-18",
-            "UpdatedTime": "08:00:00",
+            "UpdatedTime": "08:00:12",
             "BPBankAccounts": [
               {
                 "BICSwiftCode": "SBANFIHH",
@@ -112,7 +112,7 @@
             "FederalTaxID": "0000000",
             "VatLiable": "vEC",
             "UpdatedDate": "2022-02-18",
-            "UpdatedTime": "08:00:00",
+            "UpdatedTime": "08:00:12",
             "BPBankAccounts": [
               {
                 "BICSwiftCode": "SBANFIHH",

@@ -94,7 +94,6 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     this.configOptions.put("returnResponse", "true")
     this.configOptions.put("useSwaggerAnnotations", "false")
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
-    this.configOptions.put("modelPropertyNaming", "original")
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
 }
 
@@ -104,10 +103,10 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-client")
     setProperty("packageName", "${project.group}.test.client")
+    setProperty("templateDir", "$rootDir/openapi/api-client")
     this.configOptions.put("dateLibrary", "string")
     this.configOptions.put("collectionType", "array")
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
-    this.configOptions.put("modelPropertyNaming", "original")
     this.configOptions.put("serializationLibrary", "jackson")
 }
 
