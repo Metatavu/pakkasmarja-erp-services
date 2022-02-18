@@ -3,9 +3,11 @@
     {
       "request": {
         "method": "GET",
-        "url": "/BusinessPartners/$count?$filter=(CardType eq 'cSupplier' and (UpdateDate gt '2022-02-17' or (UpdateDate eq '2022-02-17' and UpdateTime gt '10:00:00'))",
+        "url": "/BusinessPartners/$count?$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))",
         "headers": {
-          "Cookie": "B1SESSION=ABC; ROUTEID=DEF"
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
         }
       },
       "response": {
@@ -17,9 +19,11 @@
       "request": {
         "method": "GET",
         "headers": {
-          "Cookie": "B1SESSION=ABC; ROUTEID=DEF"
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
         },
-        "url": "/BusinessPartners?$filter=(CardType eq 'cSupplier' and (UpdateDate gt '2022-02-17' or (UpdateDate eq '2022-02-17' and UpdateTime gt '10:00:00'))&skip=0&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime"
+        "url": "/BusinessPartners?$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime&$skip=0"
       },
       "response": {
         "jsonBody": [
@@ -82,9 +86,11 @@
       "request": {
         "method": "GET",
         "headers": {
-          "Cookie": "B1SESSION=ABC; ROUTEID=DEF"
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
         },
-        "url": "/BusinessPartners?$filter=(CardType eq 'cSupplier' and (UpdateDate gt '2022-02-17' or (UpdateDate eq '2022-02-17' and UpdateTime gt '10:00:00'))&skip=100&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime"
+        "url": "/BusinessPartners?$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime&$skip=100"
       },
       "response": {
         "jsonBody": [

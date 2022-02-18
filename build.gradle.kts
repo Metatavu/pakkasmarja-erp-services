@@ -93,6 +93,8 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     this.configOptions.put("useCoroutines", "false")
     this.configOptions.put("returnResponse", "true")
     this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("modelPropertyNaming", "original")
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
 }
 
@@ -104,6 +106,8 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     setProperty("packageName", "${project.group}.test.client")
     this.configOptions.put("dateLibrary", "string")
     this.configOptions.put("collectionType", "array")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("modelPropertyNaming", "original")
     this.configOptions.put("serializationLibrary", "jackson")
 }
 

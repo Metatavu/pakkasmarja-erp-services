@@ -9,10 +9,7 @@ import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.*
 
 /**
  * Tests for business partners
@@ -34,8 +31,10 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
         createTestBuilder().use {
             val dateFilter = LocalDate.of(2022, 2, 17)
             val timeFilter = LocalTime.of(10, 0, 0)
-            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, ZoneOffset.of("Europe/Helsinki"))
-            val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null )
+            val zone = ZoneId.of("Europe/Helsinki")
+            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
+            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
+            val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
             assertEquals(4, businessPartners.size)
             val partner = businessPartners.last()
 
@@ -52,7 +51,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             assertNotNull(addresses)
             assertEquals(1, addresses!!.size)
             val address = addresses[0]
-            assertEquals(SapAddressType.dELIVERY, address.type)
+            assertEquals(SapAddressType.DELIVERY, address.type)
             assertEquals( "Home", address.name)
             assertEquals("Mikkeli", address.city)
             assertEquals("Hallituskatu 7", address.streetAddress)
@@ -60,11 +59,11 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
 
             assertEquals("MetaLab", partner.companyName)
             assertEquals("0000000", partner.federalTaxId)
-            assertEquals(SapBusinessPartner.VatLiable.eU, partner.vatLiable)
+            assertEquals(SapBusinessPartner.VatLiable.EU, partner.vatLiable)
 
             val expectedDate = LocalDate.of(2022, 2, 18)
             val expectedTime = LocalTime.of(8, 0, 0)
-            val expectedDateTime = OffsetDateTime.of(expectedDate, expectedTime, ZoneOffset.of("Europe/Helsinki"))
+            val expectedDateTime = OffsetDateTime.of(expectedDate, expectedTime, zoneOffset)
             assertEquals(expectedDateTime.toString(), partner.updated)
 
             val bankAccounts = partner.bankAccounts
@@ -76,5 +75,4 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             assertEquals("SBANFIHH", bankAccount.BIC)
         }
     }
-
 }

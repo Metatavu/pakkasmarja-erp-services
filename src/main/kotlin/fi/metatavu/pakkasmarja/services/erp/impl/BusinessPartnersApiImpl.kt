@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response
 @RequestScoped
 @Transactional
 class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi()  {
-
     @Inject
     private lateinit var businessPartnersController: BusinessPartnersController
 
@@ -30,8 +29,7 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi()  {
         firstResult: Int?,
         maxResults: Int?
     ): Response {
-        return createOk(businessPartnersController.listBusinessPartners(updatedAfter=updatedAfter, firstResult=firstResult, maxResults=maxResults).map(businessPartnerTranslator::translate))
+        val businessPartners = businessPartnersController.listBusinessPartners(updatedAfter=updatedAfter, firstResult=firstResult, maxResults=maxResults)
+        return createOk(businessPartners.map(businessPartnerTranslator::translate))
     }
-
-
 }

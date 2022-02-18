@@ -34,11 +34,23 @@ abstract class AbstractSapResourceController {
         routeId: String,
         sessionId: String
     ): ArrayList<JsonNode> {
-        val countUrl = "$resourceUrl/\$count?$filter"
+        val escapedFilter = escapeSapQuery(filter)
+        val countUrl = "$resourceUrl/\$count?$escapedFilter"
         val count = getCount(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
-        val baseItemUrl = "$resourceUrl?$filter&$select"
+        val baseItemUrl = "$resourceUrl?$escapedFilter&$select"
         val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
         return getItems(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
+    }
+
+    /**
+     * Escapes characters in a SAP-query that would otherwise cause errors
+     *
+     * @param query a query to escape
+     *
+     * @return escaped query
+     */
+    private fun escapeSapQuery (query: String): String {
+        return query.replace(" ", "%20").replace("'", "%27")
     }
 
     /**
@@ -109,7 +121,7 @@ abstract class AbstractSapResourceController {
             val request = HttpRequest
                 .newBuilder(URI.create(countUrl))
                 .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                .POST(HttpRequest.BodyPublishers.noBody())
+                .GET()
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())

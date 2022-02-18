@@ -5,10 +5,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddress
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddressType
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBankAccount
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.*
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -48,7 +45,9 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
     private fun getUpdatedDateTime(updatedDate: String, updatedTime: String): OffsetDateTime {
         val date = LocalDate.parse(updatedDate)
         val time = LocalTime.parse(updatedTime)
-        return OffsetDateTime.of(date, time, ZoneOffset.of("Europe/Helsinki"))
+        val zone = ZoneId.of("Europe/Helsinki")
+        val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
+        return OffsetDateTime.of(date, time, zoneOffset)
     }
 
     /**
@@ -71,9 +70,9 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      */
     private fun translateVatLiable(vatLiable: String): SapBusinessPartner.VatLiable? {
         return when (vatLiable) {
-            "vLiable" -> SapBusinessPartner.VatLiable.fI
-            "vExempted" -> SapBusinessPartner.VatLiable.nOTLIABLE
-            "vEC" -> SapBusinessPartner.VatLiable.eU
+            "vLiable" -> SapBusinessPartner.VatLiable.FI
+            "vExempted" -> SapBusinessPartner.VatLiable.NOT_LIABLE
+            "vEC" -> SapBusinessPartner.VatLiable.EU
             else -> null
         }
     }
@@ -104,8 +103,8 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      */
     private fun resolveSapAddressType(address: String): SapAddressType? {
         return when (address) {
-            "bo_BillTo" -> SapAddressType.bILLING
-            "bo_ShipTo" -> SapAddressType.dELIVERY
+            "bo_BillTo" -> SapAddressType.BILLING
+            "bo_ShipTo" -> SapAddressType.DELIVERY
             else -> null
         }
     }
