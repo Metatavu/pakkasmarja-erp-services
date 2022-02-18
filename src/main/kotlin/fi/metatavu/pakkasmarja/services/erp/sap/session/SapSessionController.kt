@@ -1,6 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.sap.session
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import fi.metatavu.pakkasmarja.services.erp.sap.session.exception.SapSessionLoginException
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.HttpCookie
 import java.net.URI

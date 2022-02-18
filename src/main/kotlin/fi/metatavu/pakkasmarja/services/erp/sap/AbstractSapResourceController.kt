@@ -1,7 +1,9 @@
-package fi.metatavu.pakkasmarja.services.erp.sap.utils
+package fi.metatavu.pakkasmarja.services.erp.sap
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -10,10 +12,10 @@ import java.time.OffsetDateTime
 import javax.enterprise.context.ApplicationScoped
 
 /**
- * Common functions for SAP-controllers
+ * Abstract SAP-resource controller
  */
 @ApplicationScoped
-class SapUtils {
+abstract class AbstractSapResourceController {
     /**
      * Gets items from SAP and converts them to JSON-nodes
      *

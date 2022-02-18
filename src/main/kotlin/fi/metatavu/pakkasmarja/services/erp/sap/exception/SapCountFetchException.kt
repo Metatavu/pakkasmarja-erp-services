@@ -1,4 +1,4 @@
-package fi.metatavu.pakkasmarja.services.erp.sap.utils
+package fi.metatavu.pakkasmarja.services.erp.sap.exception
 
 /**
  * Thrown when fetching item count from SAP fails
