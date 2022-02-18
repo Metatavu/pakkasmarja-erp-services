@@ -26,60 +26,62 @@
         "url": "/BusinessPartners?$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime&$skip=0"
       },
       "response": {
-        "jsonBody": [
-          {
-            "CardCode": "1",
-            "Email": "jorma@jorman.com",
-            "Phone1": "0440120122",
-            "Phone2": "0440120123",
-            "BPAddresses": [
-              {
-                "AddressType": "bo_BillTo",
-                "AddressName": "MetaLab",
-                "Street": "Hallituskatu 7",
-                "City": "Mikkeli",
-                "ZipCode": "50100"
-              }
-            ],
-            "CardName": "Card",
-            "FederalTaxID": "000000000",
-            "VatLiable": "vLiable",
-            "UpdatedDate": "2022-02-18",
-            "UpdatedTime": "08:00:12",
-            "BPBankAccounts": [
-              {
-                "BICSwiftCode": "SBANFIHH",
-                "IBAN": "FI61000000000"
-              }
-            ]
-          },
-          {
-            "CardCode": "1",
-            "Email": "jorma@jorman.com",
-            "Phone1": "0440120122",
-            "Phone2": "0440120123",
-            "BPAddresses": [
-              {
-                "AddressType": "bo_BillTo",
-                "AddressName": "MetaLab",
-                "Street": "Hallituskatu 7",
-                "City": "Mikkeli",
-                "ZipCode": "50100"
-              }
-            ],
-            "CardName": "Card",
-            "FederalTaxID": "00000000",
-            "VatLiable": "vExempted",
-            "UpdatedDate": "2022-02-18",
-            "UpdatedTime": "08:00:12",
-            "BPBankAccounts": [
-              {
-                "BICSwiftCode": "SBANFIHH",
-                "IBAN": "FI61000000000"
-              }
-            ]
-          }
-        ]
+        "jsonBody": {
+          "value": [
+            {
+              "CardCode": "1",
+              "Email": "jorma@jorman.com",
+              "Phone1": "0440120122",
+              "Phone2": "0440120123",
+              "BPAddresses": [
+                {
+                  "AddressType": "bo_BillTo",
+                  "AddressName": "MetaLab",
+                  "Street": "Hallituskatu 7",
+                  "City": "Mikkeli",
+                  "ZipCode": "50100"
+                }
+              ],
+              "CardName": "Card",
+              "FederalTaxID": "000000000",
+              "VatLiable": "vLiable",
+              "UpdatedDate": "2022-02-18",
+              "UpdatedTime": "08:00:12",
+              "BPBankAccounts": [
+                {
+                  "BICSwiftCode": "SBANFIHH",
+                  "IBAN": "FI61000000000"
+                }
+              ]
+            },
+            {
+              "CardCode": "1",
+              "Email": "jorma@jorman.com",
+              "Phone1": "0440120122",
+              "Phone2": "0440120123",
+              "BPAddresses": [
+                {
+                  "AddressType": "bo_BillTo",
+                  "AddressName": "MetaLab",
+                  "Street": "Hallituskatu 7",
+                  "City": "Mikkeli",
+                  "ZipCode": "50100"
+                }
+              ],
+              "CardName": "Card",
+              "FederalTaxID": "00000000",
+              "VatLiable": "vExempted",
+              "UpdatedDate": "2022-02-18",
+              "UpdatedTime": "08:00:12",
+              "BPBankAccounts": [
+                {
+                  "BICSwiftCode": "SBANFIHH",
+                  "IBAN": "FI61000000000"
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {
@@ -93,34 +95,36 @@
         "url": "/BusinessPartners?$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime&$skip=100"
       },
       "response": {
-        "jsonBody": [
-          {
-            "CardCode": "1",
-            "Email": "jorma@jorman.com",
-            "Phone1": "0440120122",
-            "Phone2": "0440120123",
-            "BPAddresses": [
-              {
-                "AddressType": "bo_ShipTo",
-                "AddressName": "Home",
-                "Street": "Hallituskatu 7",
-                "City": "Mikkeli",
-                "ZipCode": "50100"
-              }
-            ],
-            "CardName": "MetaLab",
-            "FederalTaxID": "0000000",
-            "VatLiable": "vEC",
-            "UpdatedDate": "2022-02-18",
-            "UpdatedTime": "08:00:12",
-            "BPBankAccounts": [
-              {
-                "BICSwiftCode": "SBANFIHH",
-                "IBAN": "FI61000000000"
-              }
-            ]
-          }
-        ]
+        "jsonBody": {
+          "value": [
+            {
+              "CardCode": "1",
+              "Email": "jorma@jorman.com",
+              "Phone1": "0440120122",
+              "Phone2": "0440120123",
+              "BPAddresses": [
+                {
+                  "AddressType": "bo_ShipTo",
+                  "AddressName": "Home",
+                  "Street": "Hallituskatu 7",
+                  "City": "Mikkeli",
+                  "ZipCode": "50100"
+                }
+              ],
+              "CardName": "MetaLab",
+              "FederalTaxID": "0000000",
+              "VatLiable": "vEC",
+              "UpdatedDate": "2022-02-18",
+              "UpdatedTime": "08:00:12",
+              "BPBankAccounts": [
+                {
+                  "BICSwiftCode": "SBANFIHH",
+                  "IBAN": "FI61000000000"
+                }
+              ]
+            }
+          ]
+        }
       }
     }
   ]

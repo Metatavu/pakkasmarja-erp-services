@@ -76,7 +76,7 @@ abstract class AbstractSapResourceController {
                 val client = HttpClient.newHttpClient()
                 client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
                     val objectMapper = ObjectMapper()
-                    val items = objectMapper.readTree(response.body())
+                    val items = objectMapper.readTree(response.body()).get("value")
                     items.forEach { item ->
                         jsonNodes.add(item)
                     }
