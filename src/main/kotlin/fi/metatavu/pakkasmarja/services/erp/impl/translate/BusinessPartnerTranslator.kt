@@ -14,6 +14,7 @@ import javax.enterprise.context.ApplicationScoped
  */
 @ApplicationScoped
 class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner>() {
+
     /**
      * Translates a business partner from SAP into a format expected by spec
      *
