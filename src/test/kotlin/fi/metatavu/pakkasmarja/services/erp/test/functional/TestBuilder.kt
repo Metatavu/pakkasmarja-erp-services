@@ -2,9 +2,7 @@ package fi.metatavu.pakkasmarja.services.erp.test.functional
 
 import fi.metatavu.jaxrs.test.functional.builder.AbstractAccessTokenTestBuilder
 import fi.metatavu.jaxrs.test.functional.builder.AbstractTestBuilder
-import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
-import fi.metatavu.jaxrs.test.functional.builder.auth.AuthorizedTestBuilderAuthentication
-import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvider
+import fi.metatavu.jaxrs.test.functional.builder.auth.*
 import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ApiClient
 import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.auth.TestBuilderAuthentication
 import java.net.URL
@@ -17,8 +15,8 @@ import java.net.URL
  * @author Antti Leppä
  */
 class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenTestBuilder<ApiClient>() {
-
-    var manager = createTestBuilderAuthentication(username = "manager", password = "test")
+    val manager = createTestBuilderAuthentication(username = "manager", password = "test")
+    val invalidAccess = TestBuilderAuthentication(this, InvalidAccessTokenProvider())
 
     override fun createTestBuilderAuthentication(
         abstractTestBuilder: AbstractTestBuilder<ApiClient, AccessTokenProvider>,
