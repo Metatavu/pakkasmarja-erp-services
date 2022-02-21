@@ -24,7 +24,7 @@ class BusinessPartnersController: AbstractSapResourceController() {
      *
      * @return business partners
      */
-    fun listBusinessPartners(updatedAfter: OffsetDateTime?, firstResult: Int?, maxResults: Int?): ArrayList<JsonNode> {
+    fun listBusinessPartners(updatedAfter: OffsetDateTime?, firstResult: Int?, maxResults: Int?): List<JsonNode> {
         sapSessionController.createSapSession().use { sapSession ->
             val resourceUrl = "${sapSession.apiUrl}/BusinessPartners"
             val updatedAfterFilter = updatedAfter?.let { "and ${createdUpdatedAfterFilter(it)}" } ?: ""
