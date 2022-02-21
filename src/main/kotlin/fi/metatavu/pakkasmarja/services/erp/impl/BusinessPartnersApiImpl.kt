@@ -18,7 +18,8 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
-class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi()  {
+class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
+
     @Inject
     private lateinit var businessPartnersController: BusinessPartnersController
 
