@@ -18,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped
  */
 @ApplicationScoped
 abstract class AbstractSapResourceController {
+
     /**
      * Gets items from SAP and converts them to JSON-nodes
      *
