@@ -10,7 +10,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.OffsetDateTime
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionService
 import javax.enterprise.context.ApplicationScoped
 
 /**
