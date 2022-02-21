@@ -52,7 +52,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             assertEquals(1, addresses!!.size)
             val address = addresses[0]
             assertEquals(SapAddressType.DELIVERY, address.type)
-            assertEquals( "Home", address.name)
+            assertEquals("Home", address.name)
             assertEquals("Mikkeli", address.city)
             assertEquals("Hallituskatu 7", address.streetAddress)
             assertEquals("50100", address.postalCode)
