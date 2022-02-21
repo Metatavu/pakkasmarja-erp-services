@@ -5,6 +5,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddress
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddressType
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBankAccount
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemTranslationException
 import java.time.*
 import javax.enterprise.context.ApplicationScoped
 
@@ -20,17 +21,22 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      * @return translated business partner
      */
     override fun translate(entity: JsonNode): SapBusinessPartner {
-        return SapBusinessPartner(
-            code = entity.get("CardCode").asText().toInt(),
-            email = entity.get("Email").asText(),
-            phoneNumbers = listOf(entity.get("Phone1").asText(), entity.get("Phone2").asText()),
-            addresses = entity.get("BPAddresses").map(this::translateAddress),
-            companyName = entity.get("CardName").asText(),
-            federalTaxId = entity.get("FederalTaxID").asText(),
-            vatLiable = translateVatLiable(entity.get("VatLiable").asText()),
-            updated = getUpdatedDateTime(entity.get("UpdatedDate").asText(), entity.get("UpdatedTime").asText()),
-            bankAccounts = entity.get("BPBankAccounts").map(this::translateBankAccount)
-        )
+        try {
+            return SapBusinessPartner(
+                code = entity.get("CardCode").asText().toInt(),
+                email = entity.get("Email").asText(),
+                phoneNumbers = listOf(entity.get("Phone1").asText(), entity.get("Phone2").asText()),
+                addresses = entity.get("BPAddresses").map(this::translateAddress),
+                companyName = entity.get("CardName").asText(),
+                federalTaxId = entity.get("FederalTaxID").asText(),
+                vatLiable = translateVatLiable(entity.get("VatLiable").asText()),
+                updated = getUpdatedDateTime(entity.get("UpdatedDate").asText(), entity.get("UpdatedTime").asText()),
+                bankAccounts = entity.get("BPBankAccounts").map(this::translateBankAccount)
+            )
+        } catch (e: Exception) {
+            throw SapItemTranslationException("Failed to translate a SAP-item: ${e.message}")
+        }
+
     }
 
     /**
