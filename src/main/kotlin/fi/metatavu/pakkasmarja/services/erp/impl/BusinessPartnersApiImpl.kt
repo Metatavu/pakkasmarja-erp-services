@@ -4,6 +4,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.api.spec.BusinessPartnersApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.BusinessPartnerTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.BusinessPartnersController
+import io.quarkus.security.Authenticated
 import java.time.OffsetDateTime
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
@@ -24,6 +25,7 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi()  {
     @Inject
     private lateinit var businessPartnerTranslator: BusinessPartnerTranslator
 
+    @Authenticated
     override fun listBusinessPartners(
         updatedAfter: OffsetDateTime?,
         firstResult: Int?,

@@ -76,6 +76,21 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     }
 
     /**
+     * Tests listing business partners with a null access token
+     */
+    @Test
+    fun testListBusinessPartnersNullAccessToken() {
+        createTestBuilder().use {
+            val dateFilter = LocalDate.of(2022, 2, 17)
+            val timeFilter = LocalTime.of(10, 0, 0)
+            val zone = ZoneId.of("Europe/Helsinki")
+            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
+            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
+            it.nullAccess.businessPartners.assertFindFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
+        }
+    }
+
+    /**
      * Tests listing business partners with an invalid access token
      */
     @Test
