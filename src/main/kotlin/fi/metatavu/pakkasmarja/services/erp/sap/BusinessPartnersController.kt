@@ -11,6 +11,7 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class BusinessPartnersController: AbstractSapResourceController() {
+
     @Inject
     private lateinit var sapSessionController: SapSessionController
 
