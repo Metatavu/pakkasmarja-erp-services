@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
-import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.api.spec.BusinessPartnersApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.BusinessPartnerTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.BusinessPartnersController
