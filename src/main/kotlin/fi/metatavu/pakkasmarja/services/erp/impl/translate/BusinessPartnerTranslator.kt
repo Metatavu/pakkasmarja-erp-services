@@ -23,7 +23,7 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
         return SapBusinessPartner(
             code = entity.get("CardCode").asText().toInt(),
             email = entity.get("Email").asText(),
-            phoneNumbers = listOf( entity.get("Phone1").asText(), entity.get("Phone2").asText()),
+            phoneNumbers = listOf(entity.get("Phone1").asText(), entity.get("Phone2").asText()),
             addresses = entity.get("BPAddresses").map(this::translateAddress),
             companyName = entity.get("CardName").asText(),
             federalTaxId = entity.get("FederalTaxID").asText(),
