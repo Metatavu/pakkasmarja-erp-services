@@ -65,10 +65,11 @@ abstract class AbstractSapResourceController {
      *
      * @return items
      */
-    private fun getItems(itemUrls: List<String>, sessionId: String, routeId: String): ArrayList<JsonNode> {
-        val jsonNodes = ArrayList<JsonNode>()
+    private fun getItems(itemUrls: List<String>, sessionId: String, routeId: String): List<JsonNode> {
+        val jsonNodes = mutableListOf<JsonNode>()
         val client = HttpClient.newHttpClient()
-        val futures = ArrayList<CompletableFuture<Unit>>()
+        val futures = mutableListOf<CompletableFuture<Unit>>()
+
         itemUrls.forEach {
             try {
                 val request = HttpRequest
