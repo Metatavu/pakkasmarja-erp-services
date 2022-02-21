@@ -104,8 +104,8 @@ abstract class AbstractSapResourceController {
      *
      * @return item urls
      */
-    private fun getItemUrls(baseItemUrl: String, count: Int): ArrayList<String> {
-        val itemUrls = ArrayList<String>()
+    private fun getItemUrls(baseItemUrl: String, count: Int): List<String> {
+        val itemUrls = mutableListOf<String>()
         for (i in 0..count step 100) {
             itemUrls.add("$baseItemUrl&\$skip=$i")
         }
