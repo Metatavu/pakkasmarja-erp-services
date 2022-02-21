@@ -4,6 +4,9 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 
+/**
+ * SAP-mocker for testing
+ */
 class SapMockTestResource: QuarkusTestResourceLifecycleManager {
     private val wireMockServer: WireMockServer = WireMockServer()
 
