@@ -17,7 +17,6 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      * Translates a business partner from SAP into a format expected by spec
      *
      * @param entity business partner to be translated
-     *
      * @return translated business partner
      */
     override fun translate(entity: JsonNode): SapBusinessPartner {
