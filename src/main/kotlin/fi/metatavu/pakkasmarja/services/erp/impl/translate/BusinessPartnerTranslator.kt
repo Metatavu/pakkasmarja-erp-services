@@ -5,16 +5,18 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddress
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddressType
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBankAccount
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
-import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemTranslationException
+import org.jboss.logging.Logger
 import java.time.*
 import javax.enterprise.context.ApplicationScoped
+import javax.inject.Inject
 
 /**
  * Translator class for SAP business partners
  */
 @ApplicationScoped
 class BusinessPartnerTranslator() {
-
+    @Inject
+    private lateinit var logger: Logger
     /**
      * Translates a business partner from SAP into a format expected by spec
      *
@@ -35,6 +37,7 @@ class BusinessPartnerTranslator() {
                 bankAccounts = entity.get("BPBankAccounts").map(this::translateBankAccount)
             )
         } catch (e: Exception) {
+            logger.error("Failed to translate a SAP-item: ${e.message}")
             null;
         }
 
