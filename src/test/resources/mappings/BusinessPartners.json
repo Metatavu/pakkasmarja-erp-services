@@ -30,7 +30,7 @@
           "value": [
             {
               "CardCode": "1",
-              "Email": "jorma@jorman.com",
+              "Email": "jorma@example.com",
               "Phone1": "0440120122",
               "Phone2": "0440120123",
               "BPAddresses": [
@@ -56,7 +56,7 @@
             },
             {
               "CardCode": "1",
-              "Email": "jorma@jorman.com",
+              "Email": "jorma@example.com",
               "Phone1": "0440120122",
               "Phone2": "0440120123",
               "BPAddresses": [
@@ -99,7 +99,7 @@
           "value": [
             {
               "CardCode": "1",
-              "Email": "jorma@jorman.com",
+              "Email": "jorma@example.com",
               "Phone1": "0440120122",
               "Phone2": "0440120123",
               "BPAddresses": [

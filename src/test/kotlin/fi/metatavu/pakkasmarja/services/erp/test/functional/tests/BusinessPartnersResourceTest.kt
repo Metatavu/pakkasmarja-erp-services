@@ -39,7 +39,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
 
             val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
             assertEquals(1, partner.code)
-            assertEquals("jorma@jorman.com", partner.email)
+            assertEquals("jorma@example.com", partner.email)
 
             val phoneNumbers = partner.phoneNumbers
             assertNotNull(phoneNumbers)
