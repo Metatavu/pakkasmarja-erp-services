@@ -36,6 +36,13 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
             firstResult = firstResult,
             maxResults = maxResults
         )
-        return createOk(businessPartners.map(businessPartnerTranslator::translate))
+
+        val partners = businessPartners.map(businessPartnerTranslator::translate)
+
+        if (partners.find { partner -> partner == null } != null) {
+            return createInternalServerError("Failed to translate a SAP-item")
+        }
+
+        return createOk(partners)
     }
 }

@@ -13,14 +13,14 @@ import javax.enterprise.context.ApplicationScoped
  * Translator class for SAP business partners
  */
 @ApplicationScoped
-class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner>() {
+class BusinessPartnerTranslator() {
     /**
      * Translates a business partner from SAP into a format expected by spec
      *
      * @param entity business partner to be translated
      * @return translated business partner
      */
-    override fun translate(entity: JsonNode): SapBusinessPartner {
+    fun translate(entity: JsonNode): SapBusinessPartner? {
         try {
             return SapBusinessPartner(
                 code = entity.get("CardCode").asText().toInt(),
@@ -34,7 +34,7 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
                 bankAccounts = entity.get("BPBankAccounts").map(this::translateBankAccount)
             )
         } catch (e: Exception) {
-            throw SapItemTranslationException("Failed to translate a SAP-item: ${e.message}")
+            return null;
         }
 
     }
@@ -59,7 +59,6 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      * Translates a bank account from SAP into a format expected by spec
      *
      * @param bankAccount bank account to translate
-     *
      * @return translated bank account
      */
     private fun translateBankAccount(bankAccount: JsonNode): SapBankAccount {
@@ -70,7 +69,6 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      * Translates vat liability info from SAP into a format expected by spec
      *
      * @param vatLiable vatLiable from SAP
-     *
      * @return translated vatLiable
      */
     private fun translateVatLiable(vatLiable: String): SapBusinessPartner.VatLiable? {
@@ -86,7 +84,6 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      * Translates an address from SAP into a format expected by spec
      *
      * @param address address from SAP
-     *
      * @return translated address
      */
     private fun translateAddress(address: JsonNode): SapAddress {
@@ -103,7 +100,6 @@ class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner
      * Resolves address types
      *
      * @param address address to be resolved
-     *
      * @return resolved address type
      */
     private fun resolveSapAddressType(address: String): SapAddressType? {

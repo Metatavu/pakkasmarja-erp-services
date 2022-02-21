@@ -71,7 +71,6 @@ class SapSessionController {
      * Parses headers from a login response and creates a session using cookies from headers
      *
      * @param headers headers
-     *
      * @return sap session
      */
     private fun parseLoginResponseHeaders(headers: HttpHeaders): SapSession {

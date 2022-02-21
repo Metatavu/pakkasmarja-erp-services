@@ -26,7 +26,6 @@ abstract class AbstractSapResourceController {
      * @param select SAP-field selector
      * @param routeId SAP-session route id
      * @param sessionId SAP-session id
-     *
      * @return items
      */
     fun getItemsAsJsonNodes(
@@ -48,7 +47,6 @@ abstract class AbstractSapResourceController {
      * Escapes characters in a SAP-query that would otherwise cause errors
      *
      * @param query a query to escape
-     *
      * @return escaped query
      */
     private fun escapeSapQuery (query: String): String {
@@ -61,7 +59,6 @@ abstract class AbstractSapResourceController {
      * @param itemUrls item urls
      * @param sessionId SAP-session id
      * @param routeId SAP-session route id
-     *
      * @return items
      */
     private fun getItems(itemUrls: List<String>, sessionId: String, routeId: String): List<JsonNode> {
@@ -100,7 +97,6 @@ abstract class AbstractSapResourceController {
      *
      * @param baseItemUrl base url for all requests
      * @param count item count
-     *
      * @return item urls
      */
     private fun getItemUrls(baseItemUrl: String, count: Int): List<String> {
@@ -118,7 +114,6 @@ abstract class AbstractSapResourceController {
      * @param countUrl an url to get an item count
      * @param sessionId SAP-session id
      * @param routeId SAP-session route id
-     *
      * @return item count
      */
     private fun getCount(countUrl: String, sessionId: String, routeId: String): Int {
@@ -141,7 +136,6 @@ abstract class AbstractSapResourceController {
      * Creates an "updatedAfter"-filter from an OffsetDateTime-object
      *
      * @param updatedAfter a value to be used for the filter
-     *
      * @return "updatedAfter"-filter
      */
     fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {

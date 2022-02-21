@@ -21,7 +21,6 @@ class BusinessPartnersController: AbstractSapResourceController() {
      * @param updatedAfter "updated after"-filter
      * @param firstResult first result
      * @param maxResults max results
-     *
      * @return business partners
      */
     fun listBusinessPartners(updatedAfter: OffsetDateTime?, firstResult: Int?, maxResults: Int?): List<JsonNode> {
