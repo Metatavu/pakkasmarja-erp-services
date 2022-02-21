@@ -14,6 +14,7 @@ import javax.enterprise.context.ApplicationScoped
  */
 @ApplicationScoped
 class BusinessPartnerTranslator() {
+
     /**
      * Translates a business partner from SAP into a format expected by spec
      *
@@ -21,8 +22,8 @@ class BusinessPartnerTranslator() {
      * @return translated business partner
      */
     fun translate(entity: JsonNode): SapBusinessPartner? {
-        try {
-            return SapBusinessPartner(
+        return try {
+            SapBusinessPartner(
                 code = entity.get("CardCode").asText().toInt(),
                 email = entity.get("Email").asText(),
                 phoneNumbers = listOf(entity.get("Phone1").asText(), entity.get("Phone2").asText()),
@@ -34,7 +35,7 @@ class BusinessPartnerTranslator() {
                 bankAccounts = entity.get("BPBankAccounts").map(this::translateBankAccount)
             )
         } catch (e: Exception) {
-            return null;
+            null;
         }
 
     }
