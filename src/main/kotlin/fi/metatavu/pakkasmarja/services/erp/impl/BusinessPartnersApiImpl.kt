@@ -32,7 +32,11 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
         firstResult: Int?,
         maxResults: Int?
     ): Response {
-        val businessPartners = businessPartnersController.listBusinessPartners(updatedAfter=updatedAfter, firstResult=firstResult, maxResults=maxResults)
+        val businessPartners = businessPartnersController.listBusinessPartners(
+            updatedAfter = updatedAfter,
+            firstResult = firstResult,
+            maxResults = maxResults
+        )
         return createOk(businessPartners.map(businessPartnerTranslator::translate))
     }
 }
