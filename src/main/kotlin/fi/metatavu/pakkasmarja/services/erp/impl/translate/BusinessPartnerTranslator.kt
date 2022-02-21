@@ -48,7 +48,6 @@ class BusinessPartnerTranslator() {
      *
      * @param updatedDate updated date
      * @param updatedTime updated time
-     *
      * @return updated datetime
      */
     private fun getUpdatedDateTime(updatedDate: String, updatedTime: String): OffsetDateTime {
