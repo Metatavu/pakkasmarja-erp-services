@@ -15,8 +15,10 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class BusinessPartnerTranslator() {
+
     @Inject
     private lateinit var logger: Logger
+
     /**
      * Translates a business partner from SAP into a format expected by spec
      *
