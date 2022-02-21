@@ -36,7 +36,7 @@ abstract class AbstractSapResourceController {
         select: String,
         routeId: String,
         sessionId: String
-    ): ArrayList<JsonNode> {
+    ): List<JsonNode> {
         val escapedFilter = escapeSapQuery(filter)
         val countUrl = "$resourceUrl/\$count?$escapedFilter"
         val count = getCount(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
