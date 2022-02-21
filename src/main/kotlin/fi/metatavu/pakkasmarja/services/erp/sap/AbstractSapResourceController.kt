@@ -9,6 +9,8 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.OffsetDateTime
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionService
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -64,6 +66,8 @@ abstract class AbstractSapResourceController {
      */
     private fun getItems(itemUrls: List<String>, sessionId: String, routeId: String): ArrayList<JsonNode> {
         val jsonNodes = ArrayList<JsonNode>()
+        val client = HttpClient.newHttpClient()
+        val futures = ArrayList<CompletableFuture<Unit>>()
         itemUrls.forEach {
             try {
                 val request = HttpRequest
@@ -73,19 +77,20 @@ abstract class AbstractSapResourceController {
                     .GET()
                     .build()
 
-                val client = HttpClient.newHttpClient()
-                client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
+                val future = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
                     val objectMapper = ObjectMapper()
                     val items = objectMapper.readTree(response.body()).get("value")
                     items.forEach { item ->
                         jsonNodes.add(item)
                     }
                 }
+                futures.add(future)
             } catch (e: Exception) {
                 throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
             }
         }
 
+        futures.forEach(CompletableFuture<Unit>::join)
         return jsonNodes
     }
 
