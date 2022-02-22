@@ -11,33 +11,33 @@ import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
 /**
- * Translator class for SAP business partners
+ * The translator class for SAP business partners
  */
 @ApplicationScoped
 class BusinessPartnerTranslator() {
     @Inject
     private lateinit var logger: Logger
     /**
-     * Translates a business partner from SAP into a format expected by spec
+     * Translates a business partner from SAP into the format expected by spec
      *
-     * @param entity business partner to be translated
+     * @param businessPartner business partner to be translated
      * @return translated business partner
      */
-    fun translate(entity: JsonNode): SapBusinessPartner? {
+    fun translate(businessPartner: JsonNode): SapBusinessPartner? {
         return try {
             SapBusinessPartner(
-                code = entity.get("CardCode").asText().toInt(),
-                email = entity.get("Email").asText(),
-                phoneNumbers = listOf(entity.get("Phone1").asText(), entity.get("Phone2").asText()),
-                addresses = entity.get("BPAddresses").map(this::translateAddress),
-                companyName = entity.get("CardName").asText(),
-                federalTaxId = entity.get("FederalTaxID").asText(),
-                vatLiable = translateVatLiable(entity.get("VatLiable").asText()),
-                updated = getUpdatedDateTime(entity.get("UpdatedDate").asText(), entity.get("UpdatedTime").asText()),
-                bankAccounts = entity.get("BPBankAccounts").map(this::translateBankAccount)
+                code = businessPartner.get("CardCode").asText().toInt(),
+                email = businessPartner.get("Email").asText(),
+                phoneNumbers = listOf(businessPartner.get("Phone1").asText(), businessPartner.get("Phone2").asText()),
+                addresses = businessPartner.get("BPAddresses").map(this::translateAddress),
+                companyName = businessPartner.get("CardName").asText(),
+                federalTaxId = businessPartner.get("FederalTaxID").asText(),
+                vatLiable = translateVatLiable(businessPartner.get("VatLiable").asText()),
+                updated = getUpdatedDateTime(businessPartner.get("UpdatedDate").asText(), businessPartner.get("UpdatedTime").asText()),
+                bankAccounts = businessPartner.get("BPBankAccounts").map(this::translateBankAccount)
             )
         } catch (e: Exception) {
-            logger.error("Failed to translate a SAP-item: ${e.message}")
+            logger.error("Failed to translate a business partner from SAP: ${e.message}")
             null;
         }
 
@@ -60,7 +60,7 @@ class BusinessPartnerTranslator() {
     }
 
     /**
-     * Translates a bank account from SAP into a format expected by spec
+     * Translates a bank account from SAP into the format expected by spec
      *
      * @param bankAccount bank account to translate
      * @return translated bank account
@@ -70,7 +70,7 @@ class BusinessPartnerTranslator() {
     }
 
     /**
-     * Translates vat liability info from SAP into a format expected by spec
+     * Translates vat liability info from SAP into the format expected by spec
      *
      * @param vatLiable vatLiable from SAP
      * @return translated vatLiable
@@ -85,7 +85,7 @@ class BusinessPartnerTranslator() {
     }
 
     /**
-     * Translates an address from SAP into a format expected by spec
+     * Translates an address from SAP into the format expected by spec
      *
      * @param address address from SAP
      * @return translated address

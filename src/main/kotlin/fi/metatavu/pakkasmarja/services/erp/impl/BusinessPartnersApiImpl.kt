@@ -36,9 +36,8 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
             firstResult = firstResult,
             maxResults = maxResults
         )
+        val translatedBusinessPartners = businessPartners.mapNotNull(businessPartnerTranslator::translate)
 
-        val partners = businessPartners.mapNotNull(businessPartnerTranslator::translate)
-
-        return createOk(partners)
+        return createOk(translatedBusinessPartners)
     }
 }
