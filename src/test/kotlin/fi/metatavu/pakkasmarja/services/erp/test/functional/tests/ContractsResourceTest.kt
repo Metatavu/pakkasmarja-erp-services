@@ -26,7 +26,7 @@ class ContractsResourceTest: AbstractResourceTest() {
     @Test
     fun testListContracts() {
         createTestBuilder().use {
-            val contracts = it.manager.contracts.list()
+            val contracts = it.manager.contracts.list(sapContractStatus = null)
             assertEquals(4, contracts.size)
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.APPROVED })
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.ON_HOLD })
@@ -42,6 +42,10 @@ class ContractsResourceTest: AbstractResourceTest() {
            assertEquals("2022-12-31", contractToTest.terminateDate)
            assertEquals("Some remarks", contractToTest.remarks)
            assertEquals("2022-1", contractToTest.id)
+
+            val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
+            assertEquals(1, filteredContracts.size)
+            assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)
         }
     }
 

@@ -5,6 +5,7 @@ import fi.metatavu.pakkasmarja.services.erp.test.client.apis.ContractsApi
 import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ApiClient
 import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ClientException
 import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapContract
+import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.test.functional.TestBuilder
 import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.ApiTestBuilderResource
 import fi.metatavu.pakkasmarja.services.erp.test.functional.settings.ApiTestSettings
@@ -24,8 +25,8 @@ class ContractsResourceTestBuilderResource(
     /**
      * Lists all contracts in SAP, from beginning of the year 2022
      */
-    fun list(): Array<SapContract> {
-        return api.listContracts(startDate = LocalDate.of(2022, 1, 1).toString(), businessPartnerCode = null, contractStatus = null)
+    fun list(sapContractStatus: SapContractStatus?): Array<SapContract> {
+        return api.listContracts(startDate = null, businessPartnerCode = null, contractStatus = sapContractStatus)
     }
 
     override fun getApi(): ContractsApi {
@@ -37,7 +38,7 @@ class ContractsResourceTestBuilderResource(
         expectedStatus: Int,
     ) {
         try {
-            list()
+            list(sapContractStatus = null)
             Assertions.fail(String.format("Expected listing to fail with status %d", expectedStatus))
         } catch (e: ClientException) {
             Assertions.assertEquals(expectedStatus.toLong(), e.statusCode.toLong())

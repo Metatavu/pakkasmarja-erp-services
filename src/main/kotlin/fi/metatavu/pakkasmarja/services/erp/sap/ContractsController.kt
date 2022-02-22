@@ -29,7 +29,17 @@ class ContractsController: AbstractSapResourceController() {
             val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
             val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
             val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
-            val combinedFilter = mutableListOf(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).filterNotNull().joinToString(" and ")
+            val combinedFilter = listOfNotNull(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).joinToString(" and ")
+
+            if (combinedFilter.isEmpty()) {
+                return getItemsAsJsonNodes(
+                    resourceUrl = resourceUrl,
+                    select = "\$select=*",
+                    routeId = sapSession.routeId,
+                    sessionId = sapSession.sessionId
+                )
+            }
+
             val filter = "\$filter=$combinedFilter"
 
             return getItemsAsJsonNodes(

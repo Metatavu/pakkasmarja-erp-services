@@ -45,6 +45,28 @@ abstract class AbstractSapResourceController {
     }
 
     /**
+     * Gets items from SAP and converts them to JSON-nodes
+     *
+     * @param resourceUrl resource url
+     * @param select SAP-field selector
+     * @param routeId SAP-session route id
+     * @param sessionId SAP-session id
+     * @return items
+     */
+    fun getItemsAsJsonNodes(
+        resourceUrl: String,
+        select: String,
+        routeId: String,
+        sessionId: String
+    ): List<JsonNode> {
+        val countUrl = "$resourceUrl/\$count"
+        val count = getCount(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
+        val baseItemUrl = "$resourceUrl?$select"
+        val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
+        return getItems(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
+    }
+
+    /**
      * Escapes characters in a SAP-query that would otherwise cause errors
      *
      * @param query a query to escape
