@@ -24,14 +24,16 @@ class ContractTranslator {
      */
     fun translate(contract: JsonNode): SapContract? {
         return try {
+            val startDate = resolveLocalDate(contract.get("StartDate").asText())
+            val year = startDate?.year.toString()
             SapContract(
-                id = ,
+                id = "$year-${contract.get("DocNum").asText()}",
                 businessPartnerCode = contract.get("BPCode").asText().toInt(),
                 contactPersonCode = contract.get("ContractPersonCode").asText().toInt(),
-                itemGroupCode = ,
+                itemGroupCode = 0,
                 status = resolveContractStatus(contract.get("Status").asText())!!,
-                deliveredQuantity = "",
-                startDate = resolveLocalDate(contract.get("StartDate").asText()),
+                deliveredQuantity = 1.0,
+                startDate = startDate,
                 endDate = resolveLocalDate(contract.get("EndDate").asText()),
                 signingDate = resolveLocalDate(contract.get("SigningDate").asText()),
                 terminateDate = resolveLocalDate(contract.get("TerminateDate").asText()),

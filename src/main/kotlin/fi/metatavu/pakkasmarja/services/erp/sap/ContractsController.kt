@@ -26,17 +26,16 @@ class ContractsController: AbstractSapResourceController() {
     fun listContracts(startDate: LocalDate?, businessPartnerCode: String?, contractStatus: SapContractStatus?): List<JsonNode> {
         sapSessionController.createSapSession().use { sapSession ->  
             val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
-            val startDateFilter = startDate?.let { "StartDate ge $startDate" }
-            val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq $businessPartnerCode" }
-            val contractStatusFilter = contractStatus?.let { "Status eq ${contractStatusToSapFormat(contractStatus)}" }
+            val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
+            val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
+            val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
             val combinedFilter = mutableListOf(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).filterNotNull().joinToString(" and ")
             val filter = "\$filter=$combinedFilter"
-            val select = null
 
             return getItemsAsJsonNodes(
                 resourceUrl = resourceUrl,
                 filter = filter,
-                select = select,
+                select = "\$select=*",
                 routeId = sapSession.routeId,
                 sessionId = sapSession.sessionId
             )

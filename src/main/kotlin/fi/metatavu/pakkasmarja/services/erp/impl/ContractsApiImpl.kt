@@ -5,6 +5,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ContractsApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.ContractTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.ContractsController
+import io.quarkus.security.Authenticated
 import java.time.LocalDate
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
@@ -35,6 +36,7 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
         TODO("Not yet implemented")
     }
 
+    @Authenticated
     override fun listContracts(
         startDate: LocalDate?,
         businessPartnerCode: String?,
