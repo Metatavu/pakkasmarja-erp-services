@@ -1,6 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.sap.session
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import fi.metatavu.pakkasmarja.services.erp.sap.session.exception.SapSessionLoginException
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.net.HttpCookie
 import java.net.URI
@@ -70,7 +71,6 @@ class SapSessionController {
      * Parses headers from a login response and creates a session using cookies from headers
      *
      * @param headers headers
-     *
      * @return sap session
      */
     private fun parseLoginResponseHeaders(headers: HttpHeaders): SapSession {

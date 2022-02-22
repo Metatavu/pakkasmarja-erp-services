@@ -16,6 +16,7 @@ val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
+val wiremockVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -37,6 +38,7 @@ dependencies {
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("io.rest-assured:rest-assured")
+    testImplementation("com.github.tomakehurst:wiremock:$wiremockVersion")
 }
 
 group = "fi.metatavu.pakkasmarja.services.erp"
@@ -91,6 +93,7 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     this.configOptions.put("useCoroutines", "false")
     this.configOptions.put("returnResponse", "true")
     this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
 }
 
@@ -100,8 +103,10 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-client")
     setProperty("packageName", "${project.group}.test.client")
+    setProperty("templateDir", "$rootDir/openapi/api-client")
     this.configOptions.put("dateLibrary", "string")
     this.configOptions.put("collectionType", "array")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
     this.configOptions.put("serializationLibrary", "jackson")
 }
 
