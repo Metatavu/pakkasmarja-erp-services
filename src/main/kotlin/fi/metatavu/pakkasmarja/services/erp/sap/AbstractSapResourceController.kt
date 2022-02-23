@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
-import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.concurrent.CompletableFuture
 import javax.enterprise.context.ApplicationScoped
@@ -18,6 +18,77 @@ import javax.enterprise.context.ApplicationScoped
  */
 @ApplicationScoped
 abstract class AbstractSapResourceController {
+    /**
+     * Creates an item to SAP
+     *
+     * @param item item to create
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @return created item
+     */
+    fun createItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
+        try {
+            val client = HttpClient.newHttpClient()
+            val request = HttpRequest
+                .newBuilder(URI.create(resourceUrl))
+                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .setHeader("Prefer","odata.maxpagesize=100")
+                .POST(HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
+                .build()
+
+            val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
+                val objectMapper = ObjectMapper()
+                return@thenApply objectMapper.readTree(response.body()).get("value")
+            }
+
+            return response.get()
+        } catch (e: Exception) {
+            throw SapModificationException("Failed to create an item to SAP: ${e.message}")
+        }
+    }
+
+    /**
+     * Updates an item to SAP
+     *
+     * @param item item to update
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @return updated item
+     */
+    fun updateItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
+        try {
+            val client = HttpClient.newHttpClient()
+            val request = HttpRequest
+                .newBuilder(URI.create(resourceUrl))
+                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .setHeader("Prefer","odata.maxpagesize=100")
+                .method("PATCH", HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
+                .build()
+
+            val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
+                val objectMapper = ObjectMapper()
+                return@thenApply objectMapper.readTree(response.body()).get("value")
+            }
+
+            return response.get()
+        } catch (e: Exception) {
+            throw SapModificationException("Failed to update an item to SAP: ${e.message}")
+        }
+    }
+
+    /**
+     * Creates an "updatedAfter"-filter from an OffsetDateTime-object
+     *
+     * @param updatedAfter a value to be used for the filter
+     * @return "updatedAfter"-filter
+     */
+    fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {
+        val updateDate = updatedAfter.toLocalDate().toString()
+        val updateTime = updatedAfter.toLocalTime().toString().split(".")[0]
+        return "(UpdateDate gt '$updateDate' or (UpdateDate eq '$updateDate' and UpdateTime gt '$updateTime'))"
+    }
 
     /**
      * Gets items from SAP and converts them to JSON-nodes
@@ -153,17 +224,5 @@ abstract class AbstractSapResourceController {
         } catch (e: Exception) {
             throw SapCountFetchException("Failed to fetch item count from SAP, ${e.message}")
         }
-    }
-
-    /**
-     * Creates an "updatedAfter"-filter from an OffsetDateTime-object
-     *
-     * @param updatedAfter a value to be used for the filter
-     * @return "updatedAfter"-filter
-     */
-    fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {
-        val updateDate = updatedAfter.toLocalDate().toString()
-        val updateTime = updatedAfter.toLocalTime().toString().split(".")[0]
-        return "(UpdateDate gt '$updateDate' or (UpdateDate eq '$updateDate' and UpdateTime gt '$updateTime'))"
     }
 }
