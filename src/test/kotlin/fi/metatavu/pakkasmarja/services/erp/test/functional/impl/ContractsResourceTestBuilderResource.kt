@@ -24,6 +24,9 @@ class ContractsResourceTestBuilderResource(
 
     /**
      * Lists all contracts in SAP, from beginning of the year 2022
+     *
+     * @param sapContractStatus SAP contract status to filter by
+     * @return SAP contracts
      */
     fun list(sapContractStatus: SapContractStatus?): Array<SapContract> {
         return api.listContracts(startDate = null, businessPartnerCode = null, contractStatus = sapContractStatus)

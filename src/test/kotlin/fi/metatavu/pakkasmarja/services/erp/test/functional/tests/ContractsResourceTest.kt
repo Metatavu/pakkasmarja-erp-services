@@ -27,22 +27,23 @@ class ContractsResourceTest: AbstractResourceTest() {
     fun testListContracts() {
         createTestBuilder().use {
             val contracts = it.manager.contracts.list(sapContractStatus = null)
-            assertEquals(4, contracts.size)
-            assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.APPROVED })
+            assertEquals(5, contracts.size)
+            val contractToTest = contracts.find { contract -> contract.status == SapContractStatus.APPROVED }
+            assertNotNull(contractToTest)
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.ON_HOLD })
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.DRAFT })
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.TERMINATED })
 
-           val contractToTest = contracts[0]
-           assertEquals(23, contractToTest.businessPartnerCode)
-           assertEquals(64, contractToTest.contactPersonCode)
-           assertEquals("2022-01-01", contractToTest.startDate)
-           assertEquals("2022-01-01", contractToTest.signingDate)
-           assertEquals("2022-12-31", contractToTest.endDate)
-           assertEquals("2022-12-31", contractToTest.terminateDate)
-           assertEquals("Some remarks", contractToTest.remarks)
-           assertEquals("2022-1", contractToTest.id)
-
+            assertEquals(23, contractToTest!!.businessPartnerCode)
+            assertEquals(64, contractToTest.contactPersonCode)
+            assertEquals("2022-01-01", contractToTest.startDate)
+            assertEquals("2022-01-01", contractToTest.signingDate)
+            assertEquals("2022-12-31", contractToTest.endDate)
+            assertEquals("2022-12-31", contractToTest.terminateDate)
+            assertEquals("Some remarks", contractToTest.remarks)
+            assertEquals("2022-1", contractToTest.id)
+            assertEquals(2.0, contractToTest.deliveredQuantity)
+            assertEquals(1, contractToTest.itemGroupCode)
             val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
             assertEquals(1, filteredContracts.size)
             assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)

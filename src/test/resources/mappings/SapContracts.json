@@ -50,7 +50,15 @@
               "EndDate": "2022-12-31",
               "SigningDate": "2022-01-01",
               "TerminateDate": "2022-12-31",
-              "Remarks": "Some remarks"
+              "Remarks": "Some remarks",
+              "BlanketAgreements_ItemsLines": [
+                {
+                  "ItemGroup": "1"
+                },
+                {
+                  "ItemGroup": "1"
+                }
+              ]
             },
             {
               "DocNum": "1",
@@ -61,7 +69,15 @@
               "EndDate": "2022-12-31",
               "SigningDate": "2022-01-01",
               "TerminateDate": "2022-12-31",
-              "Remarks": "Some remarks"
+              "Remarks": "Some remarks",
+              "BlanketAgreements_ItemsLines": [
+                {
+                  "ItemGroup": "1"
+                },
+                {
+                  "ItemGroup": "2"
+                }
+              ]
             }
           ]
         }
@@ -89,7 +105,12 @@
               "EndDate": "2022-12-31",
               "SigningDate": "2022-01-01",
               "TerminateDate": "2022-12-31",
-              "Remarks": "Some remarks"
+              "Remarks": "Some remarks",
+              "BlanketAgreements_ItemsLines": [
+                {
+                  "ItemGroup": "1"
+                }
+              ]
             },
             {
               "DocNum": "1",
@@ -100,7 +121,12 @@
               "EndDate": "2022-12-31",
               "SigningDate": "2022-01-01",
               "TerminateDate": "2022-12-31",
-              "Remarks": "Some remarks"
+              "Remarks": "Some remarks",
+              "BlanketAgreements_ItemsLines": [
+                {
+                  "ItemGroup": "1"
+                }
+              ]
             }
           ]
         }
@@ -128,7 +154,12 @@
               "EndDate": "2022-12-31",
               "SigningDate": "2022-01-01",
               "TerminateDate": "2022-12-31",
-              "Remarks": "Some remarks"
+              "Remarks": "Some remarks",
+              "BlanketAgreements_ItemsLines": [
+                {
+                  "ItemGroup": "1"
+                }
+              ]
             }
           ]
         }

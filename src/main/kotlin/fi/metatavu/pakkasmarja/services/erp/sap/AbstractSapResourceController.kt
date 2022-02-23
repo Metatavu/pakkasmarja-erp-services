@@ -85,34 +85,34 @@ abstract class AbstractSapResourceController {
      * @return items
      */
     private fun getItems(itemUrls: List<String>, sessionId: String, routeId: String): List<JsonNode> {
-        val jsonNodes = mutableListOf<JsonNode>()
-        val client = HttpClient.newHttpClient()
-        val futures = mutableListOf<CompletableFuture<Unit>>()
+        try {
+            val jsonNodes = mutableListOf<JsonNode>()
+            val client = HttpClient.newHttpClient()
+            val futures = mutableListOf<CompletableFuture<Unit>>()
 
-        itemUrls.forEach {
-            try {
-                val request = HttpRequest
-                    .newBuilder(URI.create(it))
-                    .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                    .setHeader("Prefer","odata.maxpagesize=100")
-                    .GET()
-                    .build()
+            itemUrls.forEach {
+                    val request = HttpRequest
+                        .newBuilder(URI.create(it))
+                        .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                        .setHeader("Prefer","odata.maxpagesize=100")
+                        .GET()
+                        .build()
 
-                val future = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-                    val objectMapper = ObjectMapper()
-                    val items = objectMapper.readTree(response.body()).get("value")
-                    items.forEach { item ->
-                        jsonNodes.add(item)
+                    val future = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
+                        val objectMapper = ObjectMapper()
+                        val items = objectMapper.readTree(response.body()).get("value")
+                        items.forEach { item ->
+                            jsonNodes.add(item)
+                        }
                     }
-                }
-                futures.add(future)
-            } catch (e: Exception) {
-                throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
+                    futures.add(future)
             }
-        }
 
-        futures.forEach(CompletableFuture<Unit>::join)
-        return jsonNodes
+            futures.forEach(CompletableFuture<Unit>::join)
+            return jsonNodes
+        } catch (e: Exception) {
+            throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
+        }
     }
 
     /**
