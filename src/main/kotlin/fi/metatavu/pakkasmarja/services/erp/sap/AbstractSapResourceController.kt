@@ -29,20 +29,7 @@ abstract class AbstractSapResourceController {
      */
     fun createItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
         try {
-            val client = HttpClient.newHttpClient()
-            val request = HttpRequest
-                .newBuilder(URI.create(resourceUrl))
-                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                .setHeader("Prefer","odata.maxpagesize=100")
-                .POST(HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
-                .build()
-
-            val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-                val objectMapper = ObjectMapper()
-                return@thenApply objectMapper.readTree(response.body()).get("value")
-            }
-
-            return response.get()
+            return sendSapRequestWithItem(item = item, resourceUrl = resourceUrl, sessionId = sessionId, routeId = routeId, method = "POST")
         } catch (e: Exception) {
             throw SapModificationException("Failed to create an item to SAP: ${e.message}")
         }
@@ -59,23 +46,27 @@ abstract class AbstractSapResourceController {
      */
     fun updateItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
         try {
-            val client = HttpClient.newHttpClient()
-            val request = HttpRequest
-                .newBuilder(URI.create(resourceUrl))
-                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                .setHeader("Prefer","odata.maxpagesize=100")
-                .method("PATCH", HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
-                .build()
-
-            val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-                val objectMapper = ObjectMapper()
-                return@thenApply objectMapper.readTree(response.body()).get("value")
-            }
-
-            return response.get()
+            return sendSapRequestWithItem(item = item, resourceUrl = resourceUrl, sessionId = sessionId, routeId = routeId, method = "PATCH")
         } catch (e: Exception) {
             throw SapModificationException("Failed to update an item to SAP: ${e.message}")
         }
+    }
+
+    private fun sendSapRequestWithItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String, method: String): JsonNode {
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest
+            .newBuilder(URI.create(resourceUrl))
+            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .setHeader("Prefer","odata.maxpagesize=100")
+            .method(method, HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
+            .build()
+
+        val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
+            val objectMapper = ObjectMapper()
+            return@thenApply objectMapper.readTree(response.body()).get("value")
+        }
+
+        return response.get()
     }
 
     /**
