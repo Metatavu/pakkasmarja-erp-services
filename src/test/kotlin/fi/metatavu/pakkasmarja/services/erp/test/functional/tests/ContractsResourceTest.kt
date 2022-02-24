@@ -30,9 +30,12 @@ class ContractsResourceTest: AbstractResourceTest() {
             assertEquals(5, contracts.size)
             val contractToTest = contracts.find { contract -> contract.status == SapContractStatus.APPROVED }
             assertNotNull(contractToTest)
-            assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.ON_HOLD })
+            val onHolds = contracts.filter { contract -> contract.status == SapContractStatus.ON_HOLD }
+            assertNotNull(onHolds)
+            assertEquals(2, onHolds)
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.DRAFT })
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.TERMINATED })
+            assertNotNull(contracts.find { contract -> contract.itemGroupCode == 101 })
 
             assertEquals(23, contractToTest!!.businessPartnerCode)
             assertEquals(64, contractToTest.contactPersonCode)
@@ -43,7 +46,7 @@ class ContractsResourceTest: AbstractResourceTest() {
             assertEquals("Some remarks", contractToTest.remarks)
             assertEquals("2022-1", contractToTest.id)
             assertEquals(2.0, contractToTest.deliveredQuantity)
-            assertEquals(1, contractToTest.itemGroupCode)
+            assertEquals(100, contractToTest.itemGroupCode)
             val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
             assertEquals(1, filteredContracts.size)
             assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)

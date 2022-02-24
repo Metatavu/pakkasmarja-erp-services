@@ -32,6 +32,10 @@ class ContractsResourceTestBuilderResource(
         return api.listContracts(startDate = null, businessPartnerCode = null, contractStatus = sapContractStatus)
     }
 
+    fun create(sapContract: SapContract): SapContract {
+        return api.createContract(sapContract)
+    }
+
     override fun getApi(): ContractsApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
         return ContractsApi(ApiTestSettings.apiBasePath)

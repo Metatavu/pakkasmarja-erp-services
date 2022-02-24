@@ -53,10 +53,10 @@
               "Remarks": "Some remarks",
               "BlanketAgreements_ItemsLines": [
                 {
-                  "ItemGroup": "1"
+                  "ItemNo": "1"
                 },
                 {
-                  "ItemGroup": "1"
+                  "ItemNo": "2"
                 }
               ]
             },
@@ -72,10 +72,10 @@
               "Remarks": "Some remarks",
               "BlanketAgreements_ItemsLines": [
                 {
-                  "ItemGroup": "1"
+                  "ItemNo": "1"
                 },
                 {
-                  "ItemGroup": "2"
+                  "ItemNo": "3"
                 }
               ]
             }
@@ -108,7 +108,7 @@
               "Remarks": "Some remarks",
               "BlanketAgreements_ItemsLines": [
                 {
-                  "ItemGroup": "1"
+                  "ItemNo": "1"
                 }
               ]
             },
@@ -124,7 +124,7 @@
               "Remarks": "Some remarks",
               "BlanketAgreements_ItemsLines": [
                 {
-                  "ItemGroup": "1"
+                  "ItemNo": "1"
                 }
               ]
             }
@@ -157,7 +157,7 @@
               "Remarks": "Some remarks",
               "BlanketAgreements_ItemsLines": [
                 {
-                  "ItemGroup": "1"
+                  "ItemNo": "1"
                 }
               ]
             }

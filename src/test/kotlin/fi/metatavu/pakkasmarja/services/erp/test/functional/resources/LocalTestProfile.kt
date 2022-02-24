@@ -12,6 +12,7 @@ class LocalTestProfile: QuarkusTestProfile {
         config["fi.metatavu.pakkasmarja.sap-company-db"] = "TestDB"
         config["fi.metatavu.pakkasmarja.sap-user-name"] = "Jorma"
         config["fi.metatavu.pakkasmarja.sap-user-password"] = "jormankoira"
+        config["fi.metatavu.pakkasmarja.group-codes-file-name"] = "src/main/resources/test-group-codes.json"
 
         return config
     }

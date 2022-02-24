@@ -52,23 +52,6 @@ abstract class AbstractSapResourceController {
         }
     }
 
-    private fun sendSapRequestWithItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String, method: String): JsonNode {
-        val client = HttpClient.newHttpClient()
-        val request = HttpRequest
-            .newBuilder(URI.create(resourceUrl))
-            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-            .setHeader("Prefer","odata.maxpagesize=100")
-            .method(method, HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
-            .build()
-
-        val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-            val objectMapper = ObjectMapper()
-            return@thenApply objectMapper.readTree(response.body()).get("value")
-        }
-
-        return response.get()
-    }
-
     /**
      * Creates an "updatedAfter"-filter from an OffsetDateTime-object
      *
@@ -126,6 +109,33 @@ abstract class AbstractSapResourceController {
         val baseItemUrl = "$resourceUrl?$select"
         val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
         return getItems(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
+    }
+
+    /**
+     * Sends a request to SAP with a body
+     *
+     * @param item body to send
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @param method request method
+     * @return the response from SAP
+     */
+    private fun sendSapRequestWithItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String, method: String): JsonNode {
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest
+            .newBuilder(URI.create(resourceUrl))
+            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .setHeader("Prefer","odata.maxpagesize=100")
+            .method(method, HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
+            .build()
+
+        val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
+            val objectMapper = ObjectMapper()
+            return@thenApply objectMapper.readTree(response.body()).get("value")
+        }
+
+        return response.get()
     }
 
     /**

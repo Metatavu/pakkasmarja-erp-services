@@ -1,0 +1,56 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/Items",
+        "headers": {
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
+        }
+      },
+      "response": {
+        "body": "3"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "headers": {
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
+        },
+        "url": "/Items?$select=Properties1,Properties2,ItemCode,Properties28,Properties35"
+      },
+      "response": {
+        "jsonBody": {
+          "value": [
+            {
+              "ItemCode": "1",
+              "Properties1": "tYes",
+              "Properties2": "tNo",
+              "Properties28": "tNo",
+              "Properties35": "tYes"
+            },
+            {
+              "ItemCode": "2",
+              "Properties1": "tYes",
+              "Properties2": "tNo",
+              "Properties28": "tNo",
+              "Properties35": "tYes"
+            },
+            {
+              "ItemCode": "3",
+              "Properties1": "tNo",
+              "Properties2": "tYes",
+              "Properties28": "tYes",
+              "Properties35": "tNo"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
