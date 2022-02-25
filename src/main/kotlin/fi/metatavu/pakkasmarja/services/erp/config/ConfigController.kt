@@ -25,4 +25,5 @@ class ConfigController {
         val file = File(groupCodesFileName)
         return ObjectMapper().readTree(file)
     }
+
 }
