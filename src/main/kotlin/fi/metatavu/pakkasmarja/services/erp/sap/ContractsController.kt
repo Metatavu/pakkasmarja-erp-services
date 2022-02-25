@@ -260,7 +260,13 @@ class ContractsController: AbstractSapResourceController() {
                     routeId = sapSession.routeId
                 )
 
-                return spreadContract(contract = updatedItem, groupCodes = groupCodes, items = items).find { contract -> contract.get("ItemGroupCode").asInt() == sapContract.itemGroupCode }!!
+                return spreadContract(
+                    contract = updatedItem,
+                    groupCodes = groupCodes,
+                    items = items
+                ).find { contract ->
+                    contract.get("ItemGroupCode").asInt() == sapContract.itemGroupCode
+                }!!
             }
         }
     }
