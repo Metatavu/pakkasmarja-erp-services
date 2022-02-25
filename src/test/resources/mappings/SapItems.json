@@ -17,6 +17,34 @@
     {
       "request": {
         "method": "GET",
+        "url": "/Items/$count?$filter=Properties1%20eq%20tYes%20and%20Properties28%20eq%20tNo%20and%20Properties35%20eq%20tYes",
+        "headers": {
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
+        }
+      },
+      "response": {
+        "body": "2"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "url": "/Items/$count?$filter=Properties2%20eq%20tYes%20and%20Properties28%20eq%20tYes%20and%20Properties35%20eq%20tNo",
+        "headers": {
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
+        }
+      },
+      "response": {
+        "body": "1"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
         "headers": {
           "Cookie": {
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
@@ -41,6 +69,61 @@
               "Properties28": "tNo",
               "Properties35": "tYes"
             },
+            {
+              "ItemCode": "3",
+              "Properties1": "tNo",
+              "Properties2": "tYes",
+              "Properties28": "tYes",
+              "Properties35": "tNo"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "headers": {
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
+        },
+        "url": "/Items?$filter=Properties1%20eq%20tYes%20and%20Properties28%20eq%20tNo%20and%20Properties35%20eq%20tYes&$select=ItemCode&$skip=0"
+      },
+      "response": {
+        "jsonBody": {
+          "value": [
+            {
+              "ItemCode": "1",
+              "Properties1": "tYes",
+              "Properties2": "tNo",
+              "Properties28": "tNo",
+              "Properties35": "tYes"
+            },
+            {
+              "ItemCode": "2",
+              "Properties1": "tYes",
+              "Properties2": "tNo",
+              "Properties28": "tNo",
+              "Properties35": "tYes"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "headers": {
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
+        },
+        "url": "/Items?$filter=Properties2%20eq%20tYes%20and%20Properties28%20eq%20tYes%20and%20Properties35%20eq%20tNo&$select=ItemCode&$skip=0"
+      },
+      "response": {
+        "jsonBody": {
+          "value": [
             {
               "ItemCode": "3",
               "Properties1": "tNo",

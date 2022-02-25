@@ -25,8 +25,11 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
     @Inject
     private lateinit var contractTranslator: ContractTranslator
 
+    @Authenticated
     override fun createContract(sapContract: SapContract): Response {
-        TODO("Not yet implemented")
+        val newContract = contractsController.createContract(sapContract = sapContract)
+        val translatedContract = contractTranslator.translate(newContract)
+        return createOk(translatedContract)
     }
 
     override fun deleteContract(sapId: String): Response {

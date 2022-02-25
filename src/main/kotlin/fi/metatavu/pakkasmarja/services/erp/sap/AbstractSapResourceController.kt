@@ -140,7 +140,7 @@ abstract class AbstractSapResourceController {
             .newBuilder(URI.create(resourceUrl))
             .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
             .setHeader("Prefer","odata.maxpagesize=100")
-            .method(method, HttpRequest.BodyPublishers.ofByteArray(item.binaryValue()))
+            .method(method, HttpRequest.BodyPublishers.ofString(item.toString()))
             .build()
 
         val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
