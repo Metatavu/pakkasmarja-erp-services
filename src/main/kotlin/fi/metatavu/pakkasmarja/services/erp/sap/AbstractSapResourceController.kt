@@ -30,7 +30,13 @@ abstract class AbstractSapResourceController {
      */
     fun createItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
         try {
-            return sendSapRequestWithItem(item = item, resourceUrl = resourceUrl, sessionId = sessionId, routeId = routeId, method = "POST")
+            return sendSapRequestWithItem(
+                item = item,
+                resourceUrl = resourceUrl,
+                sessionId = sessionId,
+                routeId = routeId,
+                method = "POST"
+            )
         } catch (e: Exception) {
             throw SapModificationException("Failed to create an item to SAP: ${e.message}")
         }
@@ -47,7 +53,13 @@ abstract class AbstractSapResourceController {
      */
     fun updateItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
         try {
-            return sendSapRequestWithItem(item = item, resourceUrl = resourceUrl, sessionId = sessionId, routeId = routeId, method = "PATCH")
+            return sendSapRequestWithItem(
+                item = item,
+                resourceUrl = resourceUrl,
+                sessionId = sessionId,
+                routeId = routeId,
+                method = "PATCH"
+            )
         } catch (e: Exception) {
             throw SapModificationException("Failed to update an item to SAP: ${e.message}")
         }
