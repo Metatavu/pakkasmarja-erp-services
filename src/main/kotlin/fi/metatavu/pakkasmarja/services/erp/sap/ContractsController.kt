@@ -246,12 +246,12 @@ class ContractsController: AbstractSapResourceController() {
 
                 val updatedItem = updateItem(
                     item = contractForUpdate,
-                    resourceUrl = "$resourceUrl(${contractToUpdate.get("DocNum")})",
+                    resourceUrl = "$resourceUrl%28${contractToUpdate.get("DocNum").asText()}%28",
                     sessionId = sapSession.sessionId,
                     routeId = sapSession.routeId
                 )
 
-                return spreadContract(contract = updatedItem, groupCodes = groupCodes, items = items)[0]
+                return spreadContract(contract = updatedItem, groupCodes = groupCodes, items = items).find { contract -> contract.get("ItemGroupCode").asInt() == sapContract.itemGroupCode }!!
             }
         }
     }
@@ -269,7 +269,7 @@ class ContractsController: AbstractSapResourceController() {
         contractToUpdate.put("Status", "asDraft")
         val updatableContract = updateItem(
             item = contractToUpdate,
-            resourceUrl = "$resourceUrl(${contractToUpdate.get("DocNum")})",
+            resourceUrl = "$resourceUrl%28${contractToUpdate.get("DocNum").asText()}%28",
             sessionId = sapSession.sessionId,
             routeId = sapSession.routeId
         ) as ObjectNode

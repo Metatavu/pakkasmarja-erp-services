@@ -95,4 +95,26 @@ class ContractsResourceTest: AbstractResourceTest() {
             assertEquals(newContract, createdContract)
         }
     }
+
+    @Test
+    fun testUpdateContract() {
+        createTestBuilder().use {
+            val newContract = SapContract(
+                id = "2022-1",
+                businessPartnerCode = 123,
+                contactPersonCode = 122,
+                itemGroupCode = 101,
+                status = SapContractStatus.APPROVED,
+                deliveredQuantity = 1.0,
+                startDate = "2022-01-01",
+                endDate = "2022-12-31",
+                terminateDate = "2022-12-31",
+                signingDate = "2022-01-01",
+                remarks = "Remarks"
+            )
+
+            val createdContract = it.manager.contracts.create(newContract)
+            assertEquals(newContract, createdContract)
+        }
+    }
 }
