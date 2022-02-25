@@ -3,7 +3,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/Items",
+        "url": "/Items/$count",
         "headers": {
           "Cookie": {
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
@@ -22,7 +22,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$select=Properties1,Properties2,ItemCode,Properties28,Properties35"
+        "url": "/Items?$select=Properties1,Properties2,ItemCode,Properties28,Properties35&$skip=0"
       },
       "response": {
         "jsonBody": {

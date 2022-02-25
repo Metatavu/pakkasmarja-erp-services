@@ -67,80 +67,6 @@ class ContractsController: AbstractSapResourceController() {
     }
 
     /**
-     * Creates a new contract
-     *
-     * @param sapContract contract to create
-     * @return created contract
-     */
-    fun createContract(sapContract: SapContract): JsonNode {
-        sapSessionController.createSapSession().use { sapSession ->
-            val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
-            val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq ${sapContract.businessPartnerCode} and Status eq asApproved"
-            val contracts = getItemsAsJsonNodes(
-                resourceUrl = resourceUrl,
-                select = "\$select=*",
-                filter = filter,
-                routeId = sapSession.routeId,
-                sessionId = sapSession.sessionId
-            )
-
-            if (contracts.isEmpty()) {
-                val newContract = buildNewSapContract(sapContract)
-
-                return createItem(
-                    item = newContract,
-                    resourceUrl = resourceUrl,
-                    sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
-                )
-            } else {
-                val contractToUpdate = contracts.first() as ObjectNode
-                contractToUpdate.put("Status", "asDraft")
-                val updatableContract = updateItem(
-                    item = contractToUpdate,
-                    resourceUrl = "$resourceUrl(${contractToUpdate.get("DocNum")})",
-                    sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
-                ) as ObjectNode
-
-                updatableContract.put("Status", "asApproved")
-
-                //TODO: Put items to item lines
-
-                return updateItem(
-                    item = updatableContract,
-                    resourceUrl = "$resourceUrl(${contractToUpdate.get("DocNum")})",
-                    sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
-                )
-            }
-        }
-    }
-
-    /**
-     * Builds a new contract for SAP
-     *
-     * @param sapContract a SAP contract to build
-     * @return built SAP contract
-     */
-    private fun buildNewSapContract(sapContract: SapContract): ObjectNode {
-        val mapper = ObjectMapper()
-        val newContract = mapper.createObjectNode()
-        newContract.put("DocNum", sapContract.id.split("-")[1])
-        newContract.put("BPCode", sapContract.businessPartnerCode.toString())
-        newContract.put("ContractPersonCode", sapContract.contactPersonCode.toString())
-        newContract.put("StartDate", sapContract.startDate.toString())
-        newContract.put("Status", "asApproved")
-        newContract.put("EndDate", sapContract.endDate.toString())
-        newContract.put("TerminateDate", sapContract.terminateDate.toString())
-        newContract.put("Remarks", sapContract.remarks)
-
-        //TODO: Put items to item lines
-
-        return newContract
-    }
-
-    /**
      * Compresses contracts. From one contract per item to one contract per item group.
      *
      * @param contracts contracts to compress
@@ -205,7 +131,7 @@ class ContractsController: AbstractSapResourceController() {
             propertyNames.add(itemPropertyName)
         }
 
-        val filters = propertyNames.joinToString(",").plus("ItemCode,Properties28,Properties35")
+        val filters = propertyNames.joinToString(",").plus(",ItemCode,Properties28,Properties35")
         return "\$select=$filters"
     }
 

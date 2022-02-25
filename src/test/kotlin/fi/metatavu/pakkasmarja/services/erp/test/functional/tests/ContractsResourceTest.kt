@@ -32,7 +32,7 @@ class ContractsResourceTest: AbstractResourceTest() {
             assertNotNull(contractToTest)
             val onHolds = contracts.filter { contract -> contract.status == SapContractStatus.ON_HOLD }
             assertNotNull(onHolds)
-            assertEquals(2, onHolds)
+            assertEquals(2, onHolds.size)
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.DRAFT })
             assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.TERMINATED })
             assertNotNull(contracts.find { contract -> contract.itemGroupCode == 101 })
