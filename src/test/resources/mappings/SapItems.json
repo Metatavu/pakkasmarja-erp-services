@@ -119,7 +119,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$filter=Properties1%20eq%20tYes%20and%20Properties28%20eq%20tYes%20and%20Properties35%20eq%20tNo&$select=ItemCode&$skip=0"
+        "url": "/Items?$filter=Properties2%20eq%20tYes%20and%20Properties28%20eq%20tYes%20and%20Properties35%20eq%20tNo&$select=ItemCode&$skip=0"
       },
       "response": {
         "jsonBody": {
