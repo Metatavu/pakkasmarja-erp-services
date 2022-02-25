@@ -50,6 +50,7 @@ class ContractsController: AbstractSapResourceController() {
                     routeId = sapSession.routeId,
                     sessionId = sapSession.sessionId
                 )
+
                 return compressContracts(contracts = contracts, session = sapSession)
             }
 
