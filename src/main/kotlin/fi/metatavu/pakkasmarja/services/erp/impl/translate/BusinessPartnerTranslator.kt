@@ -15,8 +15,10 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class BusinessPartnerTranslator() {
+
     @Inject
     private lateinit var logger: Logger
+
     /**
      * Translates a business partner from SAP into the format expected by spec
      *
@@ -48,7 +50,6 @@ class BusinessPartnerTranslator() {
      *
      * @param updatedDate updated date
      * @param updatedTime updated time
-     *
      * @return updated datetime
      */
     private fun getUpdatedDateTime(updatedDate: String, updatedTime: String): OffsetDateTime {
