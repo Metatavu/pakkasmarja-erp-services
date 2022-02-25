@@ -13,6 +13,7 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class ContractTranslator {
+
     @Inject
     private lateinit var logger: Logger
 
@@ -41,7 +42,7 @@ class ContractTranslator {
             )
         } catch (e: Exception) {
             logger.error("Failed to translate a contract from SAP: ${e.message}")
-            null;
+            null
         }
     }
 

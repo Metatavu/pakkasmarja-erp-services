@@ -12,6 +12,7 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class ConfigController {
+
     @Inject
     @ConfigProperty(name="fi.metatavu.pakkasmarja.group-codes-file-name")
     lateinit var groupCodesFileName: String
@@ -24,4 +25,5 @@ class ConfigController {
         val file = File(groupCodesFileName)
         return ObjectMapper().readTree(file)
     }
+
 }

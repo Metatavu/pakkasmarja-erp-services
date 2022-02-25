@@ -40,7 +40,7 @@ class BusinessPartnerTranslator() {
             )
         } catch (e: Exception) {
             logger.error("Failed to translate a business partner from SAP: ${e.message}")
-            null;
+            null
         }
 
     }

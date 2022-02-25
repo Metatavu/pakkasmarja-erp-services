@@ -18,11 +18,12 @@ import javax.ws.rs.core.Response
 @RequestScoped
 @Transactional
 class ContractsApiImpl: ContractsApi, AbstractApi() {
+
     @Inject
     private lateinit var contractsController: ContractsController
 
-     @Inject
-     private lateinit var contractTranslator: ContractTranslator
+    @Inject
+    private lateinit var contractTranslator: ContractTranslator
 
     override fun createContract(sapContract: SapContract): Response {
         val newContract = contractsController.createContract(sapContract = sapContract)
