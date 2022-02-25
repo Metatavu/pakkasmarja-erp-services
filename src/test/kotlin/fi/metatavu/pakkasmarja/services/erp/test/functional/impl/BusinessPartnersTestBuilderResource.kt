@@ -10,7 +10,6 @@ import fi.metatavu.pakkasmarja.services.erp.test.functional.settings.ApiTestSett
 
 import org.junit.jupiter.api.Assertions.*
 
-
 /**
  * Resource for testing business partners API
  *
@@ -60,7 +59,7 @@ class BusinessPartnersTestBuilderResource(
      * @param firstResult First result. Defaults to 0 (optional)
      * @param maxResults Max results. Defaults to 10 (optional)
      */
-    fun assertFindFailStatus(
+    fun assertListFailStatus(
         expectedStatus: Int,
         updatedAfter: String?,
         firstResult: Int?,
@@ -73,7 +72,7 @@ class BusinessPartnersTestBuilderResource(
                 maxResults = maxResults
             )
 
-            fail(String.format("Expected find to fail with status %d", expectedStatus))
+            fail(String.format("Expected listing to fail with status %d", expectedStatus))
         } catch (e: ClientException) {
             assertEquals(expectedStatus.toLong(), e.statusCode.toLong())
         }

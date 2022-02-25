@@ -86,7 +86,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             val zone = ZoneId.of("Europe/Helsinki")
             val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
             val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            it.nullAccess.businessPartners.assertFindFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
+            it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
         }
     }
 
@@ -101,7 +101,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             val zone = ZoneId.of("Europe/Helsinki")
             val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
             val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            it.invalidAccess.businessPartners.assertFindFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
+            it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
         }
     }
 }
