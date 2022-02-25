@@ -79,12 +79,12 @@ class ContractsController: AbstractSapResourceController() {
     }
 
     /**
-     * Spreads contracts to one contract per item group.
+     * Spreads contracts to one contract per item group
      *
      * @param contracts contracts to spread
      * @param items items to use for spreading
      * @param groupCodes group codes to use for spreading
-     * @return compressed contracts
+     * @return spread
      */
     private fun spreadContracts(contracts: List<JsonNode>, items: List<JsonNode>, groupCodes: JsonNode): List<JsonNode> {
         val newContracts = mutableListOf<JsonNode>()
@@ -102,6 +102,13 @@ class ContractsController: AbstractSapResourceController() {
         return newContracts
     }
 
+    /**
+     * Spreads a contract to one contract per item group
+     * @param contract a contract to spread
+     * @param items items to use for spreading
+     * @param groupCodes group codes to use for spreading
+     * @return spread contract
+     */
     private fun spreadContract(contract: JsonNode, items: List<JsonNode>, groupCodes: JsonNode): List<JsonNode> {
         val newContractsForThisContract = mutableListOf<JsonNode>()
         val itemLines = contract.get("BlanketAgreements_ItemsLines")
