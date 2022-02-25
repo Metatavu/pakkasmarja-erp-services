@@ -18,6 +18,7 @@ import javax.enterprise.context.ApplicationScoped
  */
 @ApplicationScoped
 abstract class AbstractSapResourceController {
+
     /**
      * Creates an item to SAP
      *
