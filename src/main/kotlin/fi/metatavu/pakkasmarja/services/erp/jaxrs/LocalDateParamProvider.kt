@@ -2,7 +2,6 @@ package fi.metatavu.pakkasmarja.services.erp.jaxrs
 
 import java.lang.reflect.Type
 import java.time.LocalDate
-import java.time.OffsetDateTime
 import javax.ws.rs.ext.ParamConverter
 import javax.ws.rs.ext.ParamConverterProvider
 import javax.ws.rs.ext.Provider
