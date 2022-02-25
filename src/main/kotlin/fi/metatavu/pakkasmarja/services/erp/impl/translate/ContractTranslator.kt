@@ -42,7 +42,7 @@ class ContractTranslator {
             )
         } catch (e: Exception) {
             logger.error("Failed to translate a contract from SAP: ${e.message}")
-            null;
+            null
         }
     }
 
