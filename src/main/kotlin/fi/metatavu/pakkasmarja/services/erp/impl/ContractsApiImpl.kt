@@ -25,6 +25,7 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
     @Inject
     private lateinit var contractTranslator: ContractTranslator
 
+    @Authenticated
     override fun createContract(sapContract: SapContract): Response {
         val newContract = contractsController.createContract(sapContract = sapContract)
         val translatedContract = contractTranslator.translate(newContract)

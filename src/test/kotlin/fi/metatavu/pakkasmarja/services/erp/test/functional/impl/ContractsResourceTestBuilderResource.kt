@@ -45,9 +45,40 @@ class ContractsResourceTestBuilderResource(
         return ContractsApi(ApiTestSettings.apiBasePath)
     }
 
+    /**
+     * Asserts that listing fails with expected status
+     * @param expectedStatus expected status
+     */
     fun assertListFailStatus(expectedStatus: Int) {
         try {
             list(sapContractStatus = null)
+            Assertions.fail(String.format("Expected listing to fail with status %d", expectedStatus))
+        } catch (e: ClientException) {
+            Assertions.assertEquals(expectedStatus.toLong(), e.statusCode.toLong())
+        }
+    }
+
+    /**
+     * Asserts that creation fails with expected status
+     * @param expectedStatus expected status
+     */
+    fun assertCreateFailStatus(expectedStatus: Int) {
+        try {
+            val newContract = SapContract(
+                id = "2022-1",
+                businessPartnerCode = 122,
+                contactPersonCode = 122,
+                itemGroupCode = 100,
+                status = SapContractStatus.APPROVED,
+                deliveredQuantity = 2.0,
+                startDate = "2022-01-01",
+                endDate = "2022-12-31",
+                terminateDate = "2022-12-31",
+                signingDate = "2022-01-01",
+                remarks = "Remarks"
+            )
+
+            create(newContract)
             Assertions.fail(String.format("Expected listing to fail with status %d", expectedStatus))
         } catch (e: ClientException) {
             Assertions.assertEquals(expectedStatus.toLong(), e.statusCode.toLong())

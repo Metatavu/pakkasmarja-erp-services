@@ -74,6 +74,29 @@ class ContractsResourceTest: AbstractResourceTest() {
         }
     }
 
+    /**
+     * Test creating a contract when the access token is null
+     */
+    @Test
+    fun testCreateContractNullAccessToken() {
+        createTestBuilder().use {
+            it.nullAccess.contracts.assertCreateFailStatus(401)
+        }
+    }
+
+    /**
+     * Test creating a contract when the access token is invalid
+     */
+    @Test
+    fun testCreateContractInvalidAccessToken() {
+        createTestBuilder().use {
+            it.invalidAccess.contracts.assertCreateFailStatus(401)
+        }
+    }
+
+    /**
+     * Tests creating a contract
+     */
     @Test
     fun testCreateContract() {
         createTestBuilder().use {
@@ -96,6 +119,9 @@ class ContractsResourceTest: AbstractResourceTest() {
         }
     }
 
+    /**
+     * Tests updating a contract
+     */
     @Test
     fun testUpdateContract() {
         createTestBuilder().use {
