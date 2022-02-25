@@ -145,10 +145,6 @@ abstract class AbstractSapResourceController {
 
         val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
             val objectMapper = ObjectMapper()
-            println("********************************")
-            println(resourceUrl)
-            println(item.toPrettyString())
-            println("********************************")
             return@thenApply objectMapper.readTree(response.body()).get("value")
         }
 
