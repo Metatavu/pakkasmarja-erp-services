@@ -1,5 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
+import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapContract
 import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.SapMockTestResource
@@ -70,6 +71,28 @@ class ContractsResourceTest: AbstractResourceTest() {
     fun testListContractsInvalidAccessToken() {
         createTestBuilder().use {
             it.invalidAccess.contracts.assertListFailStatus(401)
+        }
+    }
+
+    @Test
+    fun testCreateContract() {
+        createTestBuilder().use {
+            val newContract = SapContract(
+                id = "2022-1",
+                businessPartnerCode = 122,
+                contactPersonCode = 122,
+                itemGroupCode = 100,
+                status = SapContractStatus.APPROVED,
+                deliveredQuantity = 2.0,
+                startDate = "2022-01-01",
+                endDate = "2022-12-31",
+                terminateDate = "2022-12-31",
+                signingDate = "2022-01-01",
+                remarks = "Remarks"
+            )
+
+            val createdContract = it.manager.contracts.create(newContract)
+            assertEquals(newContract, createdContract)
         }
     }
 }

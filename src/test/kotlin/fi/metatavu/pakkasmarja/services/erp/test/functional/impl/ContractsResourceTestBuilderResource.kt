@@ -30,6 +30,12 @@ class ContractsResourceTestBuilderResource(
         return api.listContracts(startDate = null, businessPartnerCode = null, contractStatus = sapContractStatus)
     }
 
+    /**
+     * Creates a new SAP contract
+     *
+     * @param sapContract a SAP contract to create
+     * @return created SAP contract
+     */
     fun create(sapContract: SapContract): SapContract {
         return api.createContract(sapContract)
     }
