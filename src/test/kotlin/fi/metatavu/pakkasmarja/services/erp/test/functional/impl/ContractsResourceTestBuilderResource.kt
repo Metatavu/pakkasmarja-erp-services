@@ -7,10 +7,8 @@ import fi.metatavu.pakkasmarja.services.erp.test.client.infrastructure.ClientExc
 import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapContract
 import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.test.functional.TestBuilder
-import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.ApiTestBuilderResource
 import fi.metatavu.pakkasmarja.services.erp.test.functional.settings.ApiTestSettings
 import org.junit.jupiter.api.Assertions
-import java.time.LocalDate
 
 /**
  * Resource for testing Contracts API
