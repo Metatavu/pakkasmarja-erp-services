@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response
 @RequestScoped
 @Transactional
 class ContractsApiImpl: ContractsApi, AbstractApi() {
+
     @Inject
     private lateinit var contractsController: ContractsController
 
