@@ -13,6 +13,7 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class ContractTranslator {
+
     @Inject
     private lateinit var logger: Logger
 
