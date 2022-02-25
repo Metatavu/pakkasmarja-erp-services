@@ -39,9 +39,7 @@ class ContractsResourceTestBuilderResource(
         return ContractsApi(ApiTestSettings.apiBasePath)
     }
 
-    fun assertListFailStatus(
-        expectedStatus: Int,
-    ) {
+    fun assertListFailStatus(expectedStatus: Int) {
         try {
             list(sapContractStatus = null)
             Assertions.fail(String.format("Expected listing to fail with status %d", expectedStatus))
