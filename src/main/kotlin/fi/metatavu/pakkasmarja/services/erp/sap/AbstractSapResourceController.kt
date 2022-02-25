@@ -176,21 +176,21 @@ abstract class AbstractSapResourceController {
             val futures = mutableListOf<CompletableFuture<Unit>>()
 
             itemUrls.forEach {
-                    val request = HttpRequest
-                        .newBuilder(URI.create(it))
-                        .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                        .setHeader("Prefer","odata.maxpagesize=100")
-                        .GET()
-                        .build()
+                val request = HttpRequest
+                    .newBuilder(URI.create(it))
+                    .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                    .setHeader("Prefer","odata.maxpagesize=100")
+                    .GET()
+                    .build()
 
-                    val future = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-                        val objectMapper = ObjectMapper()
-                        val items = objectMapper.readTree(response.body()).get("value")
-                        items.forEach { item ->
-                            jsonNodes.add(item)
-                        }
+                val future = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
+                    val objectMapper = ObjectMapper()
+                    val items = objectMapper.readTree(response.body()).get("value")
+                    items.forEach { item ->
+                        jsonNodes.add(item)
                     }
-                    futures.add(future)
+                }
+                futures.add(future)
             }
 
             futures.forEach(CompletableFuture<Unit>::join)
