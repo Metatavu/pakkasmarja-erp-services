@@ -44,6 +44,15 @@ class ContractsController: AbstractSapResourceController() {
             val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
             val combinedFilter = listOfNotNull(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).joinToString(" and ")
 
+            val groupCodes = configController.getGroupCodesFile()
+            val itemPropertiesSelect = getItemPropertiesSelect(groupCodes = groupCodes)
+            val items = getItemsAsJsonNodes(
+                resourceUrl = "${sapSession.apiUrl}/Items",
+                select = itemPropertiesSelect,
+                sessionId = sapSession.sessionId,
+                routeId = sapSession.routeId
+            )
+
             if (combinedFilter.isEmpty()) {
                 val contracts = getItemsAsJsonNodes(
                     resourceUrl = resourceUrl,
@@ -52,7 +61,7 @@ class ContractsController: AbstractSapResourceController() {
                     sessionId = sapSession.sessionId
                 )
 
-                return compressContracts(contracts = contracts, session = sapSession)
+                return spreadContracts(contracts = contracts, items = items, groupCodes = groupCodes)
             }
 
             val filter = "\$filter=$combinedFilter"
@@ -65,53 +74,25 @@ class ContractsController: AbstractSapResourceController() {
                 sessionId = sapSession.sessionId
             )
 
-            return compressContracts(contracts = contracts, session = sapSession)
+            return spreadContracts(contracts = contracts, items = items, groupCodes = groupCodes)
         }
     }
 
     /**
-     * Compresses contracts. From one contract per item to one contract per item group.
+     * Spreads contracts to one contract per item group.
      *
-     * @param contracts contracts to compress
-     * @param session SAP session to use
+     * @param contracts contracts to spread
+     * @param items items to use for spreading
+     * @param groupCodes group codes to use for spreading
      * @return compressed contracts
      */
-    private fun compressContracts(contracts: List<JsonNode>, session: SapSession): List<JsonNode> {
+    private fun spreadContracts(contracts: List<JsonNode>, items: List<JsonNode>, groupCodes: JsonNode): List<JsonNode> {
         val newContracts = mutableListOf<JsonNode>()
-        val groupCodes = configController.getGroupCodesFile()
-        val itemPropertiesSelect = getItemPropertiesSelect(groupCodes = groupCodes)
-        val items = getItemsAsJsonNodes(
-            resourceUrl = "${session.apiUrl}/Items",
-            select = itemPropertiesSelect,
-            sessionId = session.sessionId,
-            routeId = session.routeId
-        )
 
         contracts.forEach { contract ->
             try {
-                val newContractsForThisContract = mutableListOf<JsonNode>()
-                val itemLines = contract.get("BlanketAgreements_ItemsLines")
-                itemLines.forEach { itemLine ->
-                    val itemCode = itemLine.get("ItemNo").asText()
-                    val itemGroupCode = getItemGroupCode(itemCode = itemCode, items = items, groupCodes = groupCodes)
 
-                    if (itemGroupCode != null) {
-                        val foundContract = newContractsForThisContract.find { contractToCheck -> contractToCheck.get("ItemGroupCode").asInt() == itemGroupCode }
-                        if (foundContract == null) {
-                            val newContract = contract as ObjectNode
-                            newContract.put("ItemGroupCode", itemGroupCode)
-                            newContract.put("DeliveredQuantity", 1)
-                            newContractsForThisContract.add(newContract as JsonNode)
-                        } else {
-                            val currentCount = foundContract.get("DeliveredQuantity").asInt()
-                            val indexOfContract = newContractsForThisContract.indexOf(foundContract)
-                            val newContract = foundContract as ObjectNode
-                            newContract.put("DeliveredQuantity", currentCount + 1)
-                            newContractsForThisContract[indexOfContract] = newContract
-                        }
-                    }
-                }
-
+                val newContractsForThisContract = spreadContract(contract = contract, items = items, groupCodes = groupCodes)
                 newContracts.addAll(newContractsForThisContract)
             } catch (e: Exception) {
                 logger.error("Failed to compress a contract from SAP: ${e.message}")
@@ -119,6 +100,33 @@ class ContractsController: AbstractSapResourceController() {
         }
 
         return newContracts
+    }
+
+    private fun spreadContract(contract: JsonNode, items: List<JsonNode>, groupCodes: JsonNode): List<JsonNode> {
+        val newContractsForThisContract = mutableListOf<JsonNode>()
+        val itemLines = contract.get("BlanketAgreements_ItemsLines")
+        itemLines.forEach { itemLine ->
+            val itemCode = itemLine.get("ItemNo").asText()
+            val itemGroupCode = getItemGroupCode(itemCode = itemCode, items = items, groupCodes = groupCodes)
+
+            if (itemGroupCode != null) {
+                val foundContract = newContractsForThisContract.find { contractToCheck -> contractToCheck.get("ItemGroupCode").asInt() == itemGroupCode }
+                if (foundContract == null) {
+                    val newContract = contract as ObjectNode
+                    newContract.put("ItemGroupCode", itemGroupCode)
+                    newContract.put("DeliveredQuantity", 1)
+                    newContractsForThisContract.add(newContract as JsonNode)
+                } else {
+                    val currentCount = foundContract.get("DeliveredQuantity").asInt()
+                    val indexOfContract = newContractsForThisContract.indexOf(foundContract)
+                    val newContract = foundContract as ObjectNode
+                    newContract.put("DeliveredQuantity", currentCount + 1)
+                    newContractsForThisContract[indexOfContract] = newContract
+                }
+            }
+        }
+
+        return newContractsForThisContract
     }
 
     /**
