@@ -16,38 +16,47 @@ val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
+val wiremockVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
 
-    implementation("io.quarkus:quarkus-hibernate-orm")
     implementation("io.quarkus:quarkus-container-image-docker")
-    implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-kotlin")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-resteasy-jackson")
-    implementation("io.quarkus:quarkus-liquibase")
-    implementation("io.quarkus:quarkus-jdbc-mysql")
+    implementation("io.quarkus:quarkus-amazon-lambda-http")
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("io.quarkus:quarkus-arc")
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    testImplementation("io.quarkus:quarkus-junit5")
+
     testImplementation("com.squareup.okhttp3:okhttp")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
     testImplementation("org.testcontainers:testcontainers")
-    testImplementation("org.testcontainers:mysql")
-    testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
+    testImplementation("com.github.tomakehurst:wiremock:$wiremockVersion")
 }
 
-group = "fi.metatavu.example"
+group = "fi.metatavu.pakkasmarja.services.erp"
 version = "1.0.0-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+}
+
+kotlin {
+    sourceSets {
+        main {
+            languageSettings {
+                optIn("kotlin.RequiresOptIn")
+            }
+        }
+    }
 }
 
 sourceSets["main"].java {
@@ -74,15 +83,17 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     setProperty("generatorName", "kotlin-server")
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-spec")
-    setProperty("apiPackage", "fi.metatavu.example.spec")
-    setProperty("invokerPackage", "fi.metatavu.example.invoker")
-    setProperty("modelPackage", "fi.metatavu.example.model")
+    setProperty("apiPackage", "${project.group}.api.spec")
+    setProperty("invokerPackage", "${project.group}.api.invoker")
+    setProperty("modelPackage", "${project.group}.api.model")
+    setProperty("templateDir", "$rootDir/openapi/api-spec")
     this.configOptions.put("library", "jaxrs-spec")
     this.configOptions.put("dateLibrary", "java8")
     this.configOptions.put("interfaceOnly", "true")
-    this.configOptions.put("useCoroutines", "true")
+    this.configOptions.put("useCoroutines", "false")
     this.configOptions.put("returnResponse", "true")
     this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
 }
 
@@ -91,9 +102,11 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     setProperty("library", "jvm-okhttp3")
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-client")
-    setProperty("packageName", "fi.metatavu.example.client")
+    setProperty("packageName", "${project.group}.test.client")
+    setProperty("templateDir", "$rootDir/openapi/api-client")
     this.configOptions.put("dateLibrary", "string")
     this.configOptions.put("collectionType", "array")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
     this.configOptions.put("serializationLibrary", "jackson")
 }
 
