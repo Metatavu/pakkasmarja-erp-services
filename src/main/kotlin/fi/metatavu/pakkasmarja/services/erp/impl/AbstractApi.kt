@@ -18,10 +18,10 @@ import javax.ws.rs.core.SecurityContext
 abstract class AbstractApi {
 
     @Inject
-    private lateinit var jsonWebToken: JsonWebToken
+    lateinit var jsonWebToken: JsonWebToken
 
     @Context
-    private lateinit var securityContext: SecurityContext
+    lateinit var securityContext: SecurityContext
 
     /**
      * Returns logged user id

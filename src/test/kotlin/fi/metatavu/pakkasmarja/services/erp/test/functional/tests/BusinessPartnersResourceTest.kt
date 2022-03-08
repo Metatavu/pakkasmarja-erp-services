@@ -14,6 +14,8 @@ import java.time.*
 /**
  * Tests for business partners
  *
+ * TODO: Add support for invalid data testing
+ *
  * @author Antti Leppä
  */
 @QuarkusTest

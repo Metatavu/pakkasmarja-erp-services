@@ -1,5 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.impl.translate
 
+import java.time.*
+
 /**
  * Abstract translator class
  *
@@ -7,16 +9,45 @@ package fi.metatavu.pakkasmarja.services.erp.impl.translate
  */
 abstract class AbstractTranslator<E, R> {
 
-    abstract fun translate(entity: E): R
+    abstract fun translate(node: E): R
 
     /**
      * Translates list of entities
      *
-     * @param entities list of entities to translate
-     * @return List of translated entities
+     * @param nodes list of nodes to translate
+     * @return List of translated nodes
      */
-    open fun translate(entities: List<E>): List<R> {
-        return entities.mapNotNull(this::translate)
+    open fun translate(nodes: List<E>): List<R> {
+        return nodes.map(this::translate)
+    }
+
+    /**
+     * Combines UpdatedDate and UpdatedTime from SAP into a single OffsetDateTime-object
+     *
+     * @param updatedDate updated date
+     * @param updatedTime updated time
+     * @return updated datetime
+     */
+    protected fun getUpdatedDateTime(updatedDate: String, updatedTime: String): OffsetDateTime {
+        val date = LocalDate.parse(updatedDate)
+        val time = LocalTime.parse(updatedTime)
+        val zone = ZoneId.of("Europe/Helsinki")
+        val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
+        return OffsetDateTime.of(date, time, zoneOffset)
+    }
+
+    /**
+     * Tries to parse a string to LocalDate and returns null if fails
+     *
+     * @param date string to parse
+     * @return parsed string or null
+     */
+    protected fun resolveLocalDate (date: String): LocalDate? {
+        return try {
+            LocalDate.parse(date)
+        } catch (e: Exception) {
+            null
+        }
     }
 
 }

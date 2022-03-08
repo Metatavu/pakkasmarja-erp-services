@@ -13,7 +13,7 @@ import javax.inject.Inject
 class BusinessPartnersController: AbstractSapResourceController() {
 
     @Inject
-    private lateinit var sapSessionController: SapSessionController
+    lateinit var sapSessionController: SapSessionController
 
     /**
      * Lists business partners
@@ -26,11 +26,16 @@ class BusinessPartnersController: AbstractSapResourceController() {
     fun listBusinessPartners(updatedAfter: OffsetDateTime?, firstResult: Int?, maxResults: Int?): List<JsonNode> {
         sapSessionController.createSapSession().use { sapSession ->
             val resourceUrl = "${sapSession.apiUrl}/BusinessPartners"
-            val updatedAfterFilter = updatedAfter?.let { "and ${createdUpdatedAfterFilter(it)}" } ?: ""
+
+            var updatedAfterFilter = ""
+            if (updatedAfter != null) {
+                updatedAfterFilter = "and ${createdUpdatedAfterFilter(updatedAfter)}"
+            }
+
             val filter = "\$filter=(CardType eq 'cSupplier' $updatedAfterFilter)"
             val select = "\$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime";
 
-            return getItemsAsJsonNodes(
+            return getDataFromSap(
                 resourceUrl = resourceUrl,
                 filter = filter,
                 select = select,

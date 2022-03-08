@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
+import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -28,9 +29,14 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP session route id
      * @return created item
      */
-    fun createItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
+    fun createItem(
+        item: JsonNode,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ): JsonNode {
         try {
-            return sendSapRequestWithItem(
+            return sendSapPostRequest(
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
@@ -43,6 +49,35 @@ abstract class AbstractSapResourceController {
     }
 
     /**
+     * Finds item from SAP
+     *
+     * @param itemUrl item url
+     * @param sessionId SAP-session id
+     * @param routeId SAP-session route id
+     * @return found item or null
+     */
+    fun findItem(itemUrl: String, sessionId: String, routeId: String): JsonNode? {
+        try {
+            val client = HttpClient.newHttpClient()
+
+            val request = HttpRequest
+                .newBuilder(URI.create(itemUrl))
+                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .GET()
+                .build()
+
+            val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+            if (response.statusCode() != 200) {
+                return null
+            }
+
+            return ObjectMapper().readTree(response.body())
+        } catch (e: Exception) {
+            throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
+        }
+    }
+
+    /**
      * Updates an item to SAP
      *
      * @param item item to update
@@ -51,9 +86,14 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP session route id
      * @return updated item
      */
-    fun updateItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
+    fun updateItem(
+        item: JsonNode,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ): JsonNode {
         try {
-            return sendSapRequestWithItem(
+            return sendSapPostRequest(
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
@@ -63,6 +103,53 @@ abstract class AbstractSapResourceController {
         } catch (e: Exception) {
             throw SapModificationException("Failed to update an item to SAP: ${e.message}")
         }
+    }
+
+    /**
+     * Gets data from SAP and converts them to JSON-nodes
+     *
+     * @param resourceUrl resource url
+     * @param filter SAP-filter
+     * @param select SAP-field selector
+     * @param routeId SAP-session route id
+     * @param sessionId SAP-session id
+     * @return items
+     */
+    fun getDataFromSap(
+        resourceUrl: String,
+        filter: String,
+        select: String,
+        routeId: String,
+        sessionId: String
+    ): List<JsonNode> {
+        val escapedFilter = escapeSapQuery(filter)
+        val countUrl = "$resourceUrl/\$count?$escapedFilter"
+        val count = getCountRequest(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
+        val baseItemUrl = "$resourceUrl?$escapedFilter&$select"
+        val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
+        return getItemsRequest(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
+    }
+
+    /**
+     * Gets data from SAP and converts them to JSON-nodes
+     *
+     * @param resourceUrl resource url
+     * @param select SAP-field selector
+     * @param routeId SAP-session route id
+     * @param sessionId SAP-session id
+     * @return items
+     */
+    fun getDataFromSap(
+        resourceUrl: String,
+        select: String,
+        routeId: String,
+        sessionId: String
+    ): List<JsonNode> {
+        val countUrl = "$resourceUrl/\$count"
+        val count = getCountRequest(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
+        val baseItemUrl = "$resourceUrl?$select"
+        val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
+        return getItemsRequest(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
     }
 
     /**
@@ -77,100 +164,31 @@ abstract class AbstractSapResourceController {
         return "(UpdateDate gt '$updateDate' or (UpdateDate eq '$updateDate' and UpdateTime gt '$updateTime'))"
     }
 
-    /**
-     * Gets items from SAP and converts them to JSON-nodes
-     *
-     * @param resourceUrl resource url
-     * @param filter SAP-filter
-     * @param select SAP-field selector
-     * @param routeId SAP-session route id
-     * @param sessionId SAP-session id
-     * @return items
-     */
-    fun getItemsAsJsonNodes(
-        resourceUrl: String,
-        filter: String,
-        select: String,
-        routeId: String,
-        sessionId: String
-    ): List<JsonNode> {
+    fun constructSAPUrlWithFilter(resourceUrl: String, sessionId: String, routeId: String, select: String, filter: String): List<String> {
         val escapedFilter = escapeSapQuery(filter)
         val countUrl = "$resourceUrl/\$count?$escapedFilter"
-        val count = getCount(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
+        val count = getCountRequest(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
         val baseItemUrl = "$resourceUrl?$escapedFilter&$select"
-        val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
-        return getItems(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
+        return getItemUrls(baseItemUrl = baseItemUrl, count = count)
     }
 
-    /**
-     * Gets items from SAP and converts them to JSON-nodes
-     *
-     * @param resourceUrl resource url
-     * @param select SAP-field selector
-     * @param routeId SAP-session route id
-     * @param sessionId SAP-session id
-     * @return items
-     */
-    fun getItemsAsJsonNodes(
-        resourceUrl: String,
-        select: String,
-        routeId: String,
-        sessionId: String
-    ): List<JsonNode> {
+    fun constructSAPUrl(resourceUrl: String, sessionId: String, routeId: String, select: String): List<String> {
         val countUrl = "$resourceUrl/\$count"
-        val count = getCount(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
+        val count = getCountRequest(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
         val baseItemUrl = "$resourceUrl?$select"
-        val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
-        return getItems(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
-    }
-
-    /**
-     * Sends a request to SAP with a body
-     *
-     * @param item body to send
-     * @param resourceUrl resource url
-     * @param sessionId SAP session id
-     * @param routeId SAP session route id
-     * @param method request method
-     * @return the response from SAP
-     */
-    private fun sendSapRequestWithItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String, method: String): JsonNode {
-        val client = HttpClient.newHttpClient()
-        val request = HttpRequest
-            .newBuilder(URI.create(resourceUrl))
-            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-            .setHeader("Prefer","odata.maxpagesize=100")
-            .method(method, HttpRequest.BodyPublishers.ofString(item.toString()))
-            .build()
-
-        val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-            val objectMapper = ObjectMapper()
-            return@thenApply objectMapper.readTree(response.body()).get("value")
-        }
-
-        return response.get()
-    }
-
-    /**
-     * Escapes characters in a SAP-query that would otherwise cause errors
-     *
-     * @param query a query to escape
-     * @return escaped query
-     */
-    private fun escapeSapQuery (query: String): String {
-        return query.replace(" ", "%20").replace("'", "%27")
+        return getItemUrls(baseItemUrl = baseItemUrl, count = count)
     }
 
     /**
      * Fetches items from multiple urls and combines them into a single list
      *
      * @param itemUrls item urls
-     * @param sessionId SAP-session id
-     * @param routeId SAP-session route id
-     * @return items
+     * @param sapSession SAP-session
+     * @return list of items
      */
-    private fun getItems(itemUrls: List<String>, sessionId: String, routeId: String): List<JsonNode> {
+    fun getItemsRequest(itemUrls: List<String>, sapSession: SapSession, maxResults: Int? = 100): List<JsonNode> {
         try {
+
             val jsonNodes = mutableListOf<JsonNode>()
             val client = HttpClient.newHttpClient()
             val futures = mutableListOf<CompletableFuture<Unit>>()
@@ -178,8 +196,8 @@ abstract class AbstractSapResourceController {
             itemUrls.forEach {
                 val request = HttpRequest
                     .newBuilder(URI.create(it))
-                    .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                    .setHeader("Prefer","odata.maxpagesize=100")
+                    .setHeader("Cookie", "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}")
+                    .setHeader("Prefer","odata.maxpagesize=${maxResults}")
                     .GET()
                     .build()
 
@@ -201,6 +219,64 @@ abstract class AbstractSapResourceController {
     }
 
     /**
+     * Sends a POST request to SAP
+     *
+     * @param item body to send
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @param method request method
+     * @return the response from SAP
+     */
+    private fun sendSapPostRequest(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String, method: String): JsonNode {
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest
+            .newBuilder(URI.create(resourceUrl))
+            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .setHeader("Prefer","odata.maxpagesize=100")
+            .method(method, HttpRequest.BodyPublishers.ofString(item.toString()))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+
+        return ObjectMapper().readTree(response.body()).get("value")
+    }
+
+    /**
+     * Gets an item count
+     *
+     * @param countUrl an url to get an item count
+     * @param sessionId SAP-session id
+     * @param routeId SAP-session route id
+     * @return item count
+     */
+    private fun getCountRequest(countUrl: String, sessionId: String, routeId: String): Int {
+        try {
+            val client = HttpClient.newHttpClient()
+            val request = HttpRequest
+                .newBuilder(URI.create(countUrl))
+                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .GET()
+                .build()
+
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+            return response.body().toInt()
+        } catch (e: Exception) {
+            throw SapCountFetchException("Failed to fetch item count from SAP, ${e.message}")
+        }
+    }
+
+    /**
+     * Escapes characters in a SAP-query that would otherwise cause errors
+     *
+     * @param query a query to escape
+     * @return escaped query
+     */
+    private fun escapeSapQuery (query: String): String {
+        return query.replace(" ", "%20").replace("'", "%27")
+    }
+
+    /**
      * Creates multiple urls in order to split a request
      *
      * @param baseItemUrl base url for all requests
@@ -216,27 +292,4 @@ abstract class AbstractSapResourceController {
         return itemUrls
     }
 
-    /**
-     * Gets an item count
-     *
-     * @param countUrl an url to get an item count
-     * @param sessionId SAP-session id
-     * @param routeId SAP-session route id
-     * @return item count
-     */
-    private fun getCount(countUrl: String, sessionId: String, routeId: String): Int {
-        try {
-            val client = HttpClient.newHttpClient()
-            val request = HttpRequest
-                .newBuilder(URI.create(countUrl))
-                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                .GET()
-                .build()
-
-            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-            return response.body().toInt()
-        } catch (e: Exception) {
-            throw SapCountFetchException("Failed to fetch item count from SAP, ${e.message}")
-        }
-    }
 }

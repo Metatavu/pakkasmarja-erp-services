@@ -14,50 +14,29 @@ import javax.inject.Inject
  * The translator class for SAP business partners
  */
 @ApplicationScoped
-class BusinessPartnerTranslator() {
+class BusinessPartnerTranslator: AbstractTranslator<JsonNode, SapBusinessPartner>() {
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     /**
      * Translates a business partner from SAP into the format expected by spec
      *
-     * @param businessPartner business partner to be translated
+     * @param node business partner to be translated
      * @return translated business partner
      */
-    fun translate(businessPartner: JsonNode): SapBusinessPartner? {
-        return try {
-            SapBusinessPartner(
-                code = businessPartner.get("CardCode").asText().toInt(),
-                email = businessPartner.get("Email").asText(),
-                phoneNumbers = listOf(businessPartner.get("Phone1").asText(), businessPartner.get("Phone2").asText()),
-                addresses = businessPartner.get("BPAddresses").map(this::translateAddress),
-                companyName = businessPartner.get("CardName").asText(),
-                federalTaxId = businessPartner.get("FederalTaxID").asText(),
-                vatLiable = translateVatLiable(businessPartner.get("VatLiable").asText()),
-                updated = getUpdatedDateTime(businessPartner.get("UpdatedDate").asText(), businessPartner.get("UpdatedTime").asText()),
-                bankAccounts = businessPartner.get("BPBankAccounts").map(this::translateBankAccount)
-            )
-        } catch (e: Exception) {
-            logger.error("Failed to translate a business partner from SAP: ${e.message}")
-            null
-        }
-
-    }
-
-    /**
-     * Combines UpdatedDate and UpdatedTime from SAP into a single OffsetDateTime-object
-     *
-     * @param updatedDate updated date
-     * @param updatedTime updated time
-     * @return updated datetime
-     */
-    private fun getUpdatedDateTime(updatedDate: String, updatedTime: String): OffsetDateTime {
-        val date = LocalDate.parse(updatedDate)
-        val time = LocalTime.parse(updatedTime)
-        val zone = ZoneId.of("Europe/Helsinki")
-        val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-        return OffsetDateTime.of(date, time, zoneOffset)
+    override fun translate(node: JsonNode): SapBusinessPartner {
+        return SapBusinessPartner(
+            code = node.get("CardCode").asText().toInt(),
+            email = node.get("Email").asText(),
+            phoneNumbers = listOf(node.get("Phone1").asText(), node.get("Phone2").asText()),
+            addresses = node.get("BPAddresses").map(this::translateAddress),
+            companyName = node.get("CardName").asText(),
+            federalTaxId = node.get("FederalTaxID").asText(),
+            vatLiable = translateVatLiable(node.get("VatLiable").asText()),
+            updated = getUpdatedDateTime(node.get("UpdatedDate").asText(), node.get("UpdatedTime").asText()),
+            bankAccounts = node.get("BPBankAccounts").map(this::translateBankAccount)
+        )
     }
 
     /**

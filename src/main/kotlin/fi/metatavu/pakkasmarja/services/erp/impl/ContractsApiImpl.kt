@@ -17,30 +17,16 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("unused")
+@Authenticated
 class ContractsApiImpl: ContractsApi, AbstractApi() {
 
     @Inject
-    private lateinit var contractsController: ContractsController
+    lateinit var contractsController: ContractsController
 
     @Inject
-    private lateinit var contractTranslator: ContractTranslator
+    lateinit var contractTranslator: ContractTranslator
 
-    @Authenticated
-    override fun createContract(sapContract: SapContract): Response {
-        val newContract = contractsController.createContract(sapContract = sapContract)
-        val translatedContract = contractTranslator.translate(newContract)
-        return createOk(translatedContract)
-    }
-
-    override fun deleteContract(sapId: String): Response {
-        TODO("Not yet implemented")
-    }
-
-    override fun findContract(sapId: String): Response {
-        TODO("Not yet implemented")
-    }
-
-    @Authenticated
     override fun listContracts(
         startDate: LocalDate?,
         businessPartnerCode: String?,
@@ -51,12 +37,19 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
             businessPartnerCode = businessPartnerCode,
             contractStatus = contractStatus
         )
-        val translatedContracts = contracts.mapNotNull(contractTranslator::translate)
+        val translatedContracts = contracts.map(contractTranslator::translate)
 
         return createOk(translatedContracts)
     }
 
-    override fun updateContract(sapId: String, sapContract: SapContract): Response {
+    override fun createContract(sapContract: SapContract): Response {
+        val newContract = contractsController.createContract(sapContract = sapContract)
+        val translatedContract = contractTranslator.translate(newContract)
+        return createOk(translatedContract)
+    }
+
+    override fun findContract(sapId: String): Response {
         TODO("Not yet implemented")
     }
+
 }

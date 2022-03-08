@@ -3,61 +3,37 @@ package fi.metatavu.pakkasmarja.services.erp.impl.translate
 import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
-import org.jboss.logging.Logger
-import java.time.LocalDate
 import javax.enterprise.context.ApplicationScoped
-import javax.inject.Inject
 
 /**
  * The translator class for SAP contracts
  */
 @ApplicationScoped
-class ContractTranslator {
-
-    @Inject
-    private lateinit var logger: Logger
+class ContractTranslator: AbstractTranslator<JsonNode, SapContract>() {
 
     /**
      * Translates a contract from SAP into tbe format expected by spec
      *
-     * @param contract a contract from SAP
+     * @param node a contract from SAP
      * @return translated contract
      */
-    fun translate(contract: JsonNode): SapContract? {
-        return try {
-            val startDate = resolveLocalDate(contract.get("StartDate").asText())
-            val year = startDate?.year.toString()
-            SapContract(
-                id = "$year-${contract.get("DocNum").asText()}",
-                businessPartnerCode = contract.get("BPCode").asText().toInt(),
-                contactPersonCode = contract.get("ContractPersonCode").asText().toInt(),
-                itemGroupCode = contract.get("ItemGroupCode").asInt(),
-                status = resolveContractStatus(contract.get("Status").asText())!!,
-                deliveredQuantity = contract.get("DeliveredQuantity").asDouble(),
-                startDate = startDate,
-                endDate = resolveLocalDate(contract.get("EndDate").asText()),
-                signingDate = resolveLocalDate(contract.get("SigningDate").asText()),
-                terminateDate = resolveLocalDate(contract.get("TerminateDate").asText()),
-                remarks = contract.get("Remarks").asText()
-            )
-        } catch (e: Exception) {
-            logger.error("Failed to translate a contract from SAP: ${e.message}")
-            null
-        }
-    }
+    override fun translate(node: JsonNode): SapContract {
+        val startDate = resolveLocalDate(node.get("StartDate").asText())
+        val year = startDate?.year.toString()
 
-    /**
-     * Tries to parse a string to LocalDate and returns null if fails
-     *
-     * @param date string to parse
-     * @return parsed string or null
-     */
-    private fun resolveLocalDate (date: String): LocalDate? {
-        return try {
-            LocalDate.parse(date)
-        } catch (e: Exception) {
-            null
-        }
+        return SapContract(
+            id = "$year-${node.get("DocNum").asText()}",
+            businessPartnerCode = node.get("BPCode").asText().toInt(),
+            contactPersonCode = node.get("ContractPersonCode").asText().toInt(),
+            itemGroupCode = node.get("ItemGroupCode").asInt(),
+            status = resolveContractStatus(node.get("Status").asText())!!,
+            deliveredQuantity = node.get("DeliveredQuantity").asDouble(),
+            startDate = startDate,
+            endDate = resolveLocalDate(node.get("EndDate").asText()),
+            signingDate = resolveLocalDate(node.get("SigningDate").asText()),
+            terminateDate = resolveLocalDate(node.get("TerminateDate").asText()),
+            remarks = node.get("Remarks").asText()
+        )
     }
 
     /**

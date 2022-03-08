@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test
 
 /**
  * Tests for contracts
+ *
+ * TODO: Add support for invalid data testing
  */
 @QuarkusTest
 @QuarkusTestResource.List(

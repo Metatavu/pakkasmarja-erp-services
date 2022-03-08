@@ -21,13 +21,16 @@ import javax.inject.Inject
 class ContractsController: AbstractSapResourceController() {
 
     @Inject
-    private lateinit var sapSessionController: SapSessionController
+    lateinit var sapSessionController: SapSessionController
 
     @Inject
-    private lateinit var logger: Logger
+    lateinit var logger: Logger
 
     @Inject
-    private lateinit var configController: ConfigController
+    lateinit var configController: ConfigController
+
+    @Inject
+    lateinit var itemsController: ItemsController
 
     /**
      * Lists contracts
@@ -35,65 +38,75 @@ class ContractsController: AbstractSapResourceController() {
      * @param startDate start date filter
      * @param businessPartnerCode business partner code filter
      * @param contractStatus contract status filter
-     * @return contracts
+     * @return list of contracts
      */
     fun listContracts(startDate: LocalDate?, businessPartnerCode: String?, contractStatus: SapContractStatus?): List<JsonNode> {
         sapSessionController.createSapSession().use { sapSession ->  
             val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
-            val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
-            val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
-            val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
-            val combinedFilter = listOfNotNull(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).joinToString(" and ")
-
-            val groupCodes = configController.getGroupCodesFile()
-            val itemPropertiesSelect = getItemPropertiesSelect(groupCodes = groupCodes)
-            val items = getItemsAsJsonNodes(
-                resourceUrl = "${sapSession.apiUrl}/Items",
-                select = itemPropertiesSelect,
-                sessionId = sapSession.sessionId,
-                routeId = sapSession.routeId
+            val combinedFilter = getCombinedFilter(
+                startDate = startDate,
+                businessPartnerCode = businessPartnerCode,
+                contractStatus = contractStatus
             )
 
-            if (combinedFilter.isEmpty()) {
-                val contracts = getItemsAsJsonNodes(
+            val items = itemsController.listItems(
+                itemGroupCode = null,
+                updatedAfter = null,
+                firstResult = null,
+                maxResults = null
+            )
+
+            return if (combinedFilter.isEmpty()) {
+                val contracts = getDataFromSap(
                     resourceUrl = resourceUrl,
                     select = "\$select=*",
                     routeId = sapSession.routeId,
                     sessionId = sapSession.sessionId
                 )
 
-                return spreadContracts(contracts = contracts, items = items, groupCodes = groupCodes)
+                spreadContracts(contracts = contracts, items = items)
+            } else {
+                val contracts = getDataFromSap(
+                    resourceUrl = resourceUrl,
+                    select = "\$select=*",
+                    filter = "\$filter=$combinedFilter",
+                    routeId = sapSession.routeId,
+                    sessionId = sapSession.sessionId
+                )
+
+                spreadContracts(contracts = contracts, items = items)
             }
-
-            val filter = "\$filter=$combinedFilter"
-
-            val contracts = getItemsAsJsonNodes(
-                resourceUrl = resourceUrl,
-                select = "\$select=*",
-                filter = filter,
-                routeId = sapSession.routeId,
-                sessionId = sapSession.sessionId
-            )
-
-            return spreadContracts(contracts = contracts, items = items, groupCodes = groupCodes)
         }
+    }
+
+    /**
+     * Constructs combined filter string for SAP request
+     *
+     * @param startDate start date or null
+     * @param businessPartnerCode business partner code or null
+     * @param contractStatus contract status or null
+     * @returns constructed filter string
+     */
+    private fun getCombinedFilter(startDate: LocalDate?, businessPartnerCode: String?, contractStatus: SapContractStatus?): String {
+        val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
+        val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
+        val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
+        return listOfNotNull(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).joinToString(" and ")
     }
 
     /**
      * Spreads contracts to one contract per item group
      *
      * @param contracts contracts to spread
-     * @param items items to use for spreading
-     * @param groupCodes group codes to use for spreading
+     * @param items list of SAP items
      * @return spread
      */
-    private fun spreadContracts(contracts: List<JsonNode>, items: List<JsonNode>, groupCodes: JsonNode): List<JsonNode> {
+    private fun spreadContracts(contracts: List<JsonNode>, items: List<JsonNode>): List<JsonNode> {
         val newContracts = mutableListOf<JsonNode>()
 
         contracts.forEach { contract ->
             try {
-
-                val newContractsForThisContract = spreadContract(contract = contract, items = items, groupCodes = groupCodes)
+                val newContractsForThisContract = spreadContract(contract = contract, items = items)
                 newContracts.addAll(newContractsForThisContract)
             } catch (e: Exception) {
                 logger.error("Failed to compress a contract from SAP: ${e.message}")
@@ -105,86 +118,43 @@ class ContractsController: AbstractSapResourceController() {
 
     /**
      * Spreads a contract to one contract per item group
+     *
      * @param contract a contract to spread
      * @param items items to use for spreading
-     * @param groupCodes group codes to use for spreading
      * @return spread contract
      */
-    private fun spreadContract(contract: JsonNode, items: List<JsonNode>, groupCodes: JsonNode): List<JsonNode> {
+    private fun spreadContract(contract: JsonNode, items: List<JsonNode>): List<JsonNode> {
         val newContractsForThisContract = mutableListOf<JsonNode>()
         val itemLines = contract.get("BlanketAgreements_ItemsLines")
+        val groupCodes = configController.getGroupCodesFile()
+
         itemLines.forEach { itemLine ->
             val itemCode = itemLine.get("ItemNo").asText()
-            val itemGroupCode = getItemGroupCode(itemCode = itemCode, items = items, groupCodes = groupCodes)
+            val item = itemsController.findItemFromItemList(items = items, itemCode = itemCode)
 
-            if (itemGroupCode != null) {
-                val foundContract = newContractsForThisContract.find { contractToCheck -> contractToCheck.get("ItemGroupCode").asInt() == itemGroupCode }
-                if (foundContract == null) {
-                    val newContract = contract as ObjectNode
-                    newContract.put("ItemGroupCode", itemGroupCode)
-                    newContract.put("DeliveredQuantity", 1)
-                    newContractsForThisContract.add(newContract as JsonNode)
-                } else {
-                    val currentCount = foundContract.get("DeliveredQuantity").asInt()
-                    val indexOfContract = newContractsForThisContract.indexOf(foundContract)
-                    val newContract = foundContract as ObjectNode
-                    newContract.put("DeliveredQuantity", currentCount + 1)
-                    newContractsForThisContract[indexOfContract] = newContract
+            if (item != null) {
+                val itemGroupCode = itemsController.getItemGroupCode(item = item, groupCodes = groupCodes)
+
+                if (itemGroupCode != null) {
+                    val foundContract = newContractsForThisContract.find { contractToCheck -> contractToCheck.get("ItemGroupCode").asInt() == itemGroupCode }
+
+                    if (foundContract == null) {
+                        val newContract = contract as ObjectNode
+                        newContract.put("ItemGroupCode", itemGroupCode)
+                        newContract.put("DeliveredQuantity", 1)
+                        newContractsForThisContract.add(newContract as JsonNode)
+                    } else {
+                        val currentCount = foundContract.get("DeliveredQuantity").asInt()
+                        val indexOfContract = newContractsForThisContract.indexOf(foundContract)
+                        val newContract = foundContract as ObjectNode
+                        newContract.put("DeliveredQuantity", currentCount + 1)
+                        newContractsForThisContract[indexOfContract] = newContract
+                    }
                 }
             }
         }
 
         return newContractsForThisContract
-    }
-
-    /**
-     * Creates a SAP query selector from group codes config
-     *
-     * @param groupCodes groups to use for selection
-     * @return selector
-     */
-    private fun getItemPropertiesSelect(groupCodes: JsonNode): String {
-        val propertyNames = mutableListOf<String>()
-        groupCodes.forEach { groupCode ->
-            val itemPropertyName = groupCode.get("itemPropertyName").asText()
-            propertyNames.add(itemPropertyName)
-        }
-
-        val filters = propertyNames.joinToString(",").plus(",ItemCode,Properties28,Properties35")
-        return "\$select=$filters"
-    }
-
-    /**
-     * Gets the group code of an item
-     *
-     * @param itemCode item code
-     * @param items items
-     * @param groupCodes group codes config
-     * @return group code
-     */
-    private fun getItemGroupCode(itemCode: String, items: List<JsonNode>, groupCodes: JsonNode): Int? {
-        val item = items.find { item -> item.get("ItemCode").asText() == itemCode }
-
-        if (item == null) {
-            logger.error("Item not found with code $itemCode")
-            return null
-        }
-
-        val itemIsFrozen = item.get("Properties28").asText() == "tYes"
-        val itemIsOrganic = item.get("Properties35").asText() == "tYes"
-
-        groupCodes.fields().forEach { pair ->
-            val groupCode = pair.value
-            val itemPropertyName = groupCode.get("itemPropertyName").asText()
-            val itemIsOfGroup = item.get(itemPropertyName).asText() == "tYes"
-            val groupIsFrozen = groupCode.get("isFrozen").asBoolean()
-            val groupIsOrganic = groupCode.get("isOrganic").asBoolean()
-            if (itemIsOfGroup && groupIsFrozen == itemIsFrozen && groupIsOrganic == itemIsOrganic) {
-                return pair.key.toInt()
-            }
-        }
-
-        return null
     }
 
     /**
@@ -213,22 +183,19 @@ class ContractsController: AbstractSapResourceController() {
             val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
             val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq ${sapContract.businessPartnerCode} and Status eq asApproved"
 
-            val groupCodes = configController.getGroupCodesFile()
-
-            val itemPropertiesSelect = getItemPropertiesSelect(groupCodes = groupCodes)
-            val items = getItemsAsJsonNodes(
-                resourceUrl = "${sapSession.apiUrl}/Items",
-                select = itemPropertiesSelect,
-                sessionId = sapSession.sessionId,
-                routeId = sapSession.routeId
-            )
-
-            val contracts = getItemsAsJsonNodes(
+            val contracts = getDataFromSap(
                 resourceUrl = resourceUrl,
                 select = "\$select=*",
                 filter = filter,
                 routeId = sapSession.routeId,
                 sessionId = sapSession.sessionId
+            )
+
+            val items = itemsController.listItems(
+                itemGroupCode = null,
+                updatedAfter = null,
+                firstResult = null,
+                maxResults = null
             )
 
             if (contracts.isEmpty()) {
@@ -244,8 +211,8 @@ class ContractsController: AbstractSapResourceController() {
                     routeId = sapSession.routeId
                 )
 
-                return spreadContract(contract = createdItem, groupCodes = groupCodes, items = items)[0]
-            } else {
+                return spreadContract(contract = createdItem, items = items)[0]
+            } else if(contracts.size == 1) {
                 val contractToUpdate = contracts.first() as ObjectNode
                 val contractForUpdate = buildContractForUpdate(
                     contractToUpdate = contractToUpdate,
@@ -260,13 +227,11 @@ class ContractsController: AbstractSapResourceController() {
                     routeId = sapSession.routeId
                 )
 
-                return spreadContract(
-                    contract = updatedItem,
-                    groupCodes = groupCodes,
-                    items = items
-                ).find { contract ->
+                return spreadContract(contract = updatedItem, items = items).find { contract ->
                     contract.get("ItemGroupCode").asInt() == sapContract.itemGroupCode
                 }!!
+            } else {
+                throw Exception("More then one contract was found")
             }
         }
     }
@@ -362,16 +327,16 @@ class ContractsController: AbstractSapResourceController() {
     private fun getGroupItemCodes(groupCode: String, sapSession: SapSession): List<String> {
         val groupCodes = configController.getGroupCodesFile()
         val groupCodeObject = groupCodes.get(groupCode)
-        val itemPropertyName = groupCodeObject.get("itemPropertyName").asText()
+        val itemGroupPropertyName = groupCodeObject.get("itemGroupPropertyName").asText()
         val isFrozen = groupCodeObject.get("isFrozen").asBoolean()
         val isOrganic = groupCodeObject.get("isOrganic").asBoolean()
 
         val isFrozenFilter = "Properties28 eq ${toSapItemPropertyBoolean(isFrozen)}"
         val isOrganicFilter = "Properties35 eq ${toSapItemPropertyBoolean(isOrganic)}"
 
-        val filter = "\$filter=$itemPropertyName eq tYes and $isFrozenFilter and $isOrganicFilter"
+        val filter = "\$filter=$itemGroupPropertyName eq tYES and $isFrozenFilter and $isOrganicFilter"
         val select = "\$select=ItemCode"
-        val items = getItemsAsJsonNodes(
+        val items = getDataFromSap(
             resourceUrl = "${sapSession.apiUrl}/Items",
             filter = filter,
             select = select,
@@ -390,8 +355,8 @@ class ContractsController: AbstractSapResourceController() {
      */
     private fun toSapItemPropertyBoolean(value: Boolean): String {
         return when (value) {
-            true -> "tYes"
-            false -> "tNo"
+            true -> "tYES"
+            false -> "tNO"
         }
     }
 }

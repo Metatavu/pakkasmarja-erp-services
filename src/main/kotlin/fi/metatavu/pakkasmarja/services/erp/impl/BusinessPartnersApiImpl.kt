@@ -17,15 +17,16 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("unused")
+@Authenticated
 class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
 
     @Inject
-    private lateinit var businessPartnersController: BusinessPartnersController
+    lateinit var businessPartnersController: BusinessPartnersController
 
     @Inject
-    private lateinit var businessPartnerTranslator: BusinessPartnerTranslator
+    lateinit var businessPartnerTranslator: BusinessPartnerTranslator
 
-    @Authenticated
     override fun listBusinessPartners(
         updatedAfter: OffsetDateTime?,
         firstResult: Int?,
@@ -36,7 +37,7 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
             firstResult = firstResult,
             maxResults = maxResults
         )
-        val translatedBusinessPartners = businessPartners.mapNotNull(businessPartnerTranslator::translate)
+        val translatedBusinessPartners = businessPartners.map(businessPartnerTranslator::translate)
 
         return createOk(translatedBusinessPartners)
     }
