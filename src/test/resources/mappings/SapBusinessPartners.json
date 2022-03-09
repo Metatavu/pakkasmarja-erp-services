@@ -23,7 +23,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/BusinessPartners?$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime&$skip=0"
+        "url": "/BusinessPartners?$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime&$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))"
       },
       "response": {
         "jsonBody": {
@@ -79,24 +79,7 @@
                   "IBAN": "FI61000000000"
                 }
               ]
-            }
-          ]
-        }
-      }
-    },
-    {
-      "request": {
-        "method": "GET",
-        "headers": {
-          "Cookie": {
-            "contains": "B1SESSION=ABC; ROUTEID=DEF"
-          }
-        },
-        "url": "/BusinessPartners?$filter=(CardType%20eq%20%27cSupplier%27%20and%20(UpdateDate%20gt%20%272022-02-17%27%20or%20(UpdateDate%20eq%20%272022-02-17%27%20and%20UpdateTime%20gt%20%2710:00%27)))&$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime&$skip=100"
-      },
-      "response": {
-        "jsonBody": {
-          "value": [
+            },
             {
               "CardCode": "1",
               "Email": "jorma@example.com",

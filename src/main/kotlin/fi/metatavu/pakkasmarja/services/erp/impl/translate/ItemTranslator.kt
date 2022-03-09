@@ -21,7 +21,20 @@ class ItemTranslator: AbstractTranslator<JsonNode, SapItem>() {
 
     override fun translate(nodes: List<JsonNode>): List<SapItem> {
         val groupCodes = configController.getGroupCodesFile()
-        return nodes.map{ node -> this.translateSingleItem(node = node, groupCodes = groupCodes) }
+
+        return nodes.map{ node ->
+            val itemGroupCode = itemsController.getItemGroupCode(item = node, groupCodes = groupCodes)
+            val updated = getUpdatedDateTime(node.get("UpdatedDate").asText(), node.get("UpdatedTime").asText())
+
+            SapItem(
+                code = node.get("ItemCode").asInt(),
+                itemGroupCode = itemGroupCode,
+                name = node.get("ItemName").asText(),
+                purchaseUnit = node.get("PurchaseUnit").asText(),
+                batchManaged = node.get("ManageBatchNumbers").asText() == "tYES",
+                updated = updated,
+            )
+        }
     }
 
     override fun translate(node: JsonNode): SapItem {
@@ -38,24 +51,4 @@ class ItemTranslator: AbstractTranslator<JsonNode, SapItem>() {
         )
     }
 
-    /**
-     * Translates single SAP item to spec SapItem
-     *
-     * @param node node to translate
-     * @param groupCodes group codes
-     * @return translated SapItem
-     */
-    private fun translateSingleItem(node: JsonNode, groupCodes: JsonNode): SapItem {
-        val itemGroupCode = itemsController.getItemGroupCode(item = node, groupCodes = groupCodes)
-        val updated = getUpdatedDateTime(node.get("UpdatedDate").asText(), node.get("UpdatedTime").asText())
-
-        return SapItem(
-            code = node.get("ItemCode").asInt(),
-            itemGroupCode = itemGroupCode,
-            name = node.get("ItemName").asText(),
-            purchaseUnit = node.get("PurchaseUnit").asText(),
-            batchManaged = node.get("ManageBatchNumbers").asText() == "tYES",
-            updated = updated,
-        )
-    }
 }

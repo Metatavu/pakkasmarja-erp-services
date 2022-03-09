@@ -1,14 +1,10 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import fi.metatavu.pakkasmarja.services.erp.api.model.SapItem
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
-import kotlinx.coroutines.future.await
 import java.time.OffsetDateTime
-import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 
@@ -29,12 +25,19 @@ class ItemsController: AbstractSapResourceController() {
     fun listItems(
         itemGroupCode: Int?,
         updatedAfter: OffsetDateTime?,
-        firstResult: Int?,
-        maxResults: Int?
+        firstResult: Int? = 0,
+        maxResults: Int? = 9999
     ): List<JsonNode> {
         sapSessionController.createSapSession().use{ sapSession ->
+            val requestUrl = constructItemRequestUrls(
+                sapSession = sapSession,
+                updatedAfter = updatedAfter,
+                itemGroupCode = itemGroupCode,
+                firstResult = firstResult
+            ) ?: return emptyList()
+
             return getItemsRequest(
-                itemUrls = constructUrls(sapSession = sapSession, updatedAfter = updatedAfter, itemGroupCode = itemGroupCode),
+                requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = maxResults
             )
@@ -58,7 +61,11 @@ class ItemsController: AbstractSapResourceController() {
     }
 
     /**
+     * Find item from item list
      *
+     * @param items list of items
+     * @param itemCode item code to search for
+     * @return found item or null
      */
     fun findItemFromItemList(items: List<JsonNode>, itemCode: String?): JsonNode? {
         return items.find { item -> item.get("ItemCode").asText() == itemCode }
@@ -110,12 +117,18 @@ class ItemsController: AbstractSapResourceController() {
         return null
     }
 
-    private fun constructItemSelect(itemGroupCode: Int?): String {
+    /**
+     * Constructs item select string
+     *
+     * @param itemGroupCode item group code or null
+     * @return constructed select string or null if something failed during construction
+     */
+    private fun constructItemSelect(itemGroupCode: Int?): String? {
         val allGroupCodes = configController.getGroupCodesFile()
 
         return if (itemGroupCode != null) {
-            val foundItem = allGroupCodes.findValue(itemGroupCode.toString()) ?: return ""
-            val itemGroupPropertyName = foundItem.get("itemGroupPropertyName").asText() ?: ""
+            val foundItem = allGroupCodes.findValue(itemGroupCode.toString()) ?: return null
+            val itemGroupPropertyName = foundItem.get("itemGroupPropertyName").asText() ?: return null
             getItemPropertiesSelect(propertyNames = listOf(itemGroupPropertyName))
         } else {
             val itemProperties = constructItemPropertiesList(groupCodes = allGroupCodes)
@@ -123,29 +136,38 @@ class ItemsController: AbstractSapResourceController() {
         }
     }
 
-    private fun constructUrls(
+    /**
+     * Constructs SAP item request URL
+     *
+     * @param sapSession current active SAP session
+     * @param updatedAfter updated after filter or null
+     * @param itemGroupCode item group code or null
+     * @return list of SAP request URL
+     */
+    private fun constructItemRequestUrls(
         sapSession: SapSession,
         updatedAfter: OffsetDateTime?,
-        itemGroupCode: Int?
-    ): List<String> {
-        val resourceUrl = "${sapSession.apiUrl}/Items"
-        val sessionId = sapSession.sessionId
-        val routeId = sapSession.routeId
+        itemGroupCode: Int?,
+        firstResult: Int?
+    ): String? {
+        val baseUrl = "${sapSession.apiUrl}/Items"
+        val select = constructItemSelect(itemGroupCode) ?: return null
 
         return if (updatedAfter == null) {
-            constructSAPUrl(
-                resourceUrl = resourceUrl,
-                sessionId = sessionId,
-                routeId = routeId,
-                select = constructItemSelect(itemGroupCode)
+            constructSAPRequestUrl(
+                baseUrl = baseUrl,
+                select = select,
+                filter = null,
+                firstResult = firstResult
             )
         } else {
-            constructSAPUrlWithFilter(
-                resourceUrl = resourceUrl,
-                sessionId = sessionId,
-                routeId = routeId,
-                select = constructItemSelect(itemGroupCode),
-                filter = "\$filter=${createdUpdatedAfterFilter(updatedAfter)}",
+            val filter = "\$filter=${createdUpdatedAfterFilter(updatedAfter)}"
+
+            constructSAPRequestUrl(
+                baseUrl = baseUrl,
+                select = select,
+                filter = filter,
+                firstResult = firstResult
             )
         }
     }

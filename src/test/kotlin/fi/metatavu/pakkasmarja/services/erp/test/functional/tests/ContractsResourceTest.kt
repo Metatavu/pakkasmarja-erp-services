@@ -50,6 +50,7 @@ class ContractsResourceTest: AbstractResourceTest() {
             assertEquals("2022-1", contractToTest.id)
             assertEquals(2.0, contractToTest.deliveredQuantity)
             assertEquals(100, contractToTest.itemGroupCode)
+
             val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
             assertEquals(1, filteredContracts.size)
             assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)

@@ -19,6 +19,7 @@ class ConfigController {
 
     /**
      * Returns the group codes config file in JSON format
+     *
      * @return group codes file in JSON format
      */
     fun getGroupCodesFile(): JsonNode {

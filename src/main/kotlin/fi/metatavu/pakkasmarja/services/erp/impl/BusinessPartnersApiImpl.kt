@@ -27,18 +27,11 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
     @Inject
     lateinit var businessPartnerTranslator: BusinessPartnerTranslator
 
-    override fun listBusinessPartners(
-        updatedAfter: OffsetDateTime?,
-        firstResult: Int?,
-        maxResults: Int?
-    ): Response {
-        val businessPartners = businessPartnersController.listBusinessPartners(
-            updatedAfter = updatedAfter,
-            firstResult = firstResult,
-            maxResults = maxResults
-        )
+    override fun listBusinessPartners(updatedAfter: OffsetDateTime?): Response {
+        val businessPartners = businessPartnersController.listBusinessPartners(updatedAfter = updatedAfter)
         val translatedBusinessPartners = businessPartners.map(businessPartnerTranslator::translate)
 
         return createOk(translatedBusinessPartners)
     }
+
 }

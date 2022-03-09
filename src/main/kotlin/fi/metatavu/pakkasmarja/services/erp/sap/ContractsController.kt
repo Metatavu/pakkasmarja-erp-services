@@ -11,13 +11,13 @@ import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import org.jboss.logging.Logger
 import java.time.LocalDate
-import javax.enterprise.context.ApplicationScoped
+import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 
 /**
  * The controller for contracts
  */
-@ApplicationScoped
+@RequestScoped
 class ContractsController: AbstractSapResourceController() {
 
     @Inject
@@ -56,27 +56,105 @@ class ContractsController: AbstractSapResourceController() {
                 maxResults = null
             )
 
-            return if (combinedFilter.isEmpty()) {
-                val contracts = getDataFromSap(
-                    resourceUrl = resourceUrl,
-                    select = "\$select=*",
-                    routeId = sapSession.routeId,
-                    sessionId = sapSession.sessionId
-                )
-
-                spreadContracts(contracts = contracts, items = items)
+            val contracts = if (combinedFilter.isEmpty()) {
+                getContracts(resourceUrl = resourceUrl, sapSession = sapSession, filter = null)
             } else {
-                val contracts = getDataFromSap(
-                    resourceUrl = resourceUrl,
-                    select = "\$select=*",
-                    filter = "\$filter=$combinedFilter",
-                    routeId = sapSession.routeId,
-                    sessionId = sapSession.sessionId
+                getContracts(resourceUrl = resourceUrl, sapSession = sapSession, filter = "\$filter=$combinedFilter")
+            }
+
+            return spreadContracts(contracts = contracts, items = items)
+        }
+    }
+
+    /**
+     * Creates a new contract
+     *
+     * @param sapContract a contract to create
+     * @return created contract
+     */
+    fun createContract(sapContract: SapContract): JsonNode {
+        sapSessionController.createSapSession().use { sapSession ->
+            val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
+            val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq ${sapContract.businessPartnerCode} and Status eq asApproved"
+
+            val contracts = getContracts(
+                resourceUrl = resourceUrl,
+                sapSession = sapSession,
+                filter = filter
+            )
+
+            val items = itemsController.listItems(
+                itemGroupCode = null,
+                updatedAfter = null,
+                firstResult = null,
+                maxResults = null
+            )
+
+            if (contracts.isEmpty()) {
+                val newContract = buildNewSapContract(
+                    sapContract = sapContract,
+                    sapSession = sapSession
                 )
 
-                spreadContracts(contracts = contracts, items = items)
+                val createdItem = createItem(
+                    item = newContract,
+                    resourceUrl = resourceUrl,
+                    sessionId = sapSession.sessionId,
+                    routeId = sapSession.routeId
+                )
+
+                return spreadContract(contract = createdItem, items = items)[0]
+            } else if(contracts.size == 1) {
+                val contractToUpdate = contracts.first() as ObjectNode
+                val contractForUpdate = buildContractForUpdate(
+                    contractToUpdate = contractToUpdate,
+                    newData = sapContract,
+                    sapSession = sapSession
+                )
+
+                val updatedItem = updateItem(
+                    item = contractForUpdate,
+                    resourceUrl = "$resourceUrl%28${contractToUpdate.get("DocNum").asText()}%28",
+                    sessionId = sapSession.sessionId,
+                    routeId = sapSession.routeId
+                )
+
+                return spreadContract(contract = updatedItem, items = items).find { contract ->
+                    contract.get("ItemGroupCode").asInt() == sapContract.itemGroupCode
+                }!!
+            } else {
+                throw Exception("More then one contract was found")
             }
         }
+    }
+
+    /**
+     * Gets list of contracts
+     *
+     * @param resourceUrl resource URL
+     * @param sapSession current active SAP session
+     * @param filter filter string or null
+     * @return list of contracts
+     */
+    private fun getContracts(resourceUrl: String, sapSession: SapSession, filter: String?): List<JsonNode> {
+        var filterString: String? = null
+
+        if (filter != null) {
+            filterString = filter
+        }
+
+        val requestUrl = constructSAPRequestUrl(
+            baseUrl = resourceUrl,
+            select = "\$select=*",
+            filter = filterString,
+            firstResult = null
+        )
+
+        return getItemsRequest(
+            requestUrl = requestUrl,
+            sapSession = sapSession,
+            maxResults = null
+        )
     }
 
     /**
@@ -173,70 +251,6 @@ class ContractsController: AbstractSapResourceController() {
     }
 
     /**
-     * Creates a new contract
-     *
-     * @param sapContract a contract to create
-     * @return created contract
-     */
-    fun createContract(sapContract: SapContract): JsonNode {
-        sapSessionController.createSapSession().use { sapSession ->
-            val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
-            val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq ${sapContract.businessPartnerCode} and Status eq asApproved"
-
-            val contracts = getDataFromSap(
-                resourceUrl = resourceUrl,
-                select = "\$select=*",
-                filter = filter,
-                routeId = sapSession.routeId,
-                sessionId = sapSession.sessionId
-            )
-
-            val items = itemsController.listItems(
-                itemGroupCode = null,
-                updatedAfter = null,
-                firstResult = null,
-                maxResults = null
-            )
-
-            if (contracts.isEmpty()) {
-                val newContract = buildNewSapContract(
-                    sapContract = sapContract,
-                    sapSession = sapSession
-                )
-
-                val createdItem = createItem(
-                    item = newContract,
-                    resourceUrl = resourceUrl,
-                    sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
-                )
-
-                return spreadContract(contract = createdItem, items = items)[0]
-            } else if(contracts.size == 1) {
-                val contractToUpdate = contracts.first() as ObjectNode
-                val contractForUpdate = buildContractForUpdate(
-                    contractToUpdate = contractToUpdate,
-                    newData = sapContract,
-                    sapSession = sapSession
-                )
-
-                val updatedItem = updateItem(
-                    item = contractForUpdate,
-                    resourceUrl = "$resourceUrl%28${contractToUpdate.get("DocNum").asText()}%28",
-                    sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
-                )
-
-                return spreadContract(contract = updatedItem, items = items).find { contract ->
-                    contract.get("ItemGroupCode").asInt() == sapContract.itemGroupCode
-                }!!
-            } else {
-                throw Exception("More then one contract was found")
-            }
-        }
-    }
-
-    /**
      * Builds a contract for update
      *
      * @param contractToUpdate a contract to update
@@ -325,6 +339,32 @@ class ContractsController: AbstractSapResourceController() {
      * @return item codes
      */
     private fun getGroupItemCodes(groupCode: String, sapSession: SapSession): List<String> {
+        val filter = constructGroupCodeFilter(groupCode)
+        val select = "\$select=ItemCode"
+
+        val requestUrl = constructSAPRequestUrl(
+            baseUrl = "${sapSession.apiUrl}/Items",
+            select = select,
+            filter = filter,
+            firstResult = null
+        )
+
+        val items = getItemsRequest(
+            requestUrl = requestUrl,
+            sapSession = sapSession,
+            maxResults = null
+        )
+
+        return items.map { item -> item.get("ItemCode").asText() }
+    }
+
+    /**
+     * Constructs group code filter for contract listing
+     *
+     * @param groupCode group code
+     * @return constructed filter string
+     */
+    private fun constructGroupCodeFilter(groupCode: String): String {
         val groupCodes = configController.getGroupCodesFile()
         val groupCodeObject = groupCodes.get(groupCode)
         val itemGroupPropertyName = groupCodeObject.get("itemGroupPropertyName").asText()
@@ -334,17 +374,7 @@ class ContractsController: AbstractSapResourceController() {
         val isFrozenFilter = "Properties28 eq ${toSapItemPropertyBoolean(isFrozen)}"
         val isOrganicFilter = "Properties35 eq ${toSapItemPropertyBoolean(isOrganic)}"
 
-        val filter = "\$filter=$itemGroupPropertyName eq tYES and $isFrozenFilter and $isOrganicFilter"
-        val select = "\$select=ItemCode"
-        val items = getDataFromSap(
-            resourceUrl = "${sapSession.apiUrl}/Items",
-            filter = filter,
-            select = select,
-            sessionId = sapSession.sessionId,
-            routeId = sapSession.routeId
-        )
-
-        return items.map { item -> item.get("ItemCode").asText() }
+        return "\$filter=$itemGroupPropertyName eq tYES and $isFrozenFilter and $isOrganicFilter"
     }
 
     /**

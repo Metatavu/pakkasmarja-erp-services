@@ -54,6 +54,33 @@ class ItemsResourceTest: AbstractResourceTest() {
             )
             assertEquals(0, emptyList.size)
 
+            val oneItem = it.manager.items.list(
+                itemGroupCode = null,
+                updatedAfter = getTestDate(),
+                firstResult = null,
+                maxResults = 1
+            )
+            assertEquals(1, oneItem.size)
+
+            val lastItem = it.manager.items.list(
+                itemGroupCode = null,
+                updatedAfter = getTestDate(),
+                firstResult = 2,
+                maxResults = null
+            )
+            assertEquals(2, lastItem.size)
+            assertEquals(2, lastItem[0].code)
+            assertEquals(3, lastItem[1].code)
+
+            val filterFirstAndMax = it.manager.items.list(
+                itemGroupCode = null,
+                updatedAfter = getTestDate(),
+                firstResult = 2,
+                maxResults = 1
+            )
+            assertEquals(1, filterFirstAndMax.size)
+            assertEquals(2, filterFirstAndMax[0].code)
+
             it.invalidAccess.items.assertListFailStatus(
                 expectedStatus = 401,
                 itemGroupCode = 102,
@@ -97,10 +124,8 @@ class ItemsResourceTest: AbstractResourceTest() {
     private fun getTestDate(): String {
         val dateFilter = LocalDate.of(2022, 3, 17)
         val timeFilter = LocalTime.of(10, 0, 0)
-        val zone = ZoneId.of("Europe/Helsinki")
-        val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-        val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
 
-        return updatedAfter.toString()
+        return toOffsetDateTime(dateFilter, timeFilter)
     }
+
 }
