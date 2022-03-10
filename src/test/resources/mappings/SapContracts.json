@@ -236,24 +236,28 @@
         "url": "/BlanketAgreements",
         "bodyPatterns" : [
           {
-            "equalToJson" :  {
-              "DocNum": "1",
-              "BPCode": "122",
-              "ContractPersonCode": "122",
-              "StartDate": "2022-01-01",
-              "EndDate": "2022-12-31",
-              "TerminateDate": "2022-12-31",
-              "SigningDate": "2022-01-01",
-              "Remarks": "Remarks",
-              "Status": "asApproved",
-              "BlanketAgreements_ItemsLines": [
-                {
-                  "ItemNo": "1"
-                },
-                {
-                  "ItemNo": "2"
-                }
-              ]
+            "equalToJson" : {
+              "StartDate" : "2022-01-01",
+              "EndDate" : "2022-12-31",
+              "DocNum" : 1,
+              "ContactPersonCode" : 122,
+              "Status" : "APPROVED",
+              "SigningDate" : "2022-01-01",
+              "TerminateDate" : null,
+              "Remarks" : "Remarks",
+              "AgreementNo" : null,
+              "BlanketAgreements_ItemsLines" : [ {
+                "ItemNo" : "1",
+                "PlannedQuantity" : 0.0,
+                "CumulativeQuantity" : 2.0,
+                "ShippingType" : 1
+              }, {
+                "ItemNo" : "2",
+                "PlannedQuantity" : 0.0,
+                "CumulativeQuantity" : 2.0,
+                "ShippingType" : 1
+              } ],
+              "bpcode" : "122"
             }
           }
         ]
@@ -261,23 +265,27 @@
       "response": {
         "jsonBody": {
           "value": {
-            "DocNum": "1",
-            "BPCode": "122",
-            "ContractPersonCode": "122",
-            "StartDate": "2022-01-01",
-            "EndDate": "2022-12-31",
-            "TerminateDate": "2022-12-31",
-            "SigningDate": "2022-01-01",
-            "Remarks": "Remarks",
-            "Status": "asApproved",
-            "BlanketAgreements_ItemsLines": [
-              {
-                "ItemNo": "1"
-              },
-              {
-                "ItemNo": "2"
-              }
-            ]
+            "StartDate" : "2022-01-01",
+            "EndDate" : "2022-12-31",
+            "DocNum" : 1,
+            "ContactPersonCode" : 122,
+            "Status" : "APPROVED",
+            "SigningDate" : "2022-01-01",
+            "TerminateDate" : null,
+            "Remarks" : "Remarks",
+            "AgreementNo" : null,
+            "BlanketAgreements_ItemsLines" : [ {
+              "ItemNo" : "1",
+              "PlannedQuantity" : 0.0,
+              "CumulativeQuantity" : 2.0,
+              "ShippingType" : 1
+            }, {
+              "ItemNo" : "2",
+              "PlannedQuantity" : 0.0,
+              "CumulativeQuantity" : 2.0,
+              "ShippingType" : 1
+            } ],
+            "bpcode" : "122"
           }
         }
       }

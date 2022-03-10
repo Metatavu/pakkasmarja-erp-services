@@ -1,7 +1,8 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
-import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
+import fi.metatavu.pakkasmarja.services.erp.model.GroupCode
+import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
@@ -27,7 +28,7 @@ class ItemsController: AbstractSapResourceController() {
         updatedAfter: OffsetDateTime?,
         firstResult: Int? = 0,
         maxResults: Int? = 9999
-    ): List<JsonNode> {
+    ): List<Item> {
         sapSessionController.createSapSession().use { sapSession ->
             val requestUrl = constructItemRequestUrls(
                 sapSession = sapSession,
@@ -36,11 +37,13 @@ class ItemsController: AbstractSapResourceController() {
                 firstResult = firstResult
             ) ?: return emptyList()
 
-            return getItemsRequest(
+            val itemsResponse = sapListRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = maxResults
             )
+
+            return itemsResponse.map(this::convertToModel)
         }
     }
 
@@ -50,13 +53,15 @@ class ItemsController: AbstractSapResourceController() {
      * @param sapId SAP ID to search
      * @return found sap item or null
      */
-    fun findItem(sapId: Int): JsonNode? {
+    fun findItem(sapId: Int): Item? {
         sapSessionController.createSapSession().use { sapSession ->
-            return findItem(
+            val itemResponse = findItem(
                 itemUrl = "${sapSession.apiUrl}/Items('$sapId')",
                 sessionId = sapSession.sessionId,
                 routeId = sapSession.routeId
-            )
+            ) ?: return null
+
+            return convertToModel<Item>(itemResponse)
         }
     }
 
@@ -67,8 +72,8 @@ class ItemsController: AbstractSapResourceController() {
      * @param itemCode item code to search for
      * @return found item or null
      */
-    fun findItemFromItemList(items: List<JsonNode>, itemCode: String?): JsonNode? {
-        return items.find { item -> item.get("ItemCode").asText() == itemCode }
+    fun findItemFromItemList(items: List<Item>, itemCode: String?): Item? {
+        return items.find { item -> item.itemCode == itemCode }
     }
 
     /**
@@ -77,9 +82,8 @@ class ItemsController: AbstractSapResourceController() {
      * @param groupCodes groups to use for selection
      * @return list of group property names
      */
-    fun constructItemPropertiesList(groupCodes: JsonNode?): List<String> {
-        return (groupCodes ?: configController.getGroupCodesFile())
-            .map { groupCode -> groupCode.get("itemGroupPropertyName").asText() }
+    fun constructItemPropertiesList(groupCodes: List<GroupCode>): List<String> {
+        return groupCodes.map { groupCode -> groupCode.itemGroupPropertyName }
     }
 
     /**
@@ -89,7 +93,7 @@ class ItemsController: AbstractSapResourceController() {
      * @return constructed query selector
      */
     fun getItemPropertiesSelect(propertyNames: List<String>): String {
-        return "\$select=${propertyNames.joinToString(",").plus(",ItemCode,Properties28,Properties35")}"
+        return "\$select=${propertyNames.joinToString(",").plus(",ItemCode,Properties21,Properties28")}"
     }
 
     /**
@@ -99,18 +103,19 @@ class ItemsController: AbstractSapResourceController() {
      * @param groupCodes group codes config
      * @return group code or null
      */
-    fun getItemGroupCode(item: JsonNode, groupCodes: JsonNode): Int? {
-        val itemIsFrozen = item.get("Properties28").asText() == "tYES"
-        val itemIsOrganic = item.get("Properties35").asText() == "tYES"
+    fun getItemGroupCode(item: Item, groupCodes: List<GroupCode>): Int? {
+        val itemIsOrganic = item.properties21 == "tYES"
+        val itemIsFrozen = item.properties28 == "tYES"
 
-        groupCodes.fields().forEach { pair ->
-            val groupCode = pair.value
-            val itemGroupPropertyName = groupCode.get("itemGroupPropertyName").asText()
-            val itemIsOfGroup = item.get(itemGroupPropertyName).asText() == "tYES"
-            val groupIsFrozen = groupCode.get("isFrozen").asBoolean()
-            val groupIsOrganic = groupCode.get("isOrganic").asBoolean()
+        groupCodes.forEach { groupCode ->
+            val itemGroupPropertyName = groupCode.itemGroupPropertyName
+            val field = item.javaClass.getDeclaredField(itemGroupPropertyName)
+            field.isAccessible = true
+            val itemIsOfGroup = field.get(item) == "tYES"
+            val groupIsFrozen = groupCode.isFrozen
+            val groupIsOrganic = groupCode.isOrganic
             if (itemIsOfGroup && groupIsFrozen == itemIsFrozen && groupIsOrganic == itemIsOrganic) {
-                return pair.key.toInt()
+                return groupCode.code
             }
         }
 
@@ -127,9 +132,8 @@ class ItemsController: AbstractSapResourceController() {
         val allGroupCodes = configController.getGroupCodesFile()
 
         return if (itemGroupCode != null) {
-            val foundItem = allGroupCodes.findValue(itemGroupCode.toString()) ?: return null
-            val itemGroupPropertyName = foundItem.get("itemGroupPropertyName").asText() ?: return null
-            getItemPropertiesSelect(propertyNames = listOf(itemGroupPropertyName))
+            val foundItem = allGroupCodes.find { groupCode -> groupCode.code == itemGroupCode } ?: return null
+            getItemPropertiesSelect(propertyNames = listOf(foundItem.itemGroupPropertyName))
         } else {
             val itemProperties = constructItemPropertiesList(groupCodes = allGroupCodes)
             getItemPropertiesSelect(propertyNames = itemProperties)

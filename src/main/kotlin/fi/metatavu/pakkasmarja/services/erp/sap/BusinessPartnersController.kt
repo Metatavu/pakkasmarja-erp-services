@@ -1,6 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
 import com.fasterxml.jackson.databind.JsonNode
+import fi.metatavu.pakkasmarja.services.erp.model.BusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
 import javax.enterprise.context.RequestScoped
@@ -21,7 +22,7 @@ class BusinessPartnersController: AbstractSapResourceController() {
      * @param updatedAfter "updated after"-filter
      * @return business partners
      */
-    fun listBusinessPartners(updatedAfter: OffsetDateTime?): List<JsonNode> {
+    fun listBusinessPartners(updatedAfter: OffsetDateTime?): List<BusinessPartner> {
         sapSessionController.createSapSession().use { sapSession ->
             val resourceUrl = "${sapSession.apiUrl}/BusinessPartners"
 
@@ -40,11 +41,13 @@ class BusinessPartnersController: AbstractSapResourceController() {
                 firstResult = null
             )
 
-            return getItemsRequest(
+            val businessPartners = sapListRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = null
             )
+
+            return businessPartners.map(this::convertToModel)
         }
     }
 }

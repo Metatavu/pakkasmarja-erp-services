@@ -1,15 +1,19 @@
 package fi.metatavu.pakkasmarja.services.erp.impl.translate
 
-import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
+import fi.metatavu.pakkasmarja.services.erp.model.SAPItemGroupContract
 import javax.enterprise.context.ApplicationScoped
 
 /**
  * The translator class for SAP contracts
  */
 @ApplicationScoped
-class ContractTranslator: AbstractTranslator<JsonNode, SapContract>() {
+class ContractTranslator: AbstractTranslator<SAPItemGroupContract, SapContract>() {
+
+    override fun translate(nodes: List<SAPItemGroupContract>): List<SapContract> {
+        TODO("Not yet implemented")
+    }
 
     /**
      * Translates a contract from SAP into tbe format expected by spec
@@ -17,22 +21,22 @@ class ContractTranslator: AbstractTranslator<JsonNode, SapContract>() {
      * @param node a contract from SAP
      * @return translated contract
      */
-    override fun translate(node: JsonNode): SapContract {
-        val startDate = resolveLocalDate(node.get("StartDate").asText())
+    override fun translate(node: SAPItemGroupContract): SapContract {
+        val startDate = resolveLocalDate(node.startDate)
         val year = startDate?.year.toString()
 
         return SapContract(
-            id = "$year-${node.get("DocNum").asText()}",
-            businessPartnerCode = node.get("BPCode").asText().toInt(),
-            contactPersonCode = node.get("ContractPersonCode").asText().toInt(),
-            itemGroupCode = node.get("ItemGroupCode").asInt(),
-            status = resolveContractStatus(node.get("Status").asText())!!,
-            deliveredQuantity = node.get("DeliveredQuantity").asDouble(),
+            id = "$year-${node.docNum}",
+            businessPartnerCode = node.bPCode.toInt(),
+            contactPersonCode = node.contactPersonCode,
+            itemGroupCode = node.itemGroupCode,
+            status = resolveContractStatus(node.status)!!,
+            deliveredQuantity = node.cumulativeQuantity,
             startDate = startDate,
-            endDate = resolveLocalDate(node.get("EndDate").asText()),
-            signingDate = resolveLocalDate(node.get("SigningDate").asText()),
-            terminateDate = resolveLocalDate(node.get("TerminateDate").asText()),
-            remarks = node.get("Remarks").asText()
+            endDate = resolveLocalDate(node.endDate),
+            signingDate = resolveLocalDate(node.signingDate),
+            terminateDate = resolveLocalDate(node.terminateDate),
+            remarks = node.remarks
         )
     }
 
@@ -51,4 +55,5 @@ class ContractTranslator: AbstractTranslator<JsonNode, SapContract>() {
             else -> null
         }
     }
+
 }

@@ -22,7 +22,7 @@ abstract class AbstractTranslator<E, R> {
     }
 
     /**
-     * Combines UpdatedDate and UpdatedTime from SAP into a single OffsetDateTime-object
+     * Combines UpdateDate and UpdateTime from SAP into a single OffsetDateTime-object
      *
      * @param updatedDate updated date
      * @param updatedTime updated time
@@ -42,7 +42,7 @@ abstract class AbstractTranslator<E, R> {
      * @param date string to parse
      * @return parsed string or null
      */
-    protected fun resolveLocalDate (date: String): LocalDate? {
+    protected fun resolveLocalDate (date: String?): LocalDate? {
         return try {
             LocalDate.parse(date)
         } catch (e: Exception) {

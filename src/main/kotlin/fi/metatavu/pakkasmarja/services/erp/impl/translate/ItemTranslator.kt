@@ -1,8 +1,8 @@
 package fi.metatavu.pakkasmarja.services.erp.impl.translate
 
-import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapItem
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
+import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.ItemsController
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -11,7 +11,7 @@ import javax.inject.Inject
  * The translator class for SAP contracts
  */
 @ApplicationScoped
-class ItemTranslator: AbstractTranslator<JsonNode, SapItem>() {
+class ItemTranslator: AbstractTranslator<Item, SapItem>() {
 
     @Inject
     lateinit var itemsController: ItemsController
@@ -19,34 +19,20 @@ class ItemTranslator: AbstractTranslator<JsonNode, SapItem>() {
     @Inject
     lateinit var configController: ConfigController
 
-    override fun translate(nodes: List<JsonNode>): List<SapItem> {
-        val groupCodes = configController.getGroupCodesFile()
-
-        return nodes.map{ node ->
-            val itemGroupCode = itemsController.getItemGroupCode(item = node, groupCodes = groupCodes)
-            val updated = getUpdatedDateTime(node.get("UpdatedDate").asText(), node.get("UpdatedTime").asText())
-
-            SapItem(
-                code = node.get("ItemCode").asInt(),
-                itemGroupCode = itemGroupCode,
-                name = node.get("ItemName").asText(),
-                purchaseUnit = node.get("PurchaseUnit").asText(),
-                batchManaged = node.get("ManageBatchNumbers").asText() == "tYES",
-                updated = updated,
-            )
-        }
+    override fun translate(nodes: List<Item>): List<SapItem> {
+        TODO("Not implemented yet")
     }
 
-    override fun translate(node: JsonNode): SapItem {
+    override fun translate(node: Item): SapItem {
         val itemGroupCode = itemsController.getItemGroupCode(item = node, groupCodes = configController.getGroupCodesFile())
-        val updated = getUpdatedDateTime(node.get("UpdatedDate").asText(), node.get("UpdatedTime").asText())
+        val updated = getUpdatedDateTime(node.updateDate, node.updateTime)
 
         return SapItem(
-            code = node.get("ItemCode").asInt(),
+            code = node.itemCode.toInt(),
             itemGroupCode = itemGroupCode,
-            name = node.get("ItemName").asText(),
-            purchaseUnit = node.get("PurchaseUnit").asText(),
-            batchManaged = node.get("ManageBatchNumbers").asText() == "tYES",
+            name = node.itemName,
+            purchaseUnit = node.purchaseUnit ?: "",
+            batchManaged = node.manageBatchNumbers == "tYES",
             updated = updated,
         )
     }

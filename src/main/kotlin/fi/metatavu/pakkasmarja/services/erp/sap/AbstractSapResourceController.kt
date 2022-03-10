@@ -2,6 +2,7 @@ package fi.metatavu.pakkasmarja.services.erp.sap
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
@@ -29,7 +30,7 @@ abstract class AbstractSapResourceController {
      * @return created item
      */
     fun createItem(
-        item: JsonNode,
+        item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String
@@ -86,7 +87,7 @@ abstract class AbstractSapResourceController {
      * @return updated item
      */
     fun updateItem(
-        item: JsonNode,
+        item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String
@@ -152,7 +153,7 @@ abstract class AbstractSapResourceController {
      * @param maxResults max results, default is 9999
      * @return list of items
      */
-    fun getItemsRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<JsonNode> {
+    fun sapListRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<JsonNode> {
         try {
             val client = HttpClient.newHttpClient()
 
@@ -164,11 +165,26 @@ abstract class AbstractSapResourceController {
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-            return ObjectMapper().readTree(response.body()).get("value").map { it }
+            val body = ObjectMapper().readTree(response.body())
+            println(".........................................................")
+            println("requestUrl: $requestUrl")
+            println(body)
+            println("___________________________________________________________")
+            return body.get("value").map { it }
 
         } catch (e: Exception) {
             throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
         }
+    }
+
+    /**
+     * Convert JsonNode to model
+     *
+     * @param jsonNode json node to convert
+     * @return converted model
+     */
+    final inline fun <reified T> convertToModel(jsonNode: JsonNode): T {
+        return jacksonObjectMapper().readValue(jsonNode.toString(), T::class.java)
     }
 
     /**
@@ -192,6 +208,20 @@ abstract class AbstractSapResourceController {
         return getCountRequest(countUrl = countUrl, sessionId = sapSession.sessionId, routeId = sapSession.routeId)
     }
 
+
+    /**
+     * Translates a boolean value to the format used by SAP
+     *
+     * @param value a value to translate
+     * @return a boolean value in the format used by SAP
+     */
+    fun toSapItemPropertyBoolean(value: Boolean): String {
+        return when (value) {
+            true -> "tYES"
+            false -> "tNO"
+        }
+    }
+
     /**
      * Sends a POST or PATCH request to SAP
      *
@@ -203,7 +233,7 @@ abstract class AbstractSapResourceController {
      * @return the response from SAP
      */
     private fun sendSapPostOrPatchRequest(
-        item: JsonNode,
+        item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String,
@@ -213,7 +243,7 @@ abstract class AbstractSapResourceController {
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
             .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-            .method(method, HttpRequest.BodyPublishers.ofString(item.toString()))
+            .method(method, HttpRequest.BodyPublishers.ofString(item))
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())

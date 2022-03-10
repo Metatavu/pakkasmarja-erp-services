@@ -37,13 +37,14 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
             businessPartnerCode = businessPartnerCode,
             contractStatus = contractStatus
         )
+
         val translatedContracts = contracts.map(contractTranslator::translate)
 
         return createOk(translatedContracts)
     }
 
     override fun createContract(sapContract: SapContract): Response {
-        val newContract = contractsController.createContract(sapContract = sapContract)
+        val newContract = contractsController.createContract(sapContract = sapContract) ?: return createInternalServerError("ALSKMDLKMASDL")
         val translatedContract = contractTranslator.translate(newContract)
         return createOk(translatedContract)
     }

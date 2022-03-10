@@ -30,7 +30,7 @@
           "value": [
             {
               "CardCode": "1",
-              "Email": "jorma@example.com",
+              "EmailAddress": "jorma@example.com",
               "Phone1": "0440120122",
               "Phone2": "0440120123",
               "BPAddresses": [
@@ -45,8 +45,8 @@
               "CardName": "Card",
               "FederalTaxID": "000000000",
               "VatLiable": "vLiable",
-              "UpdatedDate": "2022-02-18",
-              "UpdatedTime": "08:00:12",
+              "UpdateDate": "2022-02-18",
+              "UpdateTime": "08:00:12",
               "BPBankAccounts": [
                 {
                   "BICSwiftCode": "SBANFIHH",
@@ -56,7 +56,7 @@
             },
             {
               "CardCode": "1",
-              "Email": "jorma@example.com",
+              "EmailAddress": "jorma@example.com",
               "Phone1": "0440120122",
               "Phone2": "0440120123",
               "BPAddresses": [
@@ -71,8 +71,8 @@
               "CardName": "Card",
               "FederalTaxID": "00000000",
               "VatLiable": "vExempted",
-              "UpdatedDate": "2022-02-18",
-              "UpdatedTime": "08:00:12",
+              "UpdateDate": "2022-02-18",
+              "UpdateTime": "08:00:12",
               "BPBankAccounts": [
                 {
                   "BICSwiftCode": "SBANFIHH",
@@ -82,7 +82,7 @@
             },
             {
               "CardCode": "1",
-              "Email": "jorma@example.com",
+              "EmailAddress": "jorma@example.com",
               "Phone1": "0440120122",
               "Phone2": "0440120123",
               "BPAddresses": [
@@ -97,8 +97,8 @@
               "CardName": "MetaLab",
               "FederalTaxID": "0000000",
               "VatLiable": "vEC",
-              "UpdatedDate": "2022-02-18",
-              "UpdatedTime": "08:00:12",
+              "UpdateDate": "2022-02-18",
+              "UpdateTime": "08:00:12",
               "BPBankAccounts": [
                 {
                   "BICSwiftCode": "SBANFIHH",

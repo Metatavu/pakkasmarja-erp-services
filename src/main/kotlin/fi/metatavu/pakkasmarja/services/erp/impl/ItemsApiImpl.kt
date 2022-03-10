@@ -40,7 +40,7 @@ class ItemsApiImpl: ItemsApi, AbstractApi() {
             maxResults = maxResults
         )
 
-        return createOk(itemTranslator.translate(items))
+        return createOk(items.map(itemTranslator::translate))
     }
 
     override fun findItem(sapId: Int): Response {

@@ -17,7 +17,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/Items/$count?$filter=Properties1%20eq%20tYES%20and%20Properties28%20eq%20tNO%20and%20Properties35%20eq%20tYES",
+        "url": "/Items/$count?$filter=Properties1%20eq%20tYES%20and%20Properties21%20eq%20tNO%20and%20Properties28%20eq%20tYES",
         "headers": {
           "Cookie": {
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
@@ -31,7 +31,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/Items/$count?$filter=Properties2%20eq%20tYES%20and%20Properties28%20eq%20tYES%20and%20Properties35%20eq%20tNO",
+        "url": "/Items/$count?$filter=Properties2%20eq%20tYES%20and%20Properties21%20eq%20tYES%20and%20Properties28%20eq%20tNO",
         "headers": {
           "Cookie": {
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
@@ -50,7 +50,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties28,Properties35"
+        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties21,Properties28"
       },
       "response": {
         "jsonBody": {
@@ -60,21 +60,36 @@
               "Properties1": "tYES",
               "Properties2": "tNO",
               "Properties28": "tNO",
-              "Properties35": "tYES"
+              "Properties21": "tYES",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
+              "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
+              "PurchaseUnit": "null",
+              "ManageBatchNumbers": "tNO"
             },
             {
               "ItemCode": "2",
               "Properties1": "tYES",
               "Properties2": "tNO",
               "Properties28": "tNO",
-              "Properties35": "tYES"
+              "Properties21": "tYES",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
+              "ItemName": "RAHTIPAKKAUS MANSIKKA 2 x 2,5 KG",
+              "PurchaseUnit": "null",
+              "ManageBatchNumbers": "tNO"
             },
             {
               "ItemCode": "3",
               "Properties1": "tNO",
               "Properties2": "tYES",
               "Properties28": "tYES",
-              "Properties35": "tNO"
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
+              "ItemName": "RAHTIPAKKAUS MUSTAHERUKKA 2 x 2,5 KG",
+              "PurchaseUnit": "null",
+              "ManageBatchNumbers": "tNO"
             }
           ]
         }
@@ -88,7 +103,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$select=ItemCode&$filter=Properties1%20eq%20tYES%20and%20Properties28%20eq%20tNO%20and%20Properties35%20eq%20tYES"
+        "url": "/Items?$select=ItemCode&$filter=Properties1%20eq%20tYES%20and%20Properties21%20eq%20tYES%20and%20Properties28%20eq%20tNO"
       },
       "response": {
         "jsonBody": {
@@ -97,15 +112,27 @@
               "ItemCode": "1",
               "Properties1": "tYES",
               "Properties2": "tNO",
+              "Properties3": "tNO",
               "Properties28": "tNO",
-              "Properties35": "tYES"
+              "Properties21": "tYES",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
+              "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
+              "PurchaseUnit": "null",
+              "ManageBatchNumbers": "tNO"
             },
             {
               "ItemCode": "2",
-              "Properties1": "tYES",
-              "Properties2": "tNO",
-              "Properties28": "tNO",
-              "Properties35": "tYES"
+              "Properties1": "tNO",
+              "Properties2": "tYES",
+              "Properties3": "tNO",
+              "Properties28": "tYES",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:30:00",
+              "ItemName": "RAHTIPAKKAUS MANSIKKA 2 x 2,5 KG",
+              "PurchaseUnit": "Kg",
+              "ManageBatchNumbers": "tNO"
             }
           ]
         }
@@ -119,7 +146,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$select=ItemCode&$filter=Properties2%20eq%20tYES%20and%20Properties28%20eq%20tYES%20and%20Properties35%20eq%20tNO"
+        "url": "/Items?$select=ItemCode&$filter=Properties2%20eq%20tYES%20and%20Properties21%20eq%20tYES%20and%20Properties28%20eq%20tNO"
       },
       "response": {
         "jsonBody": {
@@ -129,7 +156,12 @@
               "Properties1": "tNO",
               "Properties2": "tYES",
               "Properties28": "tYES",
-              "Properties35": "tNO"
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
+              "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
+              "PurchaseUnit": "null",
+              "ManageBatchNumbers": "tNO"
             }
           ]
         }
@@ -138,7 +170,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/Items/$count?$filter=Properties3%20eq%20tYES%20and%20Properties28%20eq%20tNO%20and%20Properties35%20eq%20tYES%20and%20(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))",
+        "url": "/Items/$count?$filter=Properties3%20eq%20tYES%20and%20Properties21%20eq%20tYES%20and%20Properties28%20eq%20tNO%20and%20(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))",
         "headers": {
           "Cookie": {
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
@@ -157,7 +189,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$select=Properties3,ItemCode,Properties28,Properties35&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))"
+        "url": "/Items?$select=Properties3,ItemCode,Properties21,Properties28&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))"
       },
       "response": {
         "jsonBody": {
@@ -168,9 +200,9 @@
               "Properties2": "tNO",
               "Properties3": "tYES",
               "Properties28": "tYES",
-              "Properties35": "tNO",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "09:00:00",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "09:00:00",
               "ItemName": "RAHTIPAKKAUS MUSTAHERUKKA 2 x 2,5 KG",
               "PurchaseUnit": "Kg",
               "ManageBatchNumbers": "tYES"
@@ -201,7 +233,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties28,Properties35&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))"
+        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties21,Properties28&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))"
       },
       "response": {
         "jsonBody": {
@@ -212,9 +244,9 @@
               "Properties2": "tNO",
               "Properties3": "tNO",
               "Properties28": "tNO",
-              "Properties35": "tYES",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "08:00:00",
+              "Properties21": "tYES",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
               "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
               "PurchaseUnit": "null",
               "ManageBatchNumbers": "tNO"
@@ -225,9 +257,9 @@
               "Properties2": "tYES",
               "Properties3": "tNO",
               "Properties28": "tYES",
-              "Properties35": "tNO",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "08:30:00",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:30:00",
               "ItemName": "RAHTIPAKKAUS MANSIKKA 2 x 2,5 KG",
               "PurchaseUnit": "Kg",
               "ManageBatchNumbers": "tNO"
@@ -238,9 +270,9 @@
               "Properties2": "tNO",
               "Properties3": "tYES",
               "Properties28": "tYES",
-              "Properties35": "tNO",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "09:00:00",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "09:00:00",
               "ItemName": "RAHTIPAKKAUS MUSTAHERUKKA 2 x 2,5 KG",
               "PurchaseUnit": "Kg",
               "ManageBatchNumbers": "tYES"
@@ -266,9 +298,9 @@
           "Properties2": "tNO",
           "Properties3": "tNO",
           "Properties28": "tNO",
-          "Properties35": "tYES",
-          "UpdatedDate": "2022-03-18",
-          "UpdatedTime": "08:00:00",
+          "Properties21": "tYES",
+          "UpdateDate": "2022-03-18",
+          "UpdateTime": "08:00:00",
           "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
           "PurchaseUnit": "null",
           "ManageBatchNumbers": "tNO"
@@ -306,7 +338,7 @@
             "contains": "odata.maxpagesize=1"
           }
         },
-        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties28,Properties35&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))"
+        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties21,Properties28&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))"
       },
       "response": {
         "jsonBody": {
@@ -317,9 +349,9 @@
               "Properties2": "tNO",
               "Properties3": "tNO",
               "Properties28": "tNO",
-              "Properties35": "tYES",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "08:00:00",
+              "Properties21": "tYES",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
               "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
               "PurchaseUnit": "null",
               "ManageBatchNumbers": "tNO"
@@ -336,7 +368,7 @@
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
           }
         },
-        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties28,Properties35&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))&$skip=2"
+        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties21,Properties28&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))&$skip=2"
       },
       "response": {
         "jsonBody": {
@@ -347,9 +379,9 @@
               "Properties2": "tYES",
               "Properties3": "tNO",
               "Properties28": "tYES",
-              "Properties35": "tNO",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "08:30:00",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:30:00",
               "ItemName": "RAHTIPAKKAUS MANSIKKA 2 x 2,5 KG",
               "PurchaseUnit": "Kg",
               "ManageBatchNumbers": "tNO"
@@ -360,9 +392,9 @@
               "Properties2": "tNO",
               "Properties3": "tYES",
               "Properties28": "tYES",
-              "Properties35": "tNO",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "09:00:00",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "09:00:00",
               "ItemName": "RAHTIPAKKAUS MUSTAHERUKKA 2 x 2,5 KG",
               "PurchaseUnit": "Kg",
               "ManageBatchNumbers": "tYES"
@@ -382,7 +414,7 @@
             "contains": "odata.maxpagesize=1"
           }
         },
-        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties28,Properties35&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))&$skip=2"
+        "url": "/Items?$select=Properties1,Properties2,Properties3,ItemCode,Properties21,Properties28&$filter=(UpdateDate%20gt%20%272022-03-17%27%20or%20(UpdateDate%20eq%20%272022-03-17%27%20and%20UpdateTime%20gt%20%2710:00%27))&$skip=2"
       },
       "response": {
         "jsonBody": {
@@ -393,9 +425,9 @@
               "Properties2": "tYES",
               "Properties3": "tNO",
               "Properties28": "tYES",
-              "Properties35": "tNO",
-              "UpdatedDate": "2022-03-18",
-              "UpdatedTime": "08:30:00",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:30:00",
               "ItemName": "RAHTIPAKKAUS MANSIKKA 2 x 2,5 KG",
               "PurchaseUnit": "Kg",
               "ManageBatchNumbers": "tNO"
