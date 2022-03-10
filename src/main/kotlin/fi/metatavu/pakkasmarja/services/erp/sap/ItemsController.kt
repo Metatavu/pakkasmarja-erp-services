@@ -51,7 +51,7 @@ class ItemsController: AbstractSapResourceController() {
      * @return found sap item or null
      */
     fun findItem(sapId: Int): JsonNode? {
-        sapSessionController.createSapSession().use{ sapSession ->
+        sapSessionController.createSapSession().use { sapSession ->
             return findItem(
                 itemUrl = "${sapSession.apiUrl}/Items('$sapId')",
                 sessionId = sapSession.sessionId,
