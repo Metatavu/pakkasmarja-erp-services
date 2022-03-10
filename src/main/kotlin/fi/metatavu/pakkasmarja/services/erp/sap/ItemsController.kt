@@ -28,7 +28,7 @@ class ItemsController: AbstractSapResourceController() {
         firstResult: Int? = 0,
         maxResults: Int? = 9999
     ): List<JsonNode> {
-        sapSessionController.createSapSession().use{ sapSession ->
+        sapSessionController.createSapSession().use { sapSession ->
             val requestUrl = constructItemRequestUrls(
                 sapSession = sapSession,
                 updatedAfter = updatedAfter,
