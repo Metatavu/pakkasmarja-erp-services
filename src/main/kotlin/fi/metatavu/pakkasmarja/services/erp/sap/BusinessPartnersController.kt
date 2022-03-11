@@ -40,13 +40,12 @@ class BusinessPartnersController: AbstractSapResourceController() {
                 firstResult = null
             )
 
-            val businessPartners = sapListRequest(
+            return sapListBusinessPartnerRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = null
             ) ?: return emptyList()
-
-            return businessPartners.map(this::convertToModel)
         }
     }
+
 }

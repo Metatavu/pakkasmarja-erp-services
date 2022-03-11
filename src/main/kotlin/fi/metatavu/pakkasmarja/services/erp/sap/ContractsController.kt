@@ -4,10 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
-import fi.metatavu.pakkasmarja.services.erp.model.Contract
-import fi.metatavu.pakkasmarja.services.erp.model.ContractLine
-import fi.metatavu.pakkasmarja.services.erp.model.Item
-import fi.metatavu.pakkasmarja.services.erp.model.SAPItemGroupContract
+import fi.metatavu.pakkasmarja.services.erp.model.*
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import org.jboss.logging.Logger
@@ -98,14 +95,13 @@ class ContractsController: AbstractSapResourceController() {
                         sapSession = sapSession
                     )
 
-                    val createdContractResponse = createItem(
+                    val createdContract = createSapEntity(
+                        targetClass = Contract::class.java,
                         item = jacksonObjectMapper().writeValueAsString(newContract),
                         resourceUrl = resourceUrl,
                         sessionId = sapSession.sessionId,
                         routeId = sapSession.routeId
                     ) ?: return null
-
-                    val createdContract = convertToModel<Contract>(createdContractResponse)
 
                     return spreadContract(contract = createdContract, items = items)[0]
                 } else {
@@ -116,14 +112,13 @@ class ContractsController: AbstractSapResourceController() {
                         sapSession = sapSession
                     )
 
-                    val updatedItemResponse = updateItem(
+                    val updatedItem = updateSapEntity(
+                        targetClass = Contract::class.java,
                         item = jacksonObjectMapper().writeValueAsString(contractForUpdate),
                         resourceUrl = "$resourceUrl%28${contractToUpdate.docNum}%29",
                         sessionId = sapSession.sessionId,
                         routeId = sapSession.routeId
                     ) ?: return null
-
-                    val updatedItem = convertToModel<Contract>(updatedItemResponse)
 
                     return spreadContract(contract = updatedItem, items = items)[0]
                 }
@@ -156,13 +151,11 @@ class ContractsController: AbstractSapResourceController() {
             firstResult = null
         )
 
-        val contractsResponse = sapListRequest(
+        return sapListContractsRequest(
             requestUrl = requestUrl,
             sapSession = sapSession,
             maxResults = null
         ) ?: return emptyList()
-
-        return contractsResponse.map(this::convertToModel)
     }
 
     /**
@@ -365,13 +358,13 @@ class ContractsController: AbstractSapResourceController() {
             firstResult = null
         )
 
-        val itemsResponse = sapListRequest(
+        val itemsResponse = sapListItemsRequest(
             requestUrl = requestUrl,
             sapSession = sapSession,
             maxResults = null
         ) ?: return emptyList()
 
-        val items: List<Item> = itemsResponse.map(this::convertToModel)
+        val items: List<Item> = itemsResponse
         return items.map{ item -> item.itemCode }
     }
 

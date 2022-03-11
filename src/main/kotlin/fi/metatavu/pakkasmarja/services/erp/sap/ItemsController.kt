@@ -38,13 +38,11 @@ class ItemsController: AbstractSapResourceController() {
                 firstResult = firstResult
             ) ?: return emptyList()
 
-            val itemsResponse = sapListRequest(
+            return sapListItemsRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = maxResults
             ) ?: return emptyList()
-
-            return itemsResponse.map(this::convertToModel)
         }
     }
 
@@ -56,13 +54,12 @@ class ItemsController: AbstractSapResourceController() {
      */
     fun findItem(sapId: Int): Item? {
         sapSessionController.createSapSession().use { sapSession ->
-            val itemResponse = findItem(
+            return findSapEntity(
+                targetClass = Item::class.java,
                 itemUrl = "${sapSession.apiUrl}/Items('$sapId')",
                 sessionId = sapSession.sessionId,
                 routeId = sapSession.routeId
-            ) ?: return null
-
-            return convertToModel<Item>(itemResponse)
+            )
         }
     }
 
