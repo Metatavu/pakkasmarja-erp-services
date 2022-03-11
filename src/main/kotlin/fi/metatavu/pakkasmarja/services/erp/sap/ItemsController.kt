@@ -6,6 +6,7 @@ import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
+import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 
@@ -41,7 +42,7 @@ class ItemsController: AbstractSapResourceController() {
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = maxResults
-            )
+            ) ?: return emptyList()
 
             return itemsResponse.map(this::convertToModel)
         }
@@ -93,7 +94,13 @@ class ItemsController: AbstractSapResourceController() {
      * @return constructed query selector
      */
     fun getItemPropertiesSelect(propertyNames: List<String>): String {
-        return "\$select=${propertyNames.joinToString(",").plus(",ItemCode,Properties21,Properties28")}"
+        val combinedList = mutableListOf<String>()
+        combinedList.addAll(propertyNames)
+        combinedList.add("ItemCode")
+        combinedList.add("Properties21")
+        combinedList.add("Properties28")
+
+        return "\$select=${combinedList.joinToString(",")}"
     }
 
     /**
@@ -108,10 +115,11 @@ class ItemsController: AbstractSapResourceController() {
         val itemIsFrozen = item.properties28 == "tYES"
 
         groupCodes.forEach { groupCode ->
-            val itemGroupPropertyName = groupCode.itemGroupPropertyName
+            val itemGroupPropertyName = groupCode.itemGroupPropertyName.lowercase(Locale.getDefault())
             val field = item.javaClass.getDeclaredField(itemGroupPropertyName)
             field.isAccessible = true
             val itemIsOfGroup = field.get(item) == "tYES"
+
             val groupIsFrozen = groupCode.isFrozen
             val groupIsOrganic = groupCode.isOrganic
             if (itemIsOfGroup && groupIsFrozen == itemIsFrozen && groupIsOrganic == itemIsOrganic) {

@@ -48,7 +48,7 @@ class ContractsResourceTest: AbstractResourceTest() {
             assertEquals("2022-12-31", contractToTest.terminateDate)
             assertEquals("Some remarks", contractToTest.remarks)
             assertEquals("2022-1", contractToTest.id)
-            assertEquals(2.0, contractToTest.deliveredQuantity)
+            assertEquals(0.0, contractToTest.deliveredQuantity)
             assertEquals(100, contractToTest.itemGroupCode)
 
             val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
@@ -109,7 +109,7 @@ class ContractsResourceTest: AbstractResourceTest() {
                 contactPersonCode = 122,
                 itemGroupCode = 100,
                 status = SapContractStatus.APPROVED,
-                deliveredQuantity = 2.0,
+                deliveredQuantity = 0.0,
                 startDate = "2022-01-01",
                 endDate = "2022-12-31",
                 terminateDate = "2022-12-31",
@@ -132,9 +132,9 @@ class ContractsResourceTest: AbstractResourceTest() {
                 id = "2022-1",
                 businessPartnerCode = 123,
                 contactPersonCode = 122,
-                itemGroupCode = 101,
+                itemGroupCode = 100,
                 status = SapContractStatus.APPROVED,
-                deliveredQuantity = 1.0,
+                deliveredQuantity = 0.0,
                 startDate = "2022-01-01",
                 endDate = "2022-12-31",
                 terminateDate = "2022-12-31",

@@ -34,7 +34,7 @@ abstract class AbstractSapResourceController {
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): JsonNode {
+    ): JsonNode? {
         try {
             return sendSapPostOrPatchRequest(
                 item = item,
@@ -59,7 +59,6 @@ abstract class AbstractSapResourceController {
     fun findItem(itemUrl: String, sessionId: String, routeId: String): JsonNode? {
         try {
             val client = HttpClient.newHttpClient()
-
             val request = HttpRequest
                 .newBuilder(URI.create(itemUrl))
                 .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
@@ -91,7 +90,7 @@ abstract class AbstractSapResourceController {
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): JsonNode {
+    ): JsonNode? {
         try {
             return sendSapPostOrPatchRequest(
                 item = item,
@@ -153,7 +152,7 @@ abstract class AbstractSapResourceController {
      * @param maxResults max results, default is 9999
      * @return list of items
      */
-    fun sapListRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<JsonNode> {
+    fun sapListRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<JsonNode>? {
         try {
             val client = HttpClient.newHttpClient()
 
@@ -165,26 +164,15 @@ abstract class AbstractSapResourceController {
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-            val body = ObjectMapper().readTree(response.body())
-            println(".........................................................")
-            println("requestUrl: $requestUrl")
-            println(body)
-            println("___________________________________________________________")
-            return body.get("value").map { it }
 
+            if (response.statusCode() != 200) {
+                return null
+            }
+
+            return ObjectMapper().readTree(response.body()).get("value").map { it }
         } catch (e: Exception) {
             throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
         }
-    }
-
-    /**
-     * Convert JsonNode to model
-     *
-     * @param jsonNode json node to convert
-     * @return converted model
-     */
-    final inline fun <reified T> convertToModel(jsonNode: JsonNode): T {
-        return jacksonObjectMapper().readValue(jsonNode.toString(), T::class.java)
     }
 
     /**
@@ -197,7 +185,7 @@ abstract class AbstractSapResourceController {
      * @return count of items
      */
     @Suppress("unused")
-    fun getCountFromSap(resourceUrl: String, sapSession: SapSession, filter: String? = null): Int {
+    fun getCountFromSap(resourceUrl: String, sapSession: SapSession, filter: String? = null): Int? {
         var countUrl = "$resourceUrl/\$count?"
 
         if (filter != null) {
@@ -207,7 +195,6 @@ abstract class AbstractSapResourceController {
 
         return getCountRequest(countUrl = countUrl, sessionId = sapSession.sessionId, routeId = sapSession.routeId)
     }
-
 
     /**
      * Translates a boolean value to the format used by SAP
@@ -220,6 +207,16 @@ abstract class AbstractSapResourceController {
             true -> "tYES"
             false -> "tNO"
         }
+    }
+
+    /**
+     * Convert JsonNode to model
+     *
+     * @param jsonNode json node to convert
+     * @return converted model
+     */
+    final inline fun <reified T> convertToModel(jsonNode: JsonNode): T {
+        return jacksonObjectMapper().readValue(jsonNode.toString(), T::class.java)
     }
 
     /**
@@ -238,7 +235,7 @@ abstract class AbstractSapResourceController {
         sessionId: String,
         routeId: String,
         method: String
-    ): JsonNode {
+    ): JsonNode? {
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
@@ -247,6 +244,11 @@ abstract class AbstractSapResourceController {
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+
+        if (response.statusCode() != 200) {
+            return null
+        }
+
         return ObjectMapper().readTree(response.body()).get("value")
     }
 
@@ -258,7 +260,7 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP-session route id
      * @return item count
      */
-    private fun getCountRequest(countUrl: String, sessionId: String, routeId: String): Int {
+    private fun getCountRequest(countUrl: String, sessionId: String, routeId: String): Int? {
         try {
             val client = HttpClient.newHttpClient()
             val request = HttpRequest
@@ -268,6 +270,11 @@ abstract class AbstractSapResourceController {
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+            if (response.statusCode() != 200) {
+                return null
+            }
+
             return response.body().toInt()
         } catch (e: Exception) {
             throw SapCountFetchException("Failed to fetch item count from SAP, ${e.message}")

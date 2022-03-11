@@ -44,9 +44,8 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
     }
 
     override fun createContract(sapContract: SapContract): Response {
-        val newContract = contractsController.createContract(sapContract = sapContract) ?: return createInternalServerError("ALSKMDLKMASDL")
-        val translatedContract = contractTranslator.translate(newContract)
-        return createOk(translatedContract)
+        val newContract = contractsController.createContract(sapContract = sapContract) ?: return createInternalServerError("Error while creating contract")
+        return createOk(contractTranslator.translate(newContract))
     }
 
     override fun findContract(sapId: String): Response {

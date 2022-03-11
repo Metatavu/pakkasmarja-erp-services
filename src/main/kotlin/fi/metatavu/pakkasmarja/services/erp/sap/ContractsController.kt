@@ -1,9 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
@@ -107,7 +103,7 @@ class ContractsController: AbstractSapResourceController() {
                         resourceUrl = resourceUrl,
                         sessionId = sapSession.sessionId,
                         routeId = sapSession.routeId
-                    )
+                    ) ?: return null
 
                     val createdContract = convertToModel<Contract>(createdContractResponse)
 
@@ -122,20 +118,18 @@ class ContractsController: AbstractSapResourceController() {
 
                     val updatedItemResponse = updateItem(
                         item = jacksonObjectMapper().writeValueAsString(contractForUpdate),
-                        resourceUrl = "$resourceUrl%28${contractToUpdate.docNum}%28",
+                        resourceUrl = "$resourceUrl%28${contractToUpdate.docNum}%29",
                         sessionId = sapSession.sessionId,
                         routeId = sapSession.routeId
-                    )
+                    ) ?: return null
 
                     val updatedItem = convertToModel<Contract>(updatedItemResponse)
 
-                    return spreadContract(contract = updatedItem, items = items).find { contract ->
-                        contract.itemGroupCode == sapContract.itemGroupCode
-                    }!!
+                    return spreadContract(contract = updatedItem, items = items)[0]
                 }
             }
         } catch (error: Exception) {
-            print(error)
+            logger.error("Error while creating SAP contract: ${error.message}")
             null
         }
     }
@@ -166,7 +160,7 @@ class ContractsController: AbstractSapResourceController() {
             requestUrl = requestUrl,
             sapSession = sapSession,
             maxResults = null
-        )
+        ) ?: return emptyList()
 
         return contractsResponse.map(this::convertToModel)
     }
@@ -222,7 +216,7 @@ class ContractsController: AbstractSapResourceController() {
             SAPItemGroupContract(
                 startDate = contract.startDate,
                 endDate = contract.endDate,
-                docNum = contract.docNum ?: 0,
+                docNum = contract.docNum,
                 bPCode = contract.bPCode,
                 contactPersonCode = contract.contactPersonCode,
                 status = contract.status,
@@ -236,6 +230,13 @@ class ContractsController: AbstractSapResourceController() {
         }
     }
 
+    /**
+     * Gets item groups from contract
+     *
+     * @param contract contract
+     * @param items list of items
+     * @return map of group code as key and cumulative quantity as value
+     */
     private fun getItemGroupsFromContract(contract: Contract, items: List<Item>): Map<Int, Double> {
         val itemGroupsInContract = mutableMapOf<Int, Double>()
         val itemLines = contract.contractLines
@@ -285,11 +286,11 @@ class ContractsController: AbstractSapResourceController() {
      */
     private fun buildContractForUpdate(contractToUpdate: Contract, newData: SapContract, sapSession: SapSession): Contract {
         val itemCodesToBeAdded = getGroupItemCodes(groupCode = newData.itemGroupCode, sapSession = sapSession)
-        val existingItemCodes = contractToUpdate.contractLines
+        val existingContractLines = contractToUpdate.contractLines
         val itemCodesToAdd = mutableListOf<String>()
 
         itemCodesToBeAdded.map { itemCode ->
-            if (existingItemCodes.find { existingCode -> existingCode.itemNo == itemCode } == null) {
+            if (existingContractLines.find { existingContract -> existingContract.itemNo == itemCode } == null) {
                 itemCodesToAdd.add(itemCode)
             }
         }
@@ -297,13 +298,14 @@ class ContractsController: AbstractSapResourceController() {
         val newLines = itemCodesToAdd.map { itemCode ->
             ContractLine(
                 itemNo = itemCode,
-                plannedQuantity = 0.0,
-                cumulativeQuantity = newData.deliveredQuantity ?: 0.0,
-                shippingType = 1
+                plannedQuantity = 1.0,
+                cumulativeQuantity = 0.0,
+                shippingType = -1
             )
         }
 
         val allLines = mutableListOf<ContractLine>()
+        allLines.addAll(existingContractLines)
         allLines.addAll(newLines)
 
         return contractToUpdate.copy(contractLines = allLines)
@@ -325,9 +327,9 @@ class ContractsController: AbstractSapResourceController() {
         val lines = itemCodes.map { code ->
             ContractLine(
                 itemNo = code,
-                plannedQuantity = 0.0,
-                cumulativeQuantity = sapContract.deliveredQuantity ?: 0.0,
-                shippingType = 1
+                plannedQuantity = 1.0,
+                cumulativeQuantity = 0.0,
+                shippingType = -1
             )
         }
 
@@ -335,7 +337,8 @@ class ContractsController: AbstractSapResourceController() {
             docNum = sapContract.id.split("-")[1].toInt(),
             startDate = sapContract.startDate.toString(),
             endDate = sapContract.endDate.toString(),
-            status = SapContractStatus.APPROVED.toString(),
+            terminateDate = sapContract.terminateDate.toString(),
+            status = contractStatusToSapFormat(SapContractStatus.APPROVED),
             bPCode = sapContract.businessPartnerCode.toString(),
             contactPersonCode = sapContract.contactPersonCode,
             remarks = sapContract.remarks ?: "",
@@ -366,7 +369,7 @@ class ContractsController: AbstractSapResourceController() {
             requestUrl = requestUrl,
             sapSession = sapSession,
             maxResults = null
-        )
+        ) ?: return emptyList()
 
         val items: List<Item> = itemsResponse.map(this::convertToModel)
         return items.map{ item -> item.itemCode }

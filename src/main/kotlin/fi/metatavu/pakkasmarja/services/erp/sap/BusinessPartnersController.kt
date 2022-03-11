@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
-import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.model.BusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
@@ -45,7 +44,7 @@ class BusinessPartnersController: AbstractSapResourceController() {
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = null
-            )
+            ) ?: return emptyList()
 
             return businessPartners.map(this::convertToModel)
         }

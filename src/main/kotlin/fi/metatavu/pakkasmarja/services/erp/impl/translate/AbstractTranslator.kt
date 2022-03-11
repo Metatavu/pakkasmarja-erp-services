@@ -28,10 +28,10 @@ abstract class AbstractTranslator<E, R> {
      * @param updatedTime updated time
      * @return updated datetime
      */
-    protected fun getUpdatedDateTime(updatedDate: String, updatedTime: String): OffsetDateTime {
+    protected fun getUpdatedDateTime(updatedDate: String, updatedTime: String, zoneId: String? = "Europe/Helsinki"): OffsetDateTime {
         val date = LocalDate.parse(updatedDate)
         val time = LocalTime.parse(updatedTime)
-        val zone = ZoneId.of("Europe/Helsinki")
+        val zone = ZoneId.of(zoneId)
         val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
         return OffsetDateTime.of(date, time, zoneOffset)
     }
