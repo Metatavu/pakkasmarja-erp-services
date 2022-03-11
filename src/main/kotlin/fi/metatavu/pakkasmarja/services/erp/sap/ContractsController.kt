@@ -240,13 +240,13 @@ class ContractsController: AbstractSapResourceController() {
     private fun getItemGroupsFromContract(contract: Contract, items: List<Item>): Map<Int, Double> {
         val itemGroupsInContract = mutableMapOf<Int, Double>()
         val itemLines = contract.contractLines
-        val groupCodes = configController.getGroupCodesFile()
+        val groupProperties = configController.getGroupPropertiesFromConfigFile()
 
         itemLines.forEach { itemLine ->
             val item = itemsController.findItemFromItemList(items = items, itemCode = itemLine.itemNo)
 
             if (item != null) {
-                val itemGroupCode = itemsController.getItemGroupCode(item = item, groupCodes = groupCodes)
+                val itemGroupCode = itemsController.getItemGroupCode(item = item, groupProperties = groupProperties)
 
                 if (itemGroupCode != null) {
                     if (!itemGroupsInContract.containsKey(itemGroupCode)) {
@@ -382,7 +382,7 @@ class ContractsController: AbstractSapResourceController() {
      * @return constructed filter string
      */
     private fun constructGroupCodeFilter(code: Int): String {
-        val groupCode = configController.getGroupCodesFile().find { groupCode -> groupCode.code == code } ?: return ""
+        val groupCode = configController.getGroupPropertiesFromConfigFile().find { groupCode -> groupCode.code == code } ?: return ""
         val isOrganicFilter = "Properties21 eq ${toSapItemPropertyBoolean(groupCode.isOrganic)}"
         val isFrozenFilter = "Properties28 eq ${toSapItemPropertyBoolean(groupCode.isFrozen)}"
 

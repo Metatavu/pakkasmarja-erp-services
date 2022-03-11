@@ -9,16 +9,16 @@ import java.time.*
  */
 abstract class AbstractTranslator<E, R> {
 
-    abstract fun translate(node: E): R
+    abstract fun translate(sapEntity: E): R
 
     /**
      * Translates list of entities
      *
-     * @param nodes list of nodes to translate
+     * @param sapEntities list of SAP entities to translate
      * @return List of translated nodes
      */
-    open fun translate(nodes: List<E>): List<R> {
-        return nodes.map(this::translate)
+    open fun translate(sapEntities: List<E>): List<R> {
+        return sapEntities.map(this::translate)
     }
 
     /**
@@ -26,6 +26,7 @@ abstract class AbstractTranslator<E, R> {
      *
      * @param updatedDate updated date
      * @param updatedTime updated time
+     * @param zoneId zone ID string
      * @return updated datetime
      */
     protected fun getUpdatedDateTime(updatedDate: String, updatedTime: String, zoneId: String? = "Europe/Helsinki"): OffsetDateTime {

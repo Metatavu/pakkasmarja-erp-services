@@ -11,32 +11,32 @@ import javax.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class ContractTranslator: AbstractTranslator<SAPItemGroupContract, SapContract>() {
 
-    override fun translate(nodes: List<SAPItemGroupContract>): List<SapContract> {
+    override fun translate(sapEntities: List<SAPItemGroupContract>): List<SapContract> {
         TODO("Not yet implemented")
     }
 
     /**
      * Translates a contract from SAP into tbe format expected by spec
      *
-     * @param node a contract from SAP
+     * @param sapEntity a contract from SAP
      * @return translated contract
      */
-    override fun translate(node: SAPItemGroupContract): SapContract {
-        val startDate = resolveLocalDate(node.startDate)
+    override fun translate(sapEntity: SAPItemGroupContract): SapContract {
+        val startDate = resolveLocalDate(sapEntity.startDate)
         val year = startDate?.year.toString()
 
         return SapContract(
-            id = "$year-${node.docNum}",
-            businessPartnerCode = node.bPCode.toInt(),
-            contactPersonCode = node.contactPersonCode,
-            itemGroupCode = node.itemGroupCode,
-            status = resolveContractStatus(node.status)!!,
-            deliveredQuantity = node.cumulativeQuantity,
+            id = "$year-${sapEntity.docNum}",
+            businessPartnerCode = sapEntity.bPCode.toInt(),
+            contactPersonCode = sapEntity.contactPersonCode,
+            itemGroupCode = sapEntity.itemGroupCode,
+            status = resolveContractStatus(sapEntity.status)!!,
+            deliveredQuantity = sapEntity.cumulativeQuantity,
             startDate = startDate,
-            endDate = resolveLocalDate(node.endDate),
-            signingDate = resolveLocalDate(node.signingDate),
-            terminateDate = resolveLocalDate(node.terminateDate),
-            remarks = node.remarks
+            endDate = resolveLocalDate(sapEntity.endDate),
+            signingDate = resolveLocalDate(sapEntity.signingDate),
+            terminateDate = resolveLocalDate(sapEntity.terminateDate),
+            remarks = sapEntity.remarks
         )
     }
 

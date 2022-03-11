@@ -1,7 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.config
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import fi.metatavu.pakkasmarja.services.erp.model.GroupCode
+import fi.metatavu.pakkasmarja.services.erp.model.GroupProperty
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.io.File
 import javax.enterprise.context.ApplicationScoped
@@ -19,13 +19,13 @@ class ConfigController {
     lateinit var groupCodesFileName: String
 
     /**
-     * Returns the group codes config file in JSON format
+     * Returns the group properties from config file
      *
-     * @return group codes file in JSON format
+     * @return list of group properties
      */
-    fun getGroupCodesFile(): List<GroupCode> {
+    fun getGroupPropertiesFromConfigFile(): List<GroupProperty> {
         val file = File(groupCodesFileName)
-        return jacksonObjectMapper().readValue(file, Array<GroupCode>::class.java).asList()
+        return jacksonObjectMapper().readValue(file, Array<GroupProperty>::class.java).asList()
     }
 
 }

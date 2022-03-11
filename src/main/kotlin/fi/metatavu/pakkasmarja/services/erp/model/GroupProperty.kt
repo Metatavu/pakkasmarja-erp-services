@@ -3,9 +3,11 @@ package fi.metatavu.pakkasmarja.services.erp.model
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
- * Data class for GroupCode
+ * Data class for GroupProperty
+ *
+ * @author Jari Nykänen
  */
-data class GroupCode(
+data class GroupProperty(
     @JsonProperty("code")
     val code: Int,
     @JsonProperty("itemGroupPropertyName")

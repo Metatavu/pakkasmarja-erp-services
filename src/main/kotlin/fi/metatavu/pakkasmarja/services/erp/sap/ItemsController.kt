@@ -1,7 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
-import fi.metatavu.pakkasmarja.services.erp.model.GroupCode
+import fi.metatavu.pakkasmarja.services.erp.model.GroupProperty
 import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
@@ -80,11 +80,11 @@ class ItemsController: AbstractSapResourceController() {
     /**
      * Creates a property name list from group codes
      *
-     * @param groupCodes groups to use for selection
+     * @param groupProperties groups to use for selection
      * @return list of group property names
      */
-    fun constructItemPropertiesList(groupCodes: List<GroupCode>): List<String> {
-        return groupCodes.map { groupCode -> groupCode.itemGroupPropertyName }
+    fun constructItemPropertiesList(groupProperties: List<GroupProperty>): List<String> {
+        return groupProperties.map { groupProperty -> groupProperty.itemGroupPropertyName }
     }
 
     /**
@@ -107,23 +107,23 @@ class ItemsController: AbstractSapResourceController() {
      * Gets the group code of an item
      *
      * @param item item
-     * @param groupCodes group codes config
+     * @param groupProperties list of group properties
      * @return group code or null
      */
-    fun getItemGroupCode(item: Item, groupCodes: List<GroupCode>): Int? {
+    fun getItemGroupCode(item: Item, groupProperties: List<GroupProperty>): Int? {
         val itemIsOrganic = item.properties21 == "tYES"
         val itemIsFrozen = item.properties28 == "tYES"
 
-        groupCodes.forEach { groupCode ->
-            val itemGroupPropertyName = groupCode.itemGroupPropertyName.lowercase(Locale.getDefault())
+        groupProperties.forEach { groupProperty ->
+            val itemGroupPropertyName = groupProperty.itemGroupPropertyName.lowercase(Locale.getDefault())
             val field = item.javaClass.getDeclaredField(itemGroupPropertyName)
             field.isAccessible = true
             val itemIsOfGroup = field.get(item) == "tYES"
 
-            val groupIsFrozen = groupCode.isFrozen
-            val groupIsOrganic = groupCode.isOrganic
+            val groupIsFrozen = groupProperty.isFrozen
+            val groupIsOrganic = groupProperty.isOrganic
             if (itemIsOfGroup && groupIsFrozen == itemIsFrozen && groupIsOrganic == itemIsOrganic) {
-                return groupCode.code
+                return groupProperty.code
             }
         }
 
@@ -137,13 +137,13 @@ class ItemsController: AbstractSapResourceController() {
      * @return constructed select string or null if something failed during construction
      */
     private fun constructItemSelect(itemGroupCode: Int?): String? {
-        val allGroupCodes = configController.getGroupCodesFile()
+        val groupProperties = configController.getGroupPropertiesFromConfigFile()
 
         return if (itemGroupCode != null) {
-            val foundItem = allGroupCodes.find { groupCode -> groupCode.code == itemGroupCode } ?: return null
+            val foundItem = groupProperties.find { groupProperty -> groupProperty.code == itemGroupCode } ?: return null
             getItemPropertiesSelect(propertyNames = listOf(foundItem.itemGroupPropertyName))
         } else {
-            val itemProperties = constructItemPropertiesList(groupCodes = allGroupCodes)
+            val itemProperties = constructItemPropertiesList(groupProperties = groupProperties)
             getItemPropertiesSelect(propertyNames = itemProperties)
         }
     }
