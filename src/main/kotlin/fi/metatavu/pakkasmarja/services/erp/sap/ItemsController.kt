@@ -154,6 +154,7 @@ class ItemsController: AbstractSapResourceController() {
      * @param sapSession current active SAP session
      * @param updatedAfter updated after filter or null
      * @param itemGroupCode item group code or null
+     * @param firstResult first result or null
      * @return list of SAP request URL
      */
     private fun constructItemRequestUrls(
