@@ -15,7 +15,7 @@ import javax.inject.Inject
  *
  * @author Jari Nykänen
  */
-@RequestScoped
+@ApplicationScoped
 class ItemsController: AbstractSapResourceController() {
 
     @Inject
