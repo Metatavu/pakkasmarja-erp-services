@@ -9,7 +9,7 @@ import javax.inject.Inject
 /**
  * The controller for business partners
  */
-@RequestScoped
+@ApplicationScoped
 class BusinessPartnersController: AbstractSapResourceController() {
 
     @Inject
