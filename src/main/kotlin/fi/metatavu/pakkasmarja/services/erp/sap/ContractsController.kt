@@ -15,7 +15,7 @@ import javax.inject.Inject
 /**
  * The controller for contracts
  */
-@RequestScoped
+@ApplicationScoped
 class ContractsController: AbstractSapResourceController() {
 
     @Inject
