@@ -10,7 +10,8 @@ import javax.ws.rs.core.Response
  * @author Antti Leppä
  */
 @RequestScoped
-class SystemApiImpl: SystemApi, fi.metatavu.pakkasmarja.services.erp.impl.AbstractApi()  {
+@Suppress("unused")
+class SystemApiImpl: SystemApi, AbstractApi()  {
 
     override fun ping(): Response {
         return createOk("pong")

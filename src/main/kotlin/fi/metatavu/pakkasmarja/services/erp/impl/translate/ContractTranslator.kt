@@ -1,63 +1,43 @@
 package fi.metatavu.pakkasmarja.services.erp.impl.translate
 
-import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
-import org.jboss.logging.Logger
-import java.time.LocalDate
+import fi.metatavu.pakkasmarja.services.erp.model.SAPItemGroupContract
 import javax.enterprise.context.ApplicationScoped
-import javax.inject.Inject
 
 /**
  * The translator class for SAP contracts
  */
 @ApplicationScoped
-class ContractTranslator {
+class ContractTranslator: AbstractTranslator<SAPItemGroupContract, SapContract>() {
 
-    @Inject
-    private lateinit var logger: Logger
+    override fun translate(sapEntities: List<SAPItemGroupContract>): List<SapContract> {
+        TODO("Not yet implemented")
+    }
 
     /**
      * Translates a contract from SAP into tbe format expected by spec
      *
-     * @param contract a contract from SAP
+     * @param sapEntity a contract from SAP
      * @return translated contract
      */
-    fun translate(contract: JsonNode): SapContract? {
-        return try {
-            val startDate = resolveLocalDate(contract.get("StartDate").asText())
-            val year = startDate?.year.toString()
-            SapContract(
-                id = "$year-${contract.get("DocNum").asText()}",
-                businessPartnerCode = contract.get("BPCode").asText().toInt(),
-                contactPersonCode = contract.get("ContractPersonCode").asText().toInt(),
-                itemGroupCode = contract.get("ItemGroupCode").asInt(),
-                status = resolveContractStatus(contract.get("Status").asText())!!,
-                deliveredQuantity = contract.get("DeliveredQuantity").asDouble(),
-                startDate = startDate,
-                endDate = resolveLocalDate(contract.get("EndDate").asText()),
-                signingDate = resolveLocalDate(contract.get("SigningDate").asText()),
-                terminateDate = resolveLocalDate(contract.get("TerminateDate").asText()),
-                remarks = contract.get("Remarks").asText()
-            )
-        } catch (e: Exception) {
-            logger.error("Failed to translate a contract from SAP: ${e.message}")
-            null
-        }
-    }
+    override fun translate(sapEntity: SAPItemGroupContract): SapContract {
+        val startDate = resolveLocalDate(sapEntity.startDate)
+        val year = startDate?.year.toString()
 
-    /**
-     * Tries to parse a string to LocalDate and returns null if fails
-     *
-     * @param date string to parse
-     * @return parsed string or null
-     */
-    private fun resolveLocalDate (date: String): LocalDate? {
-        return try {
-            LocalDate.parse(date)
-        } catch (e: Exception) {
-            null
-        }
+        return SapContract(
+            id = "$year-${sapEntity.docNum}",
+            businessPartnerCode = sapEntity.bPCode.toInt(),
+            contactPersonCode = sapEntity.contactPersonCode,
+            itemGroupCode = sapEntity.itemGroupCode,
+            status = resolveContractStatus(sapEntity.status)!!,
+            deliveredQuantity = sapEntity.cumulativeQuantity,
+            startDate = startDate,
+            endDate = resolveLocalDate(sapEntity.endDate),
+            signingDate = resolveLocalDate(sapEntity.signingDate),
+            terminateDate = resolveLocalDate(sapEntity.terminateDate),
+            remarks = sapEntity.remarks
+        )
     }
 
     /**
@@ -75,4 +55,5 @@ class ContractTranslator {
             else -> null
         }
     }
+
 }

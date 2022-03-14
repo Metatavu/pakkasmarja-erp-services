@@ -14,6 +14,8 @@ import java.time.*
 /**
  * Tests for business partners
  *
+ * TODO: Add support for invalid data testing
+ *
  * @author Antti Leppä
  */
 @QuarkusTest
@@ -29,12 +31,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     @Test
     fun testListBusinessPartners() {
         createTestBuilder().use {
-            val dateFilter = LocalDate.of(2022, 2, 17)
-            val timeFilter = LocalTime.of(10, 0, 0)
-            val zone = ZoneId.of("Europe/Helsinki")
-            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
+            val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = getTestDate())
             assertEquals(3, businessPartners.size)
 
             val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
@@ -60,10 +57,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             assertEquals("MetaLab", partner.companyName)
             assertEquals("0000000", partner.federalTaxId)
 
-            val expectedDate = LocalDate.of(2022, 2, 18)
-            val expectedTime = LocalTime.of(8, 0, 12)
-            val expectedDateTime = OffsetDateTime.of(expectedDate, expectedTime, zoneOffset)
-            assertEquals(expectedDateTime.toString(), partner.updated)
+            assertEquals(getTestValidationDate(), partner.updated)
 
             val bankAccounts = partner.bankAccounts
             assertNotNull(bankAccounts)
@@ -81,27 +75,41 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     @Test
     fun testListBusinessPartnersNullAccessToken() {
         createTestBuilder().use {
-            val dateFilter = LocalDate.of(2022, 2, 17)
-            val timeFilter = LocalTime.of(10, 0, 0)
-            val zone = ZoneId.of("Europe/Helsinki")
-            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
+            it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
         }
     }
 
     /**
-     * Tests listing business partners with an invalid access token
+     * Tests listing business partners with invalid access token
      */
     @Test
     fun testListBusinessPartnersInvalidAccessToken() {
         createTestBuilder().use {
-            val dateFilter = LocalDate.of(2022, 2, 17)
-            val timeFilter = LocalTime.of(10, 0, 0)
-            val zone = ZoneId.of("Europe/Helsinki")
-            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
+            it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
         }
+    }
+
+    /**
+     * Get offset date-time for tests
+     *
+     * @return offset date-time in string format
+     */
+    private fun getTestDate(): String {
+        val dateFilter = LocalDate.of(2022, 2, 17)
+        val timeFilter = LocalTime.of(10, 0, 0)
+
+        return toOffsetDateTime(dateFilter, timeFilter)
+    }
+
+    /**
+     * Get offset date-time for test date validation
+     *
+     * @return offset date-time in string format
+     */
+    private fun getTestValidationDate(): String {
+        val dateFilter = LocalDate.of(2022, 2, 18)
+        val timeFilter = LocalTime.of(8, 0, 12)
+
+        return toOffsetDateTime(dateFilter, timeFilter)
     }
 }

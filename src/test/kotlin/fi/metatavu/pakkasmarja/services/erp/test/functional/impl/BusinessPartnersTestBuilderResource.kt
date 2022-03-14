@@ -34,20 +34,10 @@ class BusinessPartnersTestBuilderResource(
      * Lists business partners
      *
      * @param updatedAfter Filter results by updated after given date time (optional)
-     * @param firstResult First result. Defaults to 0 (optional)
-     * @param maxResults Max results. Defaults to 10 (optional)
      * @return list of business partners
      */
-    fun listBusinessPartners(
-        updatedAfter: String?,
-        firstResult: Int?,
-        maxResults: Int?
-    ): Array<SapBusinessPartner> {
-        return api.listBusinessPartners(
-            updatedAfter = updatedAfter,
-            firstResult = firstResult,
-            maxResults = maxResults
-        )
+    fun listBusinessPartners(updatedAfter: String?): Array<SapBusinessPartner> {
+        return api.listBusinessPartners(updatedAfter = updatedAfter)
     }
 
 
@@ -56,21 +46,10 @@ class BusinessPartnersTestBuilderResource(
      *
      * @param expectedStatus expected status
      * @param updatedAfter Filter results by updated after given date time (optional)
-     * @param firstResult First result. Defaults to 0 (optional)
-     * @param maxResults Max results. Defaults to 10 (optional)
      */
-    fun assertListFailStatus(
-        expectedStatus: Int,
-        updatedAfter: String?,
-        firstResult: Int?,
-        maxResults: Int?
-    ) {
+    fun assertListFailStatus(expectedStatus: Int, updatedAfter: String?) {
         try {
-            listBusinessPartners(
-                updatedAfter = updatedAfter,
-                firstResult = firstResult,
-                maxResults = maxResults
-            )
+            listBusinessPartners( updatedAfter = updatedAfter)
 
             fail(String.format("Expected listing to fail with status %d", expectedStatus))
         } catch (e: ClientException) {
