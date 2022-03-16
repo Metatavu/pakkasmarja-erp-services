@@ -1,3 +1,6 @@
 [submodule "spec"]
 	path = spec
 	url = https://github.com/Metatavu/pakkasmarja-erp-services-spec.git
+[submodule "odata-mock-spec"]
+	path = odata-mock-spec
+	url = https://github.com/Metatavu/odata-mock-spec.git
