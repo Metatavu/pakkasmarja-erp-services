@@ -18,20 +18,20 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
     /**
      * Translates a business partner from SAP into the format expected by spec
      *
-     * @param node business partner to be translated
+     * @param sapEntity business partner to be translated
      * @return translated business partner
      */
-    override fun translate(node: BusinessPartner): SapBusinessPartner {
+    override fun translate(sapEntity: BusinessPartner): SapBusinessPartner {
         return SapBusinessPartner(
-            code = node.cardCode.toInt(),
-            email = node.emailAddress ?: "",
-            phoneNumbers = listOf(node.phone1 ?: "", node.phone2 ?: ""),
-            addresses = node.bPAddresses.map(this::translateAddress),
-            companyName = node.cardName,
-            federalTaxId = node.federalTaxID,
-            vatLiable = translateVatLiable(node.vatLiable),
-            updated = getUpdatedDateTime(node.updateDate, node.updateTime),
-            bankAccounts = node.bPBankAccounts.map(this::translateBankAccount)
+            code = sapEntity.cardCode.toInt(),
+            email = sapEntity.emailAddress ?: "",
+            phoneNumbers = listOf(sapEntity.phone1 ?: "", sapEntity.phone2 ?: ""),
+            addresses = sapEntity.bPAddresses.map(this::translateAddress),
+            companyName = sapEntity.cardName,
+            federalTaxId = sapEntity.federalTaxID,
+            vatLiable = translateVatLiable(sapEntity.vatLiable),
+            updated = getUpdatedDateTime(sapEntity.updateDate, sapEntity.updateTime),
+            bankAccounts = sapEntity.bPBankAccounts.map(this::translateBankAccount)
         )
     }
 

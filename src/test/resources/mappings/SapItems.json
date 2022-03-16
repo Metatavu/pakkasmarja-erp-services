@@ -31,7 +31,7 @@
     {
       "request": {
         "method": "GET",
-        "url": "/Items/$count?$filter=Properties2%20eq%20tYES%20and%20Properties21%20eq%20tYES%20and%20Properties28%20eq%20tNO",
+        "url": "/Items/$count?$filter=Properties2%20eq%20tYES%20and%20Properties21%20eq%20tNO%20and%20Properties28%20eq%20tYES",
         "headers": {
           "Cookie": {
             "contains": "B1SESSION=ABC; ROUTEID=DEF"
@@ -40,6 +40,35 @@
       },
       "response": {
         "body": "1"
+      }
+    },
+    {
+      "request": {
+        "method": "GET",
+        "headers": {
+          "Cookie": {
+            "contains": "B1SESSION=ABC; ROUTEID=DEF"
+          }
+        },
+        "url": "/Items?$select=ItemCode&$filter=Properties2%20eq%20tYES%20and%20Properties21%20eq%20tNO%20and%20Properties28%20eq%20tYES"
+      },
+      "response": {
+        "jsonBody": {
+          "value": [
+            {
+              "ItemCode": "2",
+              "Properties1": "tNO",
+              "Properties2": "tYES",
+              "Properties28": "tYES",
+              "Properties21": "tNO",
+              "UpdateDate": "2022-03-18",
+              "UpdateTime": "08:00:00",
+              "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
+              "PurchaseUnit": "null",
+              "ManageBatchNumbers": "tNO"
+            }
+          ]
+        }
       }
     },
     {
@@ -132,35 +161,6 @@
               "UpdateTime": "08:30:00",
               "ItemName": "RAHTIPAKKAUS MANSIKKA 2 x 2,5 KG",
               "PurchaseUnit": "Kg",
-              "ManageBatchNumbers": "tNO"
-            }
-          ]
-        }
-      }
-    },
-    {
-      "request": {
-        "method": "GET",
-        "headers": {
-          "Cookie": {
-            "contains": "B1SESSION=ABC; ROUTEID=DEF"
-          }
-        },
-        "url": "/Items?$select=ItemCode&$filter=Properties2%20eq%20tYES%20and%20Properties21%20eq%20tYES%20and%20Properties28%20eq%20tNO"
-      },
-      "response": {
-        "jsonBody": {
-          "value": [
-            {
-              "ItemCode": "3",
-              "Properties1": "tNO",
-              "Properties2": "tYES",
-              "Properties28": "tYES",
-              "Properties21": "tNO",
-              "UpdateDate": "2022-03-18",
-              "UpdateTime": "08:00:00",
-              "ItemName": "RAHTIPAKKAUS MUSTIKKA 2 x 2,5 KG",
-              "PurchaseUnit": "null",
               "ManageBatchNumbers": "tNO"
             }
           ]

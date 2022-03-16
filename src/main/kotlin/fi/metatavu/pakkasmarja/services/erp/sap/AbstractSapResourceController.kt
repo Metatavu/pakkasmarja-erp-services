@@ -1,23 +1,25 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import fi.metatavu.pakkasmarja.services.erp.model.BusinessPartner
+import fi.metatavu.pakkasmarja.services.erp.model.Contract
+import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
+import io.quarkus.amazon.lambda.runtime.AmazonLambdaMapperRecorder.objectMapper
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.OffsetDateTime
-import javax.enterprise.context.ApplicationScoped
+
 
 /**
  * Abstract SAP-resource controller
  */
-@ApplicationScoped
 abstract class AbstractSapResourceController {
 
     /**
@@ -29,14 +31,16 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP session route id
      * @return created item
      */
-    fun createItem(
+    fun <T> createSapEntity(
+        targetClass: Class<T>,
         item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): JsonNode {
+    ): T? {
         try {
             return sendSapPostOrPatchRequest(
+                targetClass = targetClass,
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
@@ -51,15 +55,20 @@ abstract class AbstractSapResourceController {
     /**
      * Finds item from SAP
      *
+     * @param targetClass target class
      * @param itemUrl item url
      * @param sessionId SAP-session id
      * @param routeId SAP-session route id
      * @return found item or null
      */
-    fun findItem(itemUrl: String, sessionId: String, routeId: String): JsonNode? {
+    fun <T> findSapEntity(
+        targetClass: Class<T>,
+        itemUrl: String,
+        sessionId: String,
+        routeId: String
+    ): T? {
         try {
             val client = HttpClient.newHttpClient()
-
             val request = HttpRequest
                 .newBuilder(URI.create(itemUrl))
                 .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
@@ -71,7 +80,7 @@ abstract class AbstractSapResourceController {
                 return null
             }
 
-            return ObjectMapper().readTree(response.body())
+            return readSapResponse(targetClass, response.body())
         } catch (e: Exception) {
             throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
         }
@@ -80,20 +89,23 @@ abstract class AbstractSapResourceController {
     /**
      * Updates an item to SAP
      *
+     * @param targetClass target class
      * @param item item to update
      * @param resourceUrl resource url
      * @param sessionId SAP session id
      * @param routeId SAP session route id
      * @return updated item
      */
-    fun updateItem(
+    fun <T> updateSapEntity(
+        targetClass: Class<T>,
         item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): JsonNode {
+    ): T? {
         try {
             return sendSapPostOrPatchRequest(
+                targetClass = targetClass,
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
@@ -144,16 +156,17 @@ abstract class AbstractSapResourceController {
         }
     }
 
-
     /**
      * Fetches items from multiple urls and combines them into a single list
      *
+     * @param targetClass target class
      * @param requestUrl list SAP request URL's
      * @param sapSession SAP-session
      * @param maxResults max results, default is 9999
+     * @param <T> response generic type
      * @return list of items
      */
-    fun sapListRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<JsonNode> {
+    fun <T> sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<T>? {
         try {
             val client = HttpClient.newHttpClient()
 
@@ -165,26 +178,15 @@ abstract class AbstractSapResourceController {
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-            val body = ObjectMapper().readTree(response.body())
-            println(".........................................................")
-            println("requestUrl: $requestUrl")
-            println(body)
-            println("___________________________________________________________")
-            return body.get("value").map { it }
 
+            if (response.statusCode() != 200) {
+                return null
+            }
+
+            return readSapListResponse(targetClass, response.body())
         } catch (e: Exception) {
             throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
         }
-    }
-
-    /**
-     * Convert JsonNode to model
-     *
-     * @param jsonNode json node to convert
-     * @return converted model
-     */
-    final inline fun <reified T> convertToModel(jsonNode: JsonNode): T {
-        return jacksonObjectMapper().readValue(jsonNode.toString(), T::class.java)
     }
 
     /**
@@ -197,7 +199,7 @@ abstract class AbstractSapResourceController {
      * @return count of items
      */
     @Suppress("unused")
-    fun getCountFromSap(resourceUrl: String, sapSession: SapSession, filter: String? = null): Int {
+    fun getCountFromSap(resourceUrl: String, sapSession: SapSession, filter: String? = null): Int? {
         var countUrl = "$resourceUrl/\$count?"
 
         if (filter != null) {
@@ -207,7 +209,6 @@ abstract class AbstractSapResourceController {
 
         return getCountRequest(countUrl = countUrl, sessionId = sapSession.sessionId, routeId = sapSession.routeId)
     }
-
 
     /**
      * Translates a boolean value to the format used by SAP
@@ -223,22 +224,76 @@ abstract class AbstractSapResourceController {
     }
 
     /**
+     * Requests list of items
+     *
+     * @param maxResults max results
+     * @param sapSession SAP session
+     * @param requestUrl request URL
+     * @return list of items
+     */
+    protected fun sapListItemsRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<Item>? {
+        return sapListRequest(
+            targetClass = Item::class.java,
+            requestUrl = requestUrl,
+            sapSession = sapSession,
+            maxResults = null
+        )
+    }
+
+    /**
+     * Requests list of contracts
+     *
+     * @param maxResults max results
+     * @param sapSession SAP session
+     * @param requestUrl request URL
+     * @return list of contracts
+     */
+    protected fun sapListContractsRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<Contract>? {
+        return sapListRequest(
+            targetClass = Contract::class.java,
+            requestUrl = requestUrl,
+            sapSession = sapSession,
+            maxResults = null
+        )
+    }
+
+    /**
+     * Requests list of business partners
+     *
+     * @param maxResults max results
+     * @param sapSession SAP session
+     * @param requestUrl request URL
+     * @return list of business partners
+     */
+    protected fun sapListBusinessPartnerRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<BusinessPartner>? {
+        return sapListRequest(
+            targetClass = BusinessPartner::class.java,
+            requestUrl = requestUrl,
+            sapSession = sapSession,
+            maxResults = null
+        )
+    }
+
+    /**
      * Sends a POST or PATCH request to SAP
      *
+     * @param targetClass target class
      * @param item body to send
      * @param resourceUrl resource url
      * @param sessionId SAP session id
      * @param routeId SAP session route id
      * @param method request method
+     * @param <T> response type
      * @return the response from SAP
      */
-    private fun sendSapPostOrPatchRequest(
+    private fun <T> sendSapPostOrPatchRequest(
+        targetClass: Class<T>,
         item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String,
         method: String
-    ): JsonNode {
+    ): T? {
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
@@ -247,7 +302,12 @@ abstract class AbstractSapResourceController {
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        return ObjectMapper().readTree(response.body()).get("value")
+
+        if (response.statusCode() != 200) {
+            return null
+        }
+
+        return readSapResponse(targetClass, response.body())
     }
 
     /**
@@ -258,7 +318,7 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP-session route id
      * @return item count
      */
-    private fun getCountRequest(countUrl: String, sessionId: String, routeId: String): Int {
+    private fun getCountRequest(countUrl: String, sessionId: String, routeId: String): Int? {
         try {
             val client = HttpClient.newHttpClient()
             val request = HttpRequest
@@ -268,6 +328,11 @@ abstract class AbstractSapResourceController {
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+            if (response.statusCode() != 200) {
+                return null
+            }
+
             return response.body().toInt()
         } catch (e: Exception) {
             throw SapCountFetchException("Failed to fetch item count from SAP, ${e.message}")
@@ -284,4 +349,29 @@ abstract class AbstractSapResourceController {
         return query.replace(" ", "%20").replace("'", "%27")
     }
 
+    /**
+     * Reads SAP resnpose from raw response
+     *
+     * @param body response body
+     * @param targetClass target class
+     * @return SAP response
+     */
+    private fun <T> readSapResponse(targetClass: Class<T>, body: ByteArray): T {
+        val responseValue = ObjectMapper().readTree(body).get("value")
+        val type = objectMapper.typeFactory.constructType(targetClass)
+        return jacksonObjectMapper().convertValue(responseValue, type)
+    }
+
+    /**
+     * Reads SAP list resnpose from raw response
+     *
+     * @param body response body
+     * @param targetClass target class
+     * @return SAP list response
+     */
+    private fun <T> readSapListResponse(targetClass: Class<T>, body: ByteArray): List<T> {
+        val responseValue = ObjectMapper().readTree(body).get("value").map { it }
+        val collectionType = objectMapper.typeFactory.constructCollectionType(ArrayList::class.java, targetClass)
+        return jacksonObjectMapper().convertValue(responseValue, collectionType)
+    }
 }

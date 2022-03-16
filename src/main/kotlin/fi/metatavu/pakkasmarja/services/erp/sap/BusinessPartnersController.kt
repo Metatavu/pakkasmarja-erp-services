@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
-import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.model.BusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
@@ -10,7 +9,7 @@ import javax.inject.Inject
 /**
  * The controller for business partners
  */
-@RequestScoped
+@ApplicationScoped
 class BusinessPartnersController: AbstractSapResourceController() {
 
     @Inject
@@ -41,13 +40,12 @@ class BusinessPartnersController: AbstractSapResourceController() {
                 firstResult = null
             )
 
-            val businessPartners = sapListRequest(
+            return sapListBusinessPartnerRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = null
-            )
-
-            return businessPartners.map(this::convertToModel)
+            ) ?: return emptyList()
         }
     }
+
 }

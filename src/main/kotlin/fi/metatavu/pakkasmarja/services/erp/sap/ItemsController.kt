@@ -1,11 +1,12 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
-import fi.metatavu.pakkasmarja.services.erp.model.GroupCode
+import fi.metatavu.pakkasmarja.services.erp.model.GroupProperty
 import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
+import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 
@@ -14,7 +15,7 @@ import javax.inject.Inject
  *
  * @author Jari Nykänen
  */
-@RequestScoped
+@ApplicationScoped
 class ItemsController: AbstractSapResourceController() {
 
     @Inject
@@ -37,13 +38,11 @@ class ItemsController: AbstractSapResourceController() {
                 firstResult = firstResult
             ) ?: return emptyList()
 
-            val itemsResponse = sapListRequest(
+            return sapListItemsRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
                 maxResults = maxResults
-            )
-
-            return itemsResponse.map(this::convertToModel)
+            ) ?: return emptyList()
         }
     }
 
@@ -55,13 +54,12 @@ class ItemsController: AbstractSapResourceController() {
      */
     fun findItem(sapId: Int): Item? {
         sapSessionController.createSapSession().use { sapSession ->
-            val itemResponse = findItem(
+            return findSapEntity(
+                targetClass = Item::class.java,
                 itemUrl = "${sapSession.apiUrl}/Items('$sapId')",
                 sessionId = sapSession.sessionId,
                 routeId = sapSession.routeId
-            ) ?: return null
-
-            return convertToModel<Item>(itemResponse)
+            )
         }
     }
 
@@ -79,11 +77,11 @@ class ItemsController: AbstractSapResourceController() {
     /**
      * Creates a property name list from group codes
      *
-     * @param groupCodes groups to use for selection
+     * @param groupProperties groups to use for selection
      * @return list of group property names
      */
-    fun constructItemPropertiesList(groupCodes: List<GroupCode>): List<String> {
-        return groupCodes.map { groupCode -> groupCode.itemGroupPropertyName }
+    fun constructItemPropertiesList(groupProperties: List<GroupProperty>): List<String> {
+        return groupProperties.map { groupProperty -> groupProperty.itemGroupPropertyName }
     }
 
     /**
@@ -93,29 +91,36 @@ class ItemsController: AbstractSapResourceController() {
      * @return constructed query selector
      */
     fun getItemPropertiesSelect(propertyNames: List<String>): String {
-        return "\$select=${propertyNames.joinToString(",").plus(",ItemCode,Properties21,Properties28")}"
+        val combinedList = mutableListOf<String>()
+        combinedList.addAll(propertyNames)
+        combinedList.add("ItemCode")
+        combinedList.add("Properties21")
+        combinedList.add("Properties28")
+
+        return "\$select=${combinedList.joinToString(",")}"
     }
 
     /**
      * Gets the group code of an item
      *
      * @param item item
-     * @param groupCodes group codes config
+     * @param groupProperties list of group properties
      * @return group code or null
      */
-    fun getItemGroupCode(item: Item, groupCodes: List<GroupCode>): Int? {
+    fun getItemGroupCode(item: Item, groupProperties: List<GroupProperty>): Int? {
         val itemIsOrganic = item.properties21 == "tYES"
         val itemIsFrozen = item.properties28 == "tYES"
 
-        groupCodes.forEach { groupCode ->
-            val itemGroupPropertyName = groupCode.itemGroupPropertyName
+        groupProperties.forEach { groupProperty ->
+            val itemGroupPropertyName = groupProperty.itemGroupPropertyName.lowercase(Locale.getDefault())
             val field = item.javaClass.getDeclaredField(itemGroupPropertyName)
             field.isAccessible = true
             val itemIsOfGroup = field.get(item) == "tYES"
-            val groupIsFrozen = groupCode.isFrozen
-            val groupIsOrganic = groupCode.isOrganic
+
+            val groupIsFrozen = groupProperty.isFrozen
+            val groupIsOrganic = groupProperty.isOrganic
             if (itemIsOfGroup && groupIsFrozen == itemIsFrozen && groupIsOrganic == itemIsOrganic) {
-                return groupCode.code
+                return groupProperty.code
             }
         }
 
@@ -129,13 +134,13 @@ class ItemsController: AbstractSapResourceController() {
      * @return constructed select string or null if something failed during construction
      */
     private fun constructItemSelect(itemGroupCode: Int?): String? {
-        val allGroupCodes = configController.getGroupCodesFile()
+        val groupProperties = configController.getGroupPropertiesFromConfigFile()
 
         return if (itemGroupCode != null) {
-            val foundItem = allGroupCodes.find { groupCode -> groupCode.code == itemGroupCode } ?: return null
+            val foundItem = groupProperties.find { groupProperty -> groupProperty.code == itemGroupCode } ?: return null
             getItemPropertiesSelect(propertyNames = listOf(foundItem.itemGroupPropertyName))
         } else {
-            val itemProperties = constructItemPropertiesList(groupCodes = allGroupCodes)
+            val itemProperties = constructItemPropertiesList(groupProperties = groupProperties)
             getItemPropertiesSelect(propertyNames = itemProperties)
         }
     }
@@ -146,6 +151,7 @@ class ItemsController: AbstractSapResourceController() {
      * @param sapSession current active SAP session
      * @param updatedAfter updated after filter or null
      * @param itemGroupCode item group code or null
+     * @param firstResult first result or null
      * @return list of SAP request URL
      */
     private fun constructItemRequestUrls(

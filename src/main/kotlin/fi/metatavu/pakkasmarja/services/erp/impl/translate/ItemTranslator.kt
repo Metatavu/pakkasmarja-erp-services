@@ -9,6 +9,8 @@ import javax.inject.Inject
 
 /**
  * The translator class for SAP contracts
+ *
+ * @author Jari Nykänen
  */
 @ApplicationScoped
 class ItemTranslator: AbstractTranslator<Item, SapItem>() {
@@ -19,20 +21,20 @@ class ItemTranslator: AbstractTranslator<Item, SapItem>() {
     @Inject
     lateinit var configController: ConfigController
 
-    override fun translate(nodes: List<Item>): List<SapItem> {
+    override fun translate(sapEntities: List<Item>): List<SapItem> {
         TODO("Not implemented yet")
     }
 
-    override fun translate(node: Item): SapItem {
-        val itemGroupCode = itemsController.getItemGroupCode(item = node, groupCodes = configController.getGroupCodesFile())
-        val updated = getUpdatedDateTime(node.updateDate, node.updateTime)
+    override fun translate(sapEntity: Item): SapItem {
+        val itemGroupCode = itemsController.getItemGroupCode(item = sapEntity, groupProperties = configController.getGroupPropertiesFromConfigFile())
+        val updated = getUpdatedDateTime(sapEntity.updateDate, sapEntity.updateTime)
 
         return SapItem(
-            code = node.itemCode.toInt(),
+            code = sapEntity.itemCode.toInt(),
             itemGroupCode = itemGroupCode,
-            name = node.itemName,
-            purchaseUnit = node.purchaseUnit ?: "",
-            batchManaged = node.manageBatchNumbers == "tYES",
+            name = sapEntity.itemName,
+            purchaseUnit = sapEntity.purchaseUnit ?: "",
+            batchManaged = sapEntity.manageBatchNumbers == "tYES",
             updated = updated,
         )
     }

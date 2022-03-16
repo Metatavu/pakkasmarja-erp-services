@@ -3,7 +3,7 @@ package fi.metatavu.pakkasmarja.services.erp.model
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
- * Data class BlanketAgreementsItemsLine
+ * Data class ContractLine
  *
  * @author Jari Nykänen
  */
