@@ -114,7 +114,7 @@ abstract class AbstractSapResourceController {
     fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {
         val updateDate = updatedAfter.toLocalDate().toString()
         val updateTime = updatedAfter.toLocalTime().toString().split(".")[0]
-        return "(UpdateDate gt '$updateDate' or (UpdateDate eq '$updateDate' and UpdateTime gt '$updateTime'))"
+        return "(UpdateDate gt $updateDate or (UpdateDate eq $updateDate and UpdateTime gt $updateTime))"
     }
 
     /**
