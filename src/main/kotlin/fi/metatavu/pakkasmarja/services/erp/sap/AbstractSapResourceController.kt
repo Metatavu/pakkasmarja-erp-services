@@ -142,18 +142,27 @@ abstract class AbstractSapResourceController {
         baseUrl: String,
         select: String,
         filter: String?,
-        firstResult: Int?
+        firstResult: Int?,
+        maxResults: Int?
     ): String {
-        val requestUrl = if (filter != null) {
-            "$baseUrl?$select&${escapeSapQuery(filter)}"
-        } else {
-            "$baseUrl?$select"
+        val list = mutableListOf<String>()
+
+        if (filter != null) {
+            list.add(escapeSapQuery(filter))
         }
 
-        return if (firstResult != null) {
-            "$requestUrl&\$skip=$firstResult"
+        if (firstResult != null) {
+            list.add("\$skip=$firstResult")
+        }
+
+        if (maxResults != null) {
+            list.add("\$top=$maxResults")
+        }
+
+        return if (list.size > 0) {
+            "$baseUrl?$select&${list.joinToString("&")}"
         } else {
-            requestUrl
+            "$baseUrl?$select"
         }
     }
 
@@ -163,11 +172,10 @@ abstract class AbstractSapResourceController {
      * @param targetClass target class
      * @param requestUrl list SAP request URL's
      * @param sapSession SAP-session
-     * @param maxResults max results, default is 9999
      * @param <T> response generic type
      * @return list of items
      */
-    fun <T> sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<T>? {
+    fun <T> sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T>? {
         try {
             val client = HttpClient.newHttpClient()
 
@@ -226,51 +234,45 @@ abstract class AbstractSapResourceController {
     /**
      * Requests list of items
      *
-     * @param maxResults max results
      * @param sapSession SAP session
      * @param requestUrl request URL
      * @return list of items
      */
-    protected fun sapListItemsRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<Item>? {
+    protected fun sapListItemsRequest(requestUrl: String, sapSession: SapSession): List<Item>? {
         return sapListRequest(
             targetClass = Item::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
-            maxResults = maxResults
         )
     }
 
     /**
      * Requests list of contracts
      *
-     * @param maxResults max results
      * @param sapSession SAP session
      * @param requestUrl request URL
      * @return list of contracts
      */
-    protected fun sapListContractsRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<Contract>? {
+    protected fun sapListContractsRequest(requestUrl: String, sapSession: SapSession): List<Contract>? {
         return sapListRequest(
             targetClass = Contract::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
-            maxResults = null
         )
     }
 
     /**
      * Requests list of business partners
      *
-     * @param maxResults max results
      * @param sapSession SAP session
      * @param requestUrl request URL
      * @return list of business partners
      */
-    protected fun sapListBusinessPartnerRequest(requestUrl: String, sapSession: SapSession, maxResults: Int? = 9999): List<BusinessPartner>? {
+    protected fun sapListBusinessPartnerRequest(requestUrl: String, sapSession: SapSession): List<BusinessPartner>? {
         return sapListRequest(
             targetClass = BusinessPartner::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
-            maxResults = null
         )
     }
 
@@ -357,13 +359,12 @@ abstract class AbstractSapResourceController {
      * @return SAP response
      */
     private fun <T> readSapResponse(targetClass: Class<T>, body: ByteArray): T {
-        val responseValue = ObjectMapper().readTree(body).get("value")
         val type = objectMapper.typeFactory.constructType(targetClass)
-        return jacksonObjectMapper().convertValue(responseValue, type)
+        return jacksonObjectMapper().convertValue(ObjectMapper().readTree(body), type)
     }
 
     /**
-     * Reads SAP list resnpose from raw response
+     * Reads SAP list response from raw response
      *
      * @param body response body
      * @param targetClass target class

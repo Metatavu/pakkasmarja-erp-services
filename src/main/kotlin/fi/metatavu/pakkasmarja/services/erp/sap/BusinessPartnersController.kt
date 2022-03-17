@@ -37,13 +37,13 @@ class BusinessPartnersController: AbstractSapResourceController() {
                 baseUrl = resourceUrl,
                 select = select,
                 filter = filter,
-                firstResult = null
+                firstResult = null,
+                maxResults = null
             )
 
             return sapListBusinessPartnerRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
-                maxResults = null
             ) ?: return emptyList()
         }
     }

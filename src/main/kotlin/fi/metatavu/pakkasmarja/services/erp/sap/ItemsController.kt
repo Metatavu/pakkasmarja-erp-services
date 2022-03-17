@@ -35,13 +35,13 @@ class ItemsController: AbstractSapResourceController() {
                 sapSession = sapSession,
                 updatedAfter = updatedAfter,
                 itemGroupCode = itemGroupCode,
-                firstResult = firstResult
+                firstResult = firstResult,
+                maxResults = maxResults
             )
 
             return sapListItemsRequest(
                 requestUrl = requestUrl,
                 sapSession = sapSession,
-                maxResults = maxResults
             ) ?: return emptyList()
         }
     }
@@ -110,7 +110,7 @@ class ItemsController: AbstractSapResourceController() {
 
         if (itemGroupCode != null) {
             val property = findItemPropertyFilterByGroupCode(itemGroupCode)
-            filterList.add("$property eq 'tYES'")
+            filterList.add("$property eq SAPB1.BoYesNoEnum'tYES'")
         }
 
         if (updatedAfter != null) {
@@ -170,13 +170,15 @@ class ItemsController: AbstractSapResourceController() {
      * @param updatedAfter updated after filter or null
      * @param itemGroupCode item group code or null
      * @param firstResult first result or null
+     * @param maxResults max results or null
      * @return list of SAP request URL
      */
     private fun constructItemRequestUrl(
         sapSession: SapSession,
         updatedAfter: OffsetDateTime?,
         itemGroupCode: Int?,
-        firstResult: Int?
+        firstResult: Int?,
+        maxResults: Int?
     ): String {
         val baseUrl = "${sapSession.apiUrl}/Items"
         val select = getItemPropertiesSelect()
@@ -186,7 +188,8 @@ class ItemsController: AbstractSapResourceController() {
             baseUrl = baseUrl,
             select = select,
             filter = filter,
-            firstResult = firstResult
+            firstResult = firstResult,
+            maxResults = maxResults
         )
     }
 

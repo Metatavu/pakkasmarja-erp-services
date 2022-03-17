@@ -148,13 +148,13 @@ class ContractsController: AbstractSapResourceController() {
             baseUrl = resourceUrl,
             select = "\$select=*",
             filter = filterString,
-            firstResult = null
+            firstResult = null,
+            maxResults = null
         )
 
         return sapListContractsRequest(
             requestUrl = requestUrl,
-            sapSession = sapSession,
-            maxResults = null
+            sapSession = sapSession
         ) ?: return emptyList()
     }
 
@@ -355,13 +355,13 @@ class ContractsController: AbstractSapResourceController() {
             baseUrl = "${sapSession.apiUrl}/Items",
             select = select,
             filter = filter,
-            firstResult = null
+            firstResult = null,
+            maxResults = null
         )
 
         val itemsResponse = sapListItemsRequest(
             requestUrl = requestUrl,
-            sapSession = sapSession,
-            maxResults = null
+            sapSession = sapSession
         ) ?: return emptyList()
 
         val items: List<Item> = itemsResponse

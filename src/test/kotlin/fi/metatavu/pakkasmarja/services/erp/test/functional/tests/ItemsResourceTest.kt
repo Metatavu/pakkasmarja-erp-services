@@ -70,7 +70,7 @@ class ItemsResourceTest: AbstractResourceTest() {
                 val lastItem = it.manager.items.list(
                     itemGroupCode = null,
                     updatedAfter = getTestDate(),
-                    firstResult = 2,
+                    firstResult = 1,
                     maxResults = null
                 )
                 assertEquals(2, lastItem.size)
@@ -84,7 +84,7 @@ class ItemsResourceTest: AbstractResourceTest() {
                     maxResults = 1
                 )
                 assertEquals(1, filterFirstAndMax.size)
-                assertEquals(2, filterFirstAndMax[0].code)
+                assertEquals(3, filterFirstAndMax[0].code)
 
                 it.invalidAccess.items.assertListFailStatus(
                     expectedStatus = 401,
@@ -101,6 +101,8 @@ class ItemsResourceTest: AbstractResourceTest() {
                     firstResult = null,
                     maxResults = null
                 )
+
+                sapMock.close()
             }
 
         }
@@ -112,14 +114,20 @@ class ItemsResourceTest: AbstractResourceTest() {
     @Test
     fun testFindItems() {
         createTestBuilder().use {
-            val foundItem = it.manager.items.find(sapId = 1)
-            assertNotNull(foundItem)
-            assertEquals(1, foundItem.code)
-            assertEquals(100, foundItem.itemGroupCode)
+            SapMock().use { sapMock ->
+                sapMock.mockItems("1", "2", "3")
 
-            it.manager.items.assertFindFailStatus(expectedStatus = 404, sapId = 9999)
-            it.nullAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
-            it.invalidAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
+                val foundItem = it.manager.items.find(sapId = 1)
+                assertNotNull(foundItem)
+                assertEquals(1, foundItem.code)
+                assertEquals(100, foundItem.itemGroupCode)
+
+                it.manager.items.assertFindFailStatus(expectedStatus = 404, sapId = 9999)
+                it.nullAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
+                it.invalidAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
+
+                sapMock.close()
+            }
         }
     }
 
