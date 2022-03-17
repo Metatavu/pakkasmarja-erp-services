@@ -7,7 +7,7 @@ import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
 import java.util.*
-import javax.enterprise.context.RequestScoped
+import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
 /**
@@ -31,12 +31,12 @@ class ItemsController: AbstractSapResourceController() {
         maxResults: Int? = 9999
     ): List<Item> {
         sapSessionController.createSapSession().use { sapSession ->
-            val requestUrl = constructItemRequestUrls(
+            val requestUrl = constructItemRequestUrl(
                 sapSession = sapSession,
                 updatedAfter = updatedAfter,
                 itemGroupCode = itemGroupCode,
                 firstResult = firstResult
-            ) ?: return emptyList()
+            )
 
             return sapListItemsRequest(
                 requestUrl = requestUrl,
@@ -87,17 +87,41 @@ class ItemsController: AbstractSapResourceController() {
     /**
      * Creates a SAP query selector from property names list
      *
-     * @param propertyNames list of property names
      * @return constructed query selector
      */
-    fun getItemPropertiesSelect(propertyNames: List<String>): String {
-        val combinedList = mutableListOf<String>()
-        combinedList.addAll(propertyNames)
-        combinedList.add("ItemCode")
-        combinedList.add("Properties21")
-        combinedList.add("Properties28")
+    fun getItemPropertiesSelect(): String {
+        val combinedList = mutableListOf("ItemCode", "ItemName", "UpdateTime", "UpdateDate")
+        for (i in 1..64) {
+            combinedList.add("Properties$i")
+        }
 
         return "\$select=${combinedList.joinToString(",")}"
+    }
+
+    /**
+     * Constructs filter for SAP request
+     *
+     * @param updatedAfter updated after date or null
+     * @param itemGroupCode item group code or null
+     * @return constructed filter string or null
+     */
+    private fun constructFilter(updatedAfter: OffsetDateTime?, itemGroupCode: Int?): String? {
+        val filterList = mutableListOf<String>()
+
+        if (itemGroupCode != null) {
+            val property = findItemPropertyFilterByGroupCode(itemGroupCode)
+            filterList.add("$property eq 'tYES'")
+        }
+
+        if (updatedAfter != null) {
+            filterList.add(createdUpdatedAfterFilter(updatedAfter))
+        }
+
+        if (filterList.size > 0) {
+            return "\$filter=${filterList.joinToString(" and ")}"
+        }
+
+        return null
     }
 
     /**
@@ -133,16 +157,10 @@ class ItemsController: AbstractSapResourceController() {
      * @param itemGroupCode item group code or null
      * @return constructed select string or null if something failed during construction
      */
-    private fun constructItemSelect(itemGroupCode: Int?): String? {
+    private fun findItemPropertyFilterByGroupCode(itemGroupCode: Int): String {
         val groupProperties = configController.getGroupPropertiesFromConfigFile()
-
-        return if (itemGroupCode != null) {
-            val foundItem = groupProperties.find { groupProperty -> groupProperty.code == itemGroupCode } ?: return null
-            getItemPropertiesSelect(propertyNames = listOf(foundItem.itemGroupPropertyName))
-        } else {
-            val itemProperties = constructItemPropertiesList(groupProperties = groupProperties)
-            getItemPropertiesSelect(propertyNames = itemProperties)
-        }
+        val foundGroup = groupProperties.find { property -> property.code == itemGroupCode } ?: return ""
+        return foundGroup.itemGroupPropertyName
     }
 
     /**
@@ -154,32 +172,22 @@ class ItemsController: AbstractSapResourceController() {
      * @param firstResult first result or null
      * @return list of SAP request URL
      */
-    private fun constructItemRequestUrls(
+    private fun constructItemRequestUrl(
         sapSession: SapSession,
         updatedAfter: OffsetDateTime?,
         itemGroupCode: Int?,
         firstResult: Int?
-    ): String? {
+    ): String {
         val baseUrl = "${sapSession.apiUrl}/Items"
-        val select = constructItemSelect(itemGroupCode) ?: return null
+        val select = getItemPropertiesSelect()
+        val filter = constructFilter(updatedAfter = updatedAfter, itemGroupCode = itemGroupCode)
 
-        return if (updatedAfter == null) {
-            constructSAPRequestUrl(
-                baseUrl = baseUrl,
-                select = select,
-                filter = null,
-                firstResult = firstResult
-            )
-        } else {
-            val filter = "\$filter=${createdUpdatedAfterFilter(updatedAfter)}"
-
-            constructSAPRequestUrl(
-                baseUrl = baseUrl,
-                select = select,
-                filter = filter,
-                firstResult = firstResult
-            )
-        }
+        return constructSAPRequestUrl(
+            baseUrl = baseUrl,
+            select = select,
+            filter = filter,
+            firstResult = firstResult
+        )
     }
 
 }

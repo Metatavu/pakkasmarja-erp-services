@@ -15,6 +15,7 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 
 /**
@@ -125,7 +126,7 @@ abstract class AbstractSapResourceController {
      */
     fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {
         val updateDate = updatedAfter.toLocalDate().toString()
-        val updateTime = updatedAfter.toLocalTime().toString().split(".")[0]
+        val updateTime = updatedAfter.format(DateTimeFormatter.ISO_LOCAL_TIME)
         return "(UpdateDate gt $updateDate or (UpdateDate eq $updateDate and UpdateTime gt $updateTime))"
     }
 
@@ -173,7 +174,6 @@ abstract class AbstractSapResourceController {
             val request = HttpRequest
                 .newBuilder(URI.create(requestUrl))
                 .setHeader("Cookie", "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}")
-                .setHeader("Prefer","odata.maxpagesize=${maxResults}")
                 .GET()
                 .build()
 
@@ -236,7 +236,7 @@ abstract class AbstractSapResourceController {
             targetClass = Item::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
-            maxResults = null
+            maxResults = maxResults
         )
     }
 

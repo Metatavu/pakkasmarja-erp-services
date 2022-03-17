@@ -9,7 +9,7 @@ import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import org.jboss.logging.Logger
 import java.time.LocalDate
-import javax.enterprise.context.RequestScoped
+import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
 /**
