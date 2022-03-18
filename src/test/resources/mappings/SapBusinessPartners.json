@@ -28,84 +28,9 @@
       "response": {
         "jsonBody": {
           "value": [
-            {
-              "CardCode": "1",
-              "EmailAddress": "jorma@example.com",
-              "Phone1": "0440120122",
-              "Phone2": "0440120123",
-              "BPAddresses": [
-                {
-                  "AddressType": "bo_BillTo",
-                  "AddressName": "MetaLab",
-                  "Street": "Hallituskatu 7",
-                  "City": "Mikkeli",
-                  "ZipCode": "50100"
-                }
-              ],
-              "CardName": "Card",
-              "FederalTaxID": "000000000",
-              "VatLiable": "vLiable",
-              "UpdateDate": "2022-02-18",
-              "UpdateTime": "08:00:12",
-              "BPBankAccounts": [
-                {
-                  "BICSwiftCode": "SBANFIHH",
-                  "IBAN": "FI61000000000"
-                }
-              ]
-            },
-            {
-              "CardCode": "1",
-              "EmailAddress": "jorma@example.com",
-              "Phone1": "0440120122",
-              "Phone2": "0440120123",
-              "BPAddresses": [
-                {
-                  "AddressType": "bo_BillTo",
-                  "AddressName": "MetaLab",
-                  "Street": "Hallituskatu 7",
-                  "City": "Mikkeli",
-                  "ZipCode": "50100"
-                }
-              ],
-              "CardName": "Card",
-              "FederalTaxID": "00000000",
-              "VatLiable": "vExempted",
-              "UpdateDate": "2022-02-18",
-              "UpdateTime": "08:00:12",
-              "BPBankAccounts": [
-                {
-                  "BICSwiftCode": "SBANFIHH",
-                  "IBAN": "FI61000000000"
-                }
-              ]
-            },
-            {
-              "CardCode": "1",
-              "EmailAddress": "jorma@example.com",
-              "Phone1": "0440120122",
-              "Phone2": "0440120123",
-              "BPAddresses": [
-                {
-                  "AddressType": "bo_ShipTo",
-                  "AddressName": "Home",
-                  "Street": "Hallituskatu 7",
-                  "City": "Mikkeli",
-                  "ZipCode": "50100"
-                }
-              ],
-              "CardName": "MetaLab",
-              "FederalTaxID": "0000000",
-              "VatLiable": "vEC",
-              "UpdateDate": "2022-02-18",
-              "UpdateTime": "08:00:12",
-              "BPBankAccounts": [
-                {
-                  "BICSwiftCode": "SBANFIHH",
-                  "IBAN": "FI61000000000"
-                }
-              ]
-            }
+,
+            ,
+
           ]
         }
       }

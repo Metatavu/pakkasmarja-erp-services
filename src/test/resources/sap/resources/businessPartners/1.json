@@ -1,0 +1,27 @@
+{
+  "CardCode": "1",
+  "CardType": "cSupplier",
+  "EmailAddress": "jorma@example.com",
+  "Phone1": "0440120122",
+  "Phone2": "0440120123",
+  "BPAddresses": [
+    {
+      "AddressType": "bo_BillTo",
+      "AddressName": "MetaLab",
+      "Street": "Hallituskatu 7",
+      "City": "Mikkeli",
+      "ZipCode": "50100"
+    }
+  ],
+  "CardName": "Card",
+  "FederalTaxID": "000000000",
+  "VatLiable": "vLiable",
+  "UpdateDate": "2022-02-18",
+  "UpdateTime": "08:00:12",
+  "BPBankAccounts": [
+    {
+      "BICSwiftCode": "SBANFIHH",
+      "IBAN": "FI61000000000"
+    }
+  ]
+}

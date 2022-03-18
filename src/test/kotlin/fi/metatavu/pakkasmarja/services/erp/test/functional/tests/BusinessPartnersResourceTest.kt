@@ -4,6 +4,7 @@ import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapAddressType
 import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapBusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.SapMockTestResource
+import fi.metatavu.pakkasmarja.services.erp.test.functional.sap.SapMock
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
@@ -31,41 +32,48 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     @Test
     fun testListBusinessPartners() {
         createTestBuilder().use {
-            val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = getTestDate())
-            assertEquals(3, businessPartners.size)
+            SapMock().use { sapMock ->
+                sapMock.mockBusinessPartners("1", "2", "3")
 
-            val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
-            assertEquals(1, partner.code)
-            assertEquals("jorma@example.com", partner.email)
+                val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = getTestDate())
+                assertEquals(3, businessPartners.size)
 
-            val phoneNumbers = partner.phoneNumbers
-            assertNotNull(phoneNumbers)
-            assertEquals(2, phoneNumbers!!.size)
-            assertEquals("0440120122", phoneNumbers[0])
-            assertEquals("0440120123", phoneNumbers[1])
+                val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
+                assertEquals(3, partner.code)
+                assertEquals("jorma@example.com", partner.email)
 
-            val addresses = partner.addresses
-            assertNotNull(addresses)
-            assertEquals(1, addresses!!.size)
-            val address = addresses[0]
-            assertEquals(SapAddressType.DELIVERY, address.type)
-            assertEquals("Home", address.name)
-            assertEquals("Mikkeli", address.city)
-            assertEquals("Hallituskatu 7", address.streetAddress)
-            assertEquals("50100", address.postalCode)
+                val phoneNumbers = partner.phoneNumbers
+                assertNotNull(phoneNumbers)
+                assertEquals(2, phoneNumbers!!.size)
+                assertEquals("0440120122", phoneNumbers[0])
+                assertEquals("0440120123", phoneNumbers[1])
 
-            assertEquals("MetaLab", partner.companyName)
-            assertEquals("0000000", partner.federalTaxId)
+                val addresses = partner.addresses
+                assertNotNull(addresses)
+                assertEquals(1, addresses!!.size)
+                val address = addresses[0]
+                assertEquals(SapAddressType.DELIVERY, address.type)
+                assertEquals("Home", address.name)
+                assertEquals("Mikkeli", address.city)
+                assertEquals("Hallituskatu 7", address.streetAddress)
+                assertEquals("50100", address.postalCode)
 
-            assertEquals(getTestValidationDate(), partner.updated)
+                assertEquals("MetaLab", partner.companyName)
+                assertEquals("0000000", partner.federalTaxId)
 
-            val bankAccounts = partner.bankAccounts
-            assertNotNull(bankAccounts)
-            assertEquals(1, bankAccounts!!.size)
+                assertEquals(getTestValidationDate(), partner.updated)
 
-            val bankAccount = bankAccounts[0]
-            assertEquals("FI61000000000", bankAccount.IBAN)
-            assertEquals("SBANFIHH", bankAccount.BIC)
+                val bankAccounts = partner.bankAccounts
+                assertNotNull(bankAccounts)
+                assertEquals(1, bankAccounts!!.size)
+
+                val bankAccount = bankAccounts[0]
+                assertEquals("FI61000000000", bankAccount.IBAN)
+                assertEquals("SBANFIHH", bankAccount.BIC)
+
+                sapMock.close()
+            }
+
         }
     }
 
@@ -75,7 +83,11 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     @Test
     fun testListBusinessPartnersNullAccessToken() {
         createTestBuilder().use {
-            it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
+            SapMock().use { sapMock ->
+                sapMock.mockBusinessPartners("1", "2", "3")
+                it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
+                sapMock.close()
+            }
         }
     }
 
@@ -85,7 +97,11 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     @Test
     fun testListBusinessPartnersInvalidAccessToken() {
         createTestBuilder().use {
-            it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
+            SapMock().use { sapMock ->
+                sapMock.mockBusinessPartners("1", "2", "3")
+                it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
+                sapMock.close()
+            }
         }
     }
 

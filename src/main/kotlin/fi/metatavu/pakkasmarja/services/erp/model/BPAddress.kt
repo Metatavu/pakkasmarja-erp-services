@@ -1,6 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.model
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  *
  * @author Jari Nykänen
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class BPAddress(
     @JsonProperty("AddressName")
     val addressName: String,

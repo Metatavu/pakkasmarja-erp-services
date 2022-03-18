@@ -39,6 +39,24 @@ class SapMock: AutoCloseable {
     }
 
     /**
+     * Mock SAP business partners
+     *
+     * @param ids business partner ids
+     */
+    fun mockBusinessPartners(vararg ids: String) {
+        ids.forEach(this::mockBusinessPartner)
+    }
+
+    /**
+     * Mock single SAP business partner
+     *
+     * @param id business partner id
+     */
+    private fun mockBusinessPartner(id: String) {
+        requestMock("BusinessPartner", "sap/resources/businessPartners/$id.json")
+    }
+
+    /**
      * Request mock from OData mock server
      *
      * @param entryName entry name
