@@ -71,37 +71,12 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
                 assertEquals("FI61000000000", bankAccount.IBAN)
                 assertEquals("SBANFIHH", bankAccount.BIC)
 
-                sapMock.close()
-            }
-
-        }
-    }
-
-    /**
-     * Tests listing business partners with a null access token
-     */
-    @Test
-    fun testListBusinessPartnersNullAccessToken() {
-        createTestBuilder().use {
-            SapMock().use { sapMock ->
-                sapMock.mockBusinessPartners("1", "2", "3")
-                it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
-                sapMock.close()
-            }
-        }
-    }
-
-    /**
-     * Tests listing business partners with invalid access token
-     */
-    @Test
-    fun testListBusinessPartnersInvalidAccessToken() {
-        createTestBuilder().use {
-            SapMock().use { sapMock ->
-                sapMock.mockBusinessPartners("1", "2", "3")
                 it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
+                it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
+
                 sapMock.close()
             }
+
         }
     }
 
