@@ -57,6 +57,24 @@ class SapMock: AutoCloseable {
     }
 
     /**
+     * Mock SAP contracts
+     *
+     * @param ids contract ids
+     */
+    fun mockContracts(vararg ids: String) {
+        ids.forEach(this::mockContract)
+    }
+
+    /**
+     * Mock single SAP contract
+     *
+     * @param id contract id
+     */
+    private fun mockContract(id: String) {
+        requestMock("BlanketAgreement", "sap/resources/contracts/$id.json")
+    }
+
+    /**
      * Request mock from OData mock server
      *
      * @param entryName entry name

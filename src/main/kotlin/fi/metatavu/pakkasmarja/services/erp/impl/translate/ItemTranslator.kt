@@ -4,6 +4,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapItem
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.ItemsController
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapTranslationException
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
@@ -26,6 +27,20 @@ class ItemTranslator: AbstractTranslator<Item, SapItem>() {
     }
 
     override fun translate(sapEntity: Item): SapItem {
+        if (sapEntity.updateDate == null) {
+            throw SapTranslationException("Update date is null!")
+        }
+
+        if (sapEntity.updateTime == null) {
+            throw SapTranslationException("Update time is null!")
+        }
+
+        if (sapEntity.itemName == null) {
+            throw SapTranslationException("Item name is null!")
+        }
+
+
+
         val itemGroupCode = itemsController.getItemGroupCode(item = sapEntity, groupProperties = configController.getGroupPropertiesFromConfigFile())
         val updated = getUpdatedDateTime(sapEntity.updateDate, sapEntity.updateTime)
 

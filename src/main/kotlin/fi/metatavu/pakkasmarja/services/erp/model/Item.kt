@@ -13,7 +13,7 @@ data class Item(
     @JsonProperty("ItemCode")
     val itemCode: String,
     @JsonProperty("ItemName")
-    val itemName: String,
+    val itemName: String?,
     @JsonProperty("ManageBatchNumbers")
     val manageBatchNumbers: String?,
     @JsonProperty("PurchaseUnit")
@@ -153,7 +153,7 @@ data class Item(
     @JsonProperty("DefaultPurchasingUoMEntry")
     val defaultPurchasingUoMEntry: Any?,
     @JsonProperty("UpdateDate")
-    val updateDate: String,
+    val updateDate: String?,
     @JsonProperty("UpdateTime")
-    val updateTime: String
+    val updateTime: String?
 )

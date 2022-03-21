@@ -6,7 +6,7 @@ import org.testcontainers.containers.GenericContainer
 /**
  * Test container for SAP mock service
  */
-class SapMockTestContainer: GenericContainer<SapMockTestContainer>("metatavu/odata-mock") {
+class SapMockTestContainer: GenericContainer<SapMockTestContainer>("local-odata-mock") {
 
     private var edmPath: String? = null
     private var companyDb: String? = null

@@ -299,6 +299,7 @@ abstract class AbstractSapResourceController {
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
+            .setHeader("Content-Type", "application/json")
             .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
             .method(method, HttpRequest.BodyPublishers.ofString(item))
             .build()

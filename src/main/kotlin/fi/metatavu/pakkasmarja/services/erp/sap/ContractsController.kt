@@ -74,7 +74,7 @@ class ContractsController: AbstractSapResourceController() {
         return try {
             sapSessionController.createSapSession().use { sapSession ->
                 val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
-                val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq ${sapContract.businessPartnerCode} and Status eq asApproved"
+                val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq '${sapContract.businessPartnerCode}' and Status eq SAPB1.BlanketAgreementStatusEnum'asApproved'"
 
                 val contracts = getContracts(
                     resourceUrl = resourceUrl,
@@ -95,9 +95,12 @@ class ContractsController: AbstractSapResourceController() {
                         sapSession = sapSession
                     )
 
+                    val mapper = jacksonObjectMapper()
+                    val contractString = mapper.writeValueAsString(newContract)
+
                     val createdContract = createSapEntity(
                         targetClass = Contract::class.java,
-                        item = jacksonObjectMapper().writeValueAsString(newContract),
+                        item = contractString,
                         resourceUrl = resourceUrl,
                         sessionId = sapSession.sessionId,
                         routeId = sapSession.routeId
@@ -169,7 +172,7 @@ class ContractsController: AbstractSapResourceController() {
     private fun getCombinedFilter(startDate: LocalDate?, businessPartnerCode: String?, contractStatus: SapContractStatus?): String {
         val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
         val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
-        val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
+        val contractStatusFilter = contractStatus?.let { "Status eq SAPB1.BlanketAgreementStatusEnum'${contractStatusToSapFormat(contractStatus)}'" }
         return listOfNotNull(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).joinToString(" and ")
     }
 
@@ -210,7 +213,7 @@ class ContractsController: AbstractSapResourceController() {
                 startDate = contract.startDate,
                 endDate = contract.endDate,
                 docNum = contract.docNum,
-                bPCode = contract.bPCode,
+                bPCode = contract.bpCode,
                 contactPersonCode = contract.contactPersonCode,
                 status = contract.status,
                 signingDate = contract.signingDate,
@@ -332,7 +335,7 @@ class ContractsController: AbstractSapResourceController() {
             endDate = sapContract.endDate.toString(),
             terminateDate = sapContract.terminateDate.toString(),
             status = contractStatusToSapFormat(SapContractStatus.APPROVED),
-            bPCode = sapContract.businessPartnerCode.toString(),
+            bpCode = sapContract.businessPartnerCode.toString(),
             contactPersonCode = sapContract.contactPersonCode,
             remarks = sapContract.remarks ?: "",
             signingDate = sapContract.signingDate.toString(),
@@ -376,10 +379,10 @@ class ContractsController: AbstractSapResourceController() {
      */
     private fun constructGroupCodeFilter(code: Int): String {
         val groupCode = configController.getGroupPropertiesFromConfigFile().find { groupCode -> groupCode.code == code } ?: return ""
-        val isOrganicFilter = "Properties21 eq ${toSapItemPropertyBoolean(groupCode.isOrganic)}"
-        val isFrozenFilter = "Properties28 eq ${toSapItemPropertyBoolean(groupCode.isFrozen)}"
+        val isOrganicFilter = "Properties21 eq SAPB1.BoYesNoEnum'${toSapItemPropertyBoolean(groupCode.isOrganic)}'"
+        val isFrozenFilter = "Properties28 eq SAPB1.BoYesNoEnum'${toSapItemPropertyBoolean(groupCode.isFrozen)}'"
 
-        return "\$filter=${groupCode.itemGroupPropertyName} eq tYES and $isOrganicFilter and $isFrozenFilter"
+        return "\$filter=${groupCode.itemGroupPropertyName} eq SAPB1.BoYesNoEnum'tYES' and $isOrganicFilter and $isFrozenFilter"
     }
 
 }
