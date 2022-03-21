@@ -104,22 +104,27 @@ class ContractsResourceTest: AbstractResourceTest() {
     @Test
     fun testUpdateContract() {
         createTestBuilder().use {
-            val newContract = SapContract(
-                id = "2022-1",
-                businessPartnerCode = 23,
-                contactPersonCode = 122,
-                itemGroupCode = 100,
-                status = SapContractStatus.APPROVED,
-                deliveredQuantity = 0.0,
-                startDate = "2022-01-01",
-                endDate = "2022-12-31",
-                terminateDate = "2022-12-31",
-                signingDate = "2022-01-01",
-                remarks = "Remarks"
-            )
+            SapMock().use { sapMock ->
+                sapMock.mockItems("1", "2", "3")
+                sapMock.mockContracts("6")
+                val newContract = SapContract(
+                    id = "2022-1",
+                    businessPartnerCode = 23,
+                    contactPersonCode = 64,
+                    itemGroupCode = 100,
+                    status = SapContractStatus.APPROVED,
+                    deliveredQuantity = 0.0,
+                    startDate = "2022-01-01",
+                    endDate = "2022-12-31",
+                    terminateDate = "2022-12-31",
+                    signingDate = "2022-01-01",
+                    remarks = "Some remarks"
+                )
 
-            val createdContract = it.manager.contracts.create(newContract)
-            assertEquals(newContract, createdContract)
+                val createdContract = it.manager.contracts.create(newContract)
+                assertEquals(newContract, createdContract)
+                sapMock.close()
+            }
         }
     }
 }
