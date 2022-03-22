@@ -2,6 +2,7 @@ package fi.metatavu.pakkasmarja.services.erp.test.functional.tests
 
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.SapMockTestResource
+import fi.metatavu.pakkasmarja.services.erp.test.functional.sap.SapMock
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
@@ -30,72 +31,78 @@ class ItemsResourceTest: AbstractResourceTest() {
     @Test
     fun testListItems() {
         createTestBuilder().use {
-            val items = it.manager.items.list(
-                itemGroupCode = 102,
-                updatedAfter = getTestDate(),
-                firstResult = null,
-                maxResults = null
-            )
-            assertEquals(1, items.size)
+            SapMock().use { sapMock ->
 
-            val allItems = it.manager.items.list(
-                itemGroupCode = null,
-                updatedAfter = getTestDate(),
-                firstResult = null,
-                maxResults = null
-            )
-            assertEquals(3, allItems.size)
+                sapMock.mockItems("1", "2", "3")
 
-            val emptyList = it.manager.items.list(
-                itemGroupCode = 9999,
-                updatedAfter = null,
-                firstResult = null,
-                maxResults = null
-            )
-            assertEquals(0, emptyList.size)
+                val items = it.manager.items.list(
+                    itemGroupCode = 102,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+                assertEquals(1, items.size)
 
-            val oneItem = it.manager.items.list(
-                itemGroupCode = null,
-                updatedAfter = getTestDate(),
-                firstResult = null,
-                maxResults = 1
-            )
-            assertEquals(1, oneItem.size)
+                val allItems = it.manager.items.list(
+                    itemGroupCode = null,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+                assertEquals(3, allItems.size)
 
-            val lastItem = it.manager.items.list(
-                itemGroupCode = null,
-                updatedAfter = getTestDate(),
-                firstResult = 2,
-                maxResults = null
-            )
-            assertEquals(2, lastItem.size)
-            assertEquals(2, lastItem[0].code)
-            assertEquals(3, lastItem[1].code)
+                val emptyList = it.manager.items.list(
+                    itemGroupCode = 9999,
+                    updatedAfter = null,
+                    firstResult = null,
+                    maxResults = null
+                )
+                assertEquals(0, emptyList.size)
 
-            val filterFirstAndMax = it.manager.items.list(
-                itemGroupCode = null,
-                updatedAfter = getTestDate(),
-                firstResult = 2,
-                maxResults = 1
-            )
-            assertEquals(1, filterFirstAndMax.size)
-            assertEquals(2, filterFirstAndMax[0].code)
+               val oneItem = it.manager.items.list(
+                    itemGroupCode = null,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = 1
+                )
+                assertEquals(1, oneItem.size)
 
-            it.invalidAccess.items.assertListFailStatus(
-                expectedStatus = 401,
-                itemGroupCode = 102,
-                updatedAfter = null,
-                firstResult = null,
-                maxResults = null
-            )
+                val lastItem = it.manager.items.list(
+                    itemGroupCode = null,
+                    updatedAfter = getTestDate(),
+                    firstResult = 1,
+                    maxResults = null
+                )
+                assertEquals(2, lastItem.size)
+                assertEquals(2, lastItem[0].code)
+                assertEquals(3, lastItem[1].code)
 
-            it.nullAccess.items.assertListFailStatus(
-                expectedStatus = 401,
-                itemGroupCode = 102,
-                updatedAfter = null,
-                firstResult = null,
-                maxResults = null
-            )
+                val filterFirstAndMax = it.manager.items.list(
+                    itemGroupCode = null,
+                    updatedAfter = getTestDate(),
+                    firstResult = 2,
+                    maxResults = 1
+                )
+                assertEquals(1, filterFirstAndMax.size)
+                assertEquals(3, filterFirstAndMax[0].code)
+
+                it.invalidAccess.items.assertListFailStatus(
+                    expectedStatus = 401,
+                    itemGroupCode = 102,
+                    updatedAfter = null,
+                    firstResult = null,
+                    maxResults = null
+                )
+
+                it.nullAccess.items.assertListFailStatus(
+                    expectedStatus = 401,
+                    itemGroupCode = 102,
+                    updatedAfter = null,
+                    firstResult = null,
+                    maxResults = null
+                )
+            }
+
         }
     }
 
@@ -105,14 +112,18 @@ class ItemsResourceTest: AbstractResourceTest() {
     @Test
     fun testFindItems() {
         createTestBuilder().use {
-            val foundItem = it.manager.items.find(sapId = 1)
-            assertNotNull(foundItem)
-            assertEquals(1, foundItem.code)
-            assertEquals(100, foundItem.itemGroupCode)
+            SapMock().use { sapMock ->
+                sapMock.mockItems("1", "2", "3")
 
-            it.manager.items.assertFindFailStatus(expectedStatus = 404, sapId = 9999)
-            it.nullAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
-            it.invalidAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
+                val foundItem = it.manager.items.find(sapId = 1)
+                assertNotNull(foundItem)
+                assertEquals(1, foundItem.code)
+                assertEquals(100, foundItem.itemGroupCode)
+
+                it.manager.items.assertFindFailStatus(expectedStatus = 404, sapId = 9999)
+                it.nullAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
+                it.invalidAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
+            }
         }
     }
 

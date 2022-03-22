@@ -1,5 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
@@ -7,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  *
  * @author Jari Nykänen
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Contract(
     @JsonProperty("StartDate")
     val startDate: String,
@@ -15,7 +17,7 @@ data class Contract(
     @JsonProperty("DocNum")
     val docNum: Int,
     @JsonProperty("BPCode")
-    val bPCode: String,
+    val bpCode: String,
     @JsonProperty("ContactPersonCode")
     val contactPersonCode: Int,
     @JsonProperty("Status")

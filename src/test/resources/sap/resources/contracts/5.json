@@ -1,0 +1,20 @@
+{
+  "DocNum": 5,
+  "AgreementNo": 5,
+  "BPCode": "123",
+  "ContactPersonCode": 122,
+  "StartDate": "2022-01-01",
+  "EndDate": "2022-12-31",
+  "TerminateDate": "2022-12-31",
+  "SigningDate": "2022-01-01",
+  "Remarks": "Remarks",
+  "Status": "asApproved",
+  "BlanketAgreements_ItemsLines": [
+    {
+      "ItemNo": "1"
+    },
+    {
+      "ItemNo": "2"
+    }
+  ]
+}

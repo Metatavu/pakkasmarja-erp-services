@@ -64,6 +64,7 @@ sourceSets["main"].java {
 }
 sourceSets["test"].java {
     srcDir("build/generated/api-client/src/main/kotlin")
+    srcDir("build/generated/odata-mock-client/src/main/kotlin")
 }
 
 allOpen {
@@ -79,7 +80,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.javaParameters = true
 }
 
-val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
+val generateApiSpec = tasks.register("generateApiSpec", GenerateTask::class) {
     setProperty("generatorName", "kotlin-server")
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
     setProperty("outputDir", "$buildDir/generated/api-spec")
@@ -97,7 +98,7 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
 }
 
-val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
+val generateApiClient = tasks.register("generateApiClient", GenerateTask::class) {
     setProperty("generatorName", "kotlin")
     setProperty("library", "jvm-okhttp3")
     setProperty("inputSpec",  "$rootDir/spec/swagger.yaml")
@@ -110,10 +111,22 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     this.configOptions.put("serializationLibrary", "jackson")
 }
 
+val generateODataMockClick = tasks.register("generateODataMockClick", GenerateTask::class) {
+    setProperty("generatorName", "kotlin")
+    setProperty("library", "jvm-okhttp3")
+    setProperty("inputSpec",  "$rootDir/odata-mock-spec/swagger.yaml")
+    setProperty("outputDir", "$buildDir/generated/odata-mock-client")
+    setProperty("packageName", "${project.group}.test.sap.mock")
+    this.configOptions.put("dateLibrary", "string")
+    this.configOptions.put("collectionType", "array")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("serializationLibrary", "jackson")
+}
+
 tasks.named("compileKotlin") {
     dependsOn(generateApiSpec)
 }
 
 tasks.named("compileTestKotlin") {
-    dependsOn(generateApiClient)
+    dependsOn(generateApiClient, generateODataMockClick)
 }
