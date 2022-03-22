@@ -61,7 +61,6 @@ class ContractsResourceTest: AbstractResourceTest() {
 
                 it.nullAccess.contracts.assertListFailStatus(401)
                 it.invalidAccess.contracts.assertListFailStatus(401)
-                sapMock.close()
             }
 
         }
@@ -93,7 +92,6 @@ class ContractsResourceTest: AbstractResourceTest() {
                 assertEquals(newContract, createdContract)
                 it.nullAccess.contracts.assertCreateFailStatus(401)
                 it.invalidAccess.contracts.assertCreateFailStatus(401)
-                sapMock.close()
             }
         }
     }
@@ -108,7 +106,7 @@ class ContractsResourceTest: AbstractResourceTest() {
                 sapMock.mockItems("1", "2", "3")
                 sapMock.mockContracts("6")
                 val newContract = SapContract(
-                    id = "2022-1",
+                    id = "2022-6",
                     businessPartnerCode = 23,
                     contactPersonCode = 64,
                     itemGroupCode = 100,
@@ -123,7 +121,6 @@ class ContractsResourceTest: AbstractResourceTest() {
 
                 val createdContract = it.manager.contracts.create(newContract)
                 assertEquals(newContract, createdContract)
-                sapMock.close()
             }
         }
     }

@@ -30,30 +30,12 @@ class SapMock: AutoCloseable {
     }
 
     /**
-     * Mock single SAP item
-     *
-     * @param id item id
-     */
-    private fun mockItem(id: String) {
-        requestMock("Item", "sap/resources/items/$id.json")
-    }
-
-    /**
      * Mock SAP business partners
      *
      * @param ids business partner ids
      */
     fun mockBusinessPartners(vararg ids: String) {
         ids.forEach(this::mockBusinessPartner)
-    }
-
-    /**
-     * Mock single SAP business partner
-     *
-     * @param id business partner id
-     */
-    private fun mockBusinessPartner(id: String) {
-        requestMock("BusinessPartner", "sap/resources/businessPartners/$id.json")
     }
 
     /**
@@ -98,5 +80,23 @@ class SapMock: AutoCloseable {
                 return inputStreamReader.readText()
             }
         }
+    }
+
+    /**
+     * Mock single SAP item
+     *
+     * @param id item id
+     */
+    private fun mockItem(id: String) {
+        requestMock("Item", "sap/resources/items/$id.json")
+    }
+
+    /**
+     * Mock single SAP business partner
+     *
+     * @param id business partner id
+     */
+    private fun mockBusinessPartner(id: String) {
+        requestMock("BusinessPartner", "sap/resources/business-partners/$id.json")
     }
 }

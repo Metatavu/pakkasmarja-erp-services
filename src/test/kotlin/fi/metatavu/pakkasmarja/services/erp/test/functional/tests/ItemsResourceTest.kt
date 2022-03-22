@@ -101,8 +101,6 @@ class ItemsResourceTest: AbstractResourceTest() {
                     firstResult = null,
                     maxResults = null
                 )
-
-                sapMock.close()
             }
 
         }
@@ -125,8 +123,6 @@ class ItemsResourceTest: AbstractResourceTest() {
                 it.manager.items.assertFindFailStatus(expectedStatus = 404, sapId = 9999)
                 it.nullAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
                 it.invalidAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
-
-                sapMock.close()
             }
         }
     }
