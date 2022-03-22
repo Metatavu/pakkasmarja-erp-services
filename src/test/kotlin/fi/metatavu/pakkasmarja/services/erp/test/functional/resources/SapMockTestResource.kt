@@ -11,7 +11,7 @@ class SapMockTestResource: QuarkusTestResourceLifecycleManager {
     override fun start(): Map<String, String> {
         sapMockTestContainer
             .withEdm("edm.xml")
-            .withUser(companyDb = companyDb, username = username, password = password)
+            .withUser(companyDb = companyDb, username = username, password = sapPass)
             .start()
 
         val testContainerHost = sapMockTestContainer.host.toString()
@@ -23,7 +23,7 @@ class SapMockTestResource: QuarkusTestResourceLifecycleManager {
             "fi.metatavu.pakkasmarja.sap-api-url" to "$odataMockUrl/odata",
             "fi.metatavu.pakkasmarja.sap-company-db" to companyDb,
             "fi.metatavu.pakkasmarja.sap-user-name" to username,
-            "fi.metatavu.pakkasmarja.sap-user-password" to password
+            "fi.metatavu.pakkasmarja.sap-user-password" to sapPass
         )
     }
 
@@ -35,7 +35,7 @@ class SapMockTestResource: QuarkusTestResourceLifecycleManager {
         var sapMockTestContainer: SapMockTestContainer = SapMockTestContainer()
         val companyDb = "companydb"
         val username = "sapuser"
-        val password = "sappass"
+        val sapPass = "sappass"
     }
 
 }
