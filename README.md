@@ -1,2 +1,3 @@
-## quarkus-kotlin-api-template
-Template project for Kotlin + Quarkus API
+## pakkasmarja-erp-services
+
+Pakkasmarja ERP services
