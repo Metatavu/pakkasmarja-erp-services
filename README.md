@@ -5,3 +5,5 @@ Pakkasmarja ERP services
 ### Building
 
 ./gradlew clean build
+
+### Testing
