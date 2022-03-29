@@ -372,6 +372,10 @@ abstract class AbstractSapResourceController {
      * @return SAP list response
      */
     private fun <T> readSapListResponse(targetClass: Class<T>, body: ByteArray): List<T> {
+        println("readSapListResponse ------->")
+        println(String(body))
+        println("< ------- readSapListResponse")
+
         val responseValue = ObjectMapper().readTree(body).get("value").map { it }
         val collectionType = objectMapper.typeFactory.constructCollectionType(ArrayList::class.java, targetClass)
         return jacksonObjectMapper().convertValue(responseValue, collectionType)
