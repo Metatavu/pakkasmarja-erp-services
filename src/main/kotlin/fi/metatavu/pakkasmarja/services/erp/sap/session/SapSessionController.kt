@@ -63,7 +63,7 @@ class SapSessionController {
                     return parseLoginResponseHeaders(response.headers())
                 }
                 else -> {
-                    logger.error("Received error when logging in [{}]: {}", statusCode, readStream(response.body()))
+                    logger.error("Received error when logging in [{}]: {}. Used username {}", statusCode, readStream(response.body()), sapUserName)
                     throw SapSessionLoginException("Status code $statusCode from SAP")
                 }
             }
