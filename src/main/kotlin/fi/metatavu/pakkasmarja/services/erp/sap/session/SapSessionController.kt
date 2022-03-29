@@ -3,6 +3,9 @@ package fi.metatavu.pakkasmarja.services.erp.sap.session
 import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.sap.session.exception.SapSessionLoginException
 import org.eclipse.microprofile.config.inject.ConfigProperty
+import org.slf4j.Logger
+import java.io.InputStream
+import java.io.InputStreamReader
 import java.net.HttpCookie
 import java.net.URI
 import java.net.http.HttpClient
@@ -17,6 +20,9 @@ import javax.inject.Inject
  */
 @ApplicationScoped
 class SapSessionController {
+
+    @Inject
+    lateinit var logger: Logger
 
     @Inject
     @ConfigProperty(name="fi.metatavu.pakkasmarja.sap-api-url")
@@ -57,6 +63,7 @@ class SapSessionController {
                     return parseLoginResponseHeaders(response.headers())
                 }
                 else -> {
+                    logger.error("Received error when logging in [{}]: {}", statusCode, readStream(response.body()))
                     throw SapSessionLoginException("Status code $statusCode from SAP")
                 }
             }
@@ -65,6 +72,18 @@ class SapSessionController {
             throw SapSessionLoginException("Failed to start a SAP-session: $message")
         }
 
+    }
+
+    /**
+     * Reads stream into string
+     *
+     * @param stream stream
+     * @return string
+     */
+    private fun readStream(stream: InputStream): String {
+        InputStreamReader(stream).use {
+            return it.readText()
+        }
     }
 
     /**
