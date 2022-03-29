@@ -1,5 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ContractsApi
@@ -32,13 +33,23 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
         businessPartnerCode: String?,
         contractStatus: SapContractStatus?
     ): Response {
+        println("contracts startDate: ${startDate}")
+        println("contracts businessPartnerCode: ${businessPartnerCode}")
+        println("contracts contractStatus: ${contractStatus}")
+
         val contracts = contractsController.listContracts(
             startDate = startDate,
             businessPartnerCode = businessPartnerCode,
             contractStatus = contractStatus
         )
 
+        println("contractsit:")
+        println(jacksonObjectMapper().writeValueAsString(contracts))
+
         val translatedContracts = contracts.map(contractTranslator::translate)
+
+        println("translatedContractsit:")
+        println(jacksonObjectMapper().writeValueAsString(translatedContracts))
 
         return createOk(translatedContracts)
     }
