@@ -7,8 +7,6 @@ import io.quarkus.test.junit.QuarkusTestProfile
  */
 class LocalTestProfile: QuarkusTestProfile {
     override fun getConfigOverrides(): Map<String, String> {
-        val config: MutableMap<String, String> = HashMap()
-        config["fi.metatavu.pakkasmarja.group-codes-file-name"] = "src/main/resources/test-group-codes.json"
-        return config
+        return mapOf()
     }
 }
