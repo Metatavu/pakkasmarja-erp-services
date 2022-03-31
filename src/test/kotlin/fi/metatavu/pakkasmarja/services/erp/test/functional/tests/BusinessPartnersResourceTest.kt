@@ -68,8 +68,8 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
                 assertEquals(1, bankAccounts!!.size)
 
                 val bankAccount = bankAccounts[0]
-                assertEquals("FI61000000000", bankAccount.IBAN)
-                assertEquals("SBANFIHH", bankAccount.BIC)
+                assertEquals("FI61000000000", bankAccount.iban)
+                assertEquals("SBANFIHH", bankAccount.bic)
 
                 it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
                 it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())

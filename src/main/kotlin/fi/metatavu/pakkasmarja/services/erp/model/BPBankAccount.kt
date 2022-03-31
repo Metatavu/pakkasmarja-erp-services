@@ -13,7 +13,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class BPBankAccount(
     @JsonProperty("BICSwiftCode")
-    val bICSwiftCode: String,
+    val bicSwiftCode: String,
     @JsonProperty("IBAN")
-    val iBAN: String
+    val iban: String
 )
