@@ -9,7 +9,6 @@ import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
-import io.quarkus.amazon.lambda.runtime.AmazonLambdaMapperRecorder.objectMapper
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -360,8 +359,9 @@ abstract class AbstractSapResourceController {
      * @return SAP response
      */
     private fun <T> readSapResponse(targetClass: Class<T>, body: ByteArray): T {
+        val objectMapper = jacksonObjectMapper()
         val type = objectMapper.typeFactory.constructType(targetClass)
-        return jacksonObjectMapper().convertValue(ObjectMapper().readTree(body), type)
+        return objectMapper.convertValue(ObjectMapper().readTree(body), type)
     }
 
     /**
@@ -372,8 +372,9 @@ abstract class AbstractSapResourceController {
      * @return SAP list response
      */
     private fun <T> readSapListResponse(targetClass: Class<T>, body: ByteArray): List<T> {
-        val responseValue = ObjectMapper().readTree(body).get("value").map { it }
+        val objectMapper = jacksonObjectMapper()
+        val responseValue = objectMapper.readTree(body).get("value").map { it }
         val collectionType = objectMapper.typeFactory.constructCollectionType(ArrayList::class.java, targetClass)
-        return jacksonObjectMapper().convertValue(responseValue, collectionType)
+        return objectMapper.convertValue(responseValue, collectionType)
     }
 }

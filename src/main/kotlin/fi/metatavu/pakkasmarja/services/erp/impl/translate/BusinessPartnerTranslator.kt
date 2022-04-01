@@ -42,7 +42,7 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
      * @return translated bank account
      */
     private fun translateBankAccount(bankAccount: BPBankAccount): SapBankAccount {
-        return SapBankAccount(BIC = bankAccount.bICSwiftCode, IBAN = bankAccount.iBAN)
+        return SapBankAccount(bic = bankAccount.bicSwiftCode, iban = bankAccount.iban)
     }
 
     /**
