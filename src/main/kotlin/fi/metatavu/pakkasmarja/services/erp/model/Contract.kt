@@ -17,7 +17,7 @@ data class Contract(
     @JsonProperty("EndDate")
     val endDate: String,
     @JsonProperty("DocNum")
-    val docNum: Int,
+    val docNum: Int? = null,
     @JsonProperty("BPCode")
     val bpCode: String,
     @JsonProperty("ContactPersonCode")

@@ -212,7 +212,7 @@ class ContractsController: AbstractSapResourceController() {
             SAPItemGroupContract(
                 startDate = contract.startDate,
                 endDate = contract.endDate,
-                docNum = contract.docNum,
+                docNum = contract.docNum!!,
                 bPCode = contract.bpCode,
                 contactPersonCode = contract.contactPersonCode,
                 status = contract.status,
@@ -330,7 +330,6 @@ class ContractsController: AbstractSapResourceController() {
         }
 
         return Contract(
-            docNum = sapContract.id.split("-")[1].toInt(),
             startDate = sapContract.startDate.toString(),
             endDate = sapContract.endDate.toString(),
             terminateDate = sapContract.terminateDate.toString(),
