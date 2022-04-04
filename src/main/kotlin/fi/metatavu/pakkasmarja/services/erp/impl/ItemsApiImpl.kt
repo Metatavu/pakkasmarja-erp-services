@@ -3,6 +3,7 @@ package fi.metatavu.pakkasmarja.services.erp.impl
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ItemsApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.ItemTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.ItemsController
+import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import io.quarkus.security.Authenticated
 import java.time.OffsetDateTime
 import javax.enterprise.context.RequestScoped
@@ -27,24 +28,36 @@ class ItemsApiImpl: ItemsApi, AbstractApi() {
     @Inject
     lateinit var itemTranslator: ItemTranslator
 
+    @Inject
+    lateinit var sapSessionController: SapSessionController
+
     override fun listItems(
         itemGroupCode: Int?,
         updatedAfter: OffsetDateTime?,
         firstResult: Int?,
         maxResults: Int?
     ): Response {
-        val items = itemsController.listItems(
-            itemGroupCode = itemGroupCode,
-            updatedAfter = updatedAfter,
-            firstResult = firstResult,
-            maxResults = maxResults
-        )
+        val items = sapSessionController.createSapSession().use { sapSession ->
+            itemsController.listItems(
+                sapSession = sapSession,
+                itemGroupCode = itemGroupCode,
+                updatedAfter = updatedAfter,
+                firstResult = firstResult,
+                maxResults = maxResults
+            )
+        }
 
         return createOk(items.map(itemTranslator::translate))
     }
 
     override fun findItem(sapId: Int): Response {
-        val foundItem = itemsController.findItem(sapId = sapId) ?: return createNotFound("Sap item with ID: $sapId could not be found")
+        val foundItem = sapSessionController.createSapSession().use { sapSession ->
+            itemsController.findItem(
+                sapSession = sapSession,
+                sapId = sapId
+            ) ?: return createNotFound("Sap item with ID: $sapId could not be found")
+        }
+
         return createOk(itemTranslator.translate(foundItem))
     }
 

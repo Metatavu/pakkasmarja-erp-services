@@ -2,9 +2,6 @@ package fi.metatavu.pakkasmarja.services.erp.sap
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import fi.metatavu.pakkasmarja.services.erp.model.BusinessPartner
-import fi.metatavu.pakkasmarja.services.erp.model.Contract
-import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
@@ -22,7 +19,7 @@ import javax.inject.Inject
 /**
  * Abstract SAP-resource controller
  */
-abstract class AbstractSapResourceController {
+abstract class AbstractSapResourceController <T> {
 
     @Inject
     lateinit var logger: Logger
@@ -36,7 +33,7 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP session route id
      * @return created item
      */
-    fun <T> createSapEntity(
+    fun createSapEntity(
         targetClass: Class<T>,
         item: String,
         resourceUrl: String,
@@ -67,7 +64,7 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP-session route id
      * @return found item or null
      */
-    fun <T> findSapEntity(
+    fun findSapEntity(
         targetClass: Class<T>,
         itemUrl: String,
         sessionId: String,
@@ -102,7 +99,7 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP session route id
      * @return updated item
      */
-    fun <T> updateSapEntity(
+    fun updateSapEntity(
         targetClass: Class<T>,
         item: String,
         resourceUrl: String,
@@ -180,7 +177,7 @@ abstract class AbstractSapResourceController {
      * @param <T> response generic type
      * @return list of items
      */
-    fun <T> sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T>? {
+    fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T>? {
         try {
             val client = HttpClient.newHttpClient()
 
@@ -234,51 +231,6 @@ abstract class AbstractSapResourceController {
             true -> "tYES"
             false -> "tNO"
         }
-    }
-
-    /**
-     * Requests list of items
-     *
-     * @param sapSession SAP session
-     * @param requestUrl request URL
-     * @return list of items
-     */
-    protected fun sapListItemsRequest(requestUrl: String, sapSession: SapSession): List<Item>? {
-        return sapListRequest(
-            targetClass = Item::class.java,
-            requestUrl = requestUrl,
-            sapSession = sapSession,
-        )
-    }
-
-    /**
-     * Requests list of contracts
-     *
-     * @param sapSession SAP session
-     * @param requestUrl request URL
-     * @return list of contracts
-     */
-    protected fun sapListContractsRequest(requestUrl: String, sapSession: SapSession): List<Contract>? {
-        return sapListRequest(
-            targetClass = Contract::class.java,
-            requestUrl = requestUrl,
-            sapSession = sapSession,
-        )
-    }
-
-    /**
-     * Requests list of business partners
-     *
-     * @param sapSession SAP session
-     * @param requestUrl request URL
-     * @return list of business partners
-     */
-    protected fun sapListBusinessPartnerRequest(requestUrl: String, sapSession: SapSession): List<BusinessPartner>? {
-        return sapListRequest(
-            targetClass = BusinessPartner::class.java,
-            requestUrl = requestUrl,
-            sapSession = sapSession,
-        )
     }
 
     /**
