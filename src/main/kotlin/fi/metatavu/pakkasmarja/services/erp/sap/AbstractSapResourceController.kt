@@ -105,7 +105,7 @@ abstract class AbstractSapResourceController <T> {
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): T? {
+    ): T {
         try {
             return sendSapPostOrPatchRequest(
                 targetClass = targetClass,
@@ -262,12 +262,17 @@ abstract class AbstractSapResourceController <T> {
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        val body = response.body() ?: throw SapModificationException("Failed to fetch items from SAP: ${response.statusCode()}")
 
         if (response.statusCode() != 200) {
-            throw SapItemFetchException("Failed send $method request to SAP: ${response.body()?.toString(Charsets.UTF_8)}")
+            throw SapModificationException("Failed send $method request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
         }
 
-        return readSapResponse(targetClass, response.body())
+        if (body.isEmpty()) {
+            throw SapModificationException("Failed send $method request to $resourceUrl: Empty response")
+        }
+
+        return readSapResponse(targetClass, body) ?: throw SapModificationException("Failed to read response from SAP: ${body.toString(Charsets.UTF_8)}")
     }
 
     /**
