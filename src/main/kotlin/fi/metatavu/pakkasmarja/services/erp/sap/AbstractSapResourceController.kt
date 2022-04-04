@@ -264,7 +264,7 @@ abstract class AbstractSapResourceController <T> {
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
 
         if (response.statusCode() != 200) {
-            throw SapItemFetchException("Failed send $method reqest to SAP: ${response.body()?.toString(Charsets.UTF_8)}")
+            throw SapItemFetchException("Failed send $method request to SAP: ${response.body()?.toString(Charsets.UTF_8)}")
         }
 
         return readSapResponse(targetClass, response.body())
