@@ -39,7 +39,7 @@ abstract class AbstractSapResourceController <T> {
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): T? {
+    ): T {
         try {
             return sendSapPostOrPatchRequest(
                 targetClass = targetClass,
@@ -252,7 +252,7 @@ abstract class AbstractSapResourceController <T> {
         sessionId: String,
         routeId: String,
         method: String
-    ): T? {
+    ): T {
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
@@ -264,7 +264,7 @@ abstract class AbstractSapResourceController <T> {
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
 
         if (response.statusCode() != 200) {
-            return null
+            throw SapItemFetchException("Failed send $method reqest to SAP: ${response.body()?.toString(Charsets.UTF_8)}")
         }
 
         return readSapResponse(targetClass, response.body())
