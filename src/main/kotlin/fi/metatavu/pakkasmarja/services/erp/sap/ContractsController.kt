@@ -98,7 +98,6 @@ class ContractsController: AbstractSapResourceController<Contract>() {
 
                 val mapper = jacksonObjectMapper()
                 val contractString = mapper.writeValueAsString(newContract)
-
                 val createdContract = createSapEntity(
                     targetClass = Contract::class.java,
                     item = contractString,
@@ -107,7 +106,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                     routeId = sapSession.routeId
                 )
 
-                return spreadContract(contract = createdContract, items = items)[0]
+                spreadContract(contract = createdContract, items = items)[0]
             } else {
                 val contractToUpdate = contracts.first()
                 val contractForUpdate = buildContractForUpdate(
@@ -124,12 +123,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                     resourceUrl = "$resourceUrl%28${contractToUpdate.agreementNo}%29",
                     sessionId = sapSession.sessionId,
                     routeId = sapSession.routeId
-                ) ?: return null
+                )
 
-                return spreadContract(contract = updatedItem, items = items)[0]
+                spreadContract(contract = updatedItem, items = items)[0]
             }
         } catch (error: Exception) {
-            logger.error("Error while creating SAP contract: ${error.message}")
+            logger.error("Error while creating SAP contract", error)
             null
         }
     }
@@ -333,6 +332,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         }
 
         return Contract(
+            docNum = getDocNum(sapContract),
             startDate = sapContract.startDate.toString(),
             endDate = sapContract.endDate.toString(),
             terminateDate = sapContract.terminateDate.toString(),
@@ -358,6 +358,22 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             itemGroupCode = groupCode,
             updatedAfter = null
         ).map(Item::itemCode)
+    }
+
+    /**
+     * Reads doc nummer from sap contract
+     *
+     * @param sapContract SAP contract
+     * @return doc number
+     */
+    private fun getDocNum(sapContract: SapContract): Int? {
+        val id = sapContract.id ?: return null
+        val parts = id.split("-")
+        if (parts.size != 2) {
+            return null
+        }
+
+        return parts[1].toIntOrNull()
     }
 
 }
