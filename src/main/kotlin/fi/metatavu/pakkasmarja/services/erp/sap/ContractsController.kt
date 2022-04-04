@@ -105,7 +105,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                     resourceUrl = resourceUrl,
                     sessionId = sapSession.sessionId,
                     routeId = sapSession.routeId
-                ) ?: return null
+                )
 
                 return spreadContract(contract = createdContract, items = items)[0]
             } else {

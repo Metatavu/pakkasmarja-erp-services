@@ -15,7 +15,7 @@ data class StockTransfer (
     @JsonProperty("DocDate")
     val docDate: String,
     @JsonProperty("CardCode")
-    val cardCode: Int,
+    val cardCode: String,
     @JsonProperty("Comments")
     val comments: String?,
     @JsonProperty("SalesPersonCode")
