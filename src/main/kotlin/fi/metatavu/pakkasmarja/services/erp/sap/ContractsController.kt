@@ -116,10 +116,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                     sapSession = sapSession
                 )
 
+                val payload = jacksonObjectMapper().writeValueAsString(contractForUpdate)
+
                 val updatedItem = updateSapEntity(
                     targetClass = Contract::class.java,
-                    item = jacksonObjectMapper().writeValueAsString(contractForUpdate),
-                    resourceUrl = "$resourceUrl%28${contractToUpdate.docNum}%29",
+                    item = payload,
+                    resourceUrl = "$resourceUrl%28${contractToUpdate.agreementNo}%29",
                     sessionId = sapSession.sessionId,
                     routeId = sapSession.routeId
                 ) ?: return null
@@ -208,20 +210,19 @@ class ContractsController: AbstractSapResourceController<Contract>() {
      */
     private fun spreadContract(contract: Contract, items: List<Item>): List<SAPItemGroupContract> {
         val itemGroupDeliveredQuantities = getItemGroupsFromContract(contract, items)
-        val agreementNo = contract.agreementNo ?: 0
 
         return itemGroupDeliveredQuantities.map { item ->
             SAPItemGroupContract(
                 startDate = contract.startDate,
                 endDate = contract.endDate,
-                docNum = contract.docNum ?: agreementNo,
+                docNum = contract.docNum ?: 0,
                 bPCode = contract.bpCode,
                 contactPersonCode = contract.contactPersonCode,
                 status = contract.status,
                 signingDate = contract.signingDate,
                 terminateDate = contract.terminateDate,
                 remarks = contract.remarks,
-                agreementNo = agreementNo,
+                agreementNo = contract.agreementNo ?: 0,
                 cumulativeQuantity = item.value,
                 itemGroupCode = item.key
             )
