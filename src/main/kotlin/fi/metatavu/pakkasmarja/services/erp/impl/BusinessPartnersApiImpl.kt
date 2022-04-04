@@ -3,6 +3,7 @@ package fi.metatavu.pakkasmarja.services.erp.impl
 import fi.metatavu.pakkasmarja.services.erp.api.spec.BusinessPartnersApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.BusinessPartnerTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.BusinessPartnersController
+import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import io.quarkus.security.Authenticated
 import java.time.OffsetDateTime
 import javax.enterprise.context.RequestScoped
@@ -27,11 +28,18 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
     @Inject
     lateinit var businessPartnerTranslator: BusinessPartnerTranslator
 
-    override fun listBusinessPartners(updatedAfter: OffsetDateTime?): Response {
-        val businessPartners = businessPartnersController.listBusinessPartners(updatedAfter = updatedAfter)
-        val translatedBusinessPartners = businessPartners.map(businessPartnerTranslator::translate)
+    @Inject
+    lateinit var sapSessionController: SapSessionController
 
-        return createOk(translatedBusinessPartners)
+    override fun listBusinessPartners(updatedAfter: OffsetDateTime?): Response {
+        val businessPartners = sapSessionController.createSapSession().use { sapSession ->
+            businessPartnersController.listBusinessPartners(
+                sapSession = sapSession,
+                updatedAfter = updatedAfter
+            )
+        }
+
+        return createOk(businessPartners.map(businessPartnerTranslator::translate))
     }
 
 }
