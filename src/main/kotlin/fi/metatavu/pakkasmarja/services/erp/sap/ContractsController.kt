@@ -7,7 +7,6 @@ import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.model.*
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
-import org.jboss.logging.Logger
 import java.time.LocalDate
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -20,9 +19,6 @@ class ContractsController: AbstractSapResourceController() {
 
     @Inject
     lateinit var sapSessionController: SapSessionController
-
-    @Inject
-    lateinit var logger: Logger
 
     @Inject
     lateinit var configController: ConfigController
@@ -207,19 +203,20 @@ class ContractsController: AbstractSapResourceController() {
      */
     private fun spreadContract(contract: Contract, items: List<Item>): List<SAPItemGroupContract> {
         val itemGroupDeliveredQuantities = getItemGroupsFromContract(contract, items)
+        val agreementNo = contract.agreementNo ?: 0
 
         return itemGroupDeliveredQuantities.map { item ->
             SAPItemGroupContract(
                 startDate = contract.startDate,
                 endDate = contract.endDate,
-                docNum = contract.docNum!!,
+                docNum = contract.docNum ?: agreementNo,
                 bPCode = contract.bpCode,
                 contactPersonCode = contract.contactPersonCode,
                 status = contract.status,
                 signingDate = contract.signingDate,
                 terminateDate = contract.terminateDate,
                 remarks = contract.remarks,
-                agreementNo = contract.agreementNo ?: 0,
+                agreementNo = agreementNo,
                 cumulativeQuantity = item.value,
                 itemGroupCode = item.key
             )

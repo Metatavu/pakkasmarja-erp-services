@@ -9,18 +9,23 @@ import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
+import org.slf4j.Logger
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
 
 /**
  * Abstract SAP-resource controller
  */
 abstract class AbstractSapResourceController {
+
+    @Inject
+    lateinit var logger: Logger
 
     /**
      * Creates an item to SAP
@@ -48,6 +53,7 @@ abstract class AbstractSapResourceController {
                 method = "POST"
             )
         } catch (e: Exception) {
+            logger.error("Failed to create an item to SAP", e)
             throw SapModificationException("Failed to create an item to SAP: ${e.message}")
         }
     }
