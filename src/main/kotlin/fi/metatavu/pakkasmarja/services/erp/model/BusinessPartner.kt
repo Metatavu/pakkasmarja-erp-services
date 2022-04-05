@@ -5,37 +5,153 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Data class for BusinessPartner
- *
- * @author Jari Nykänen
+ * Model class for BusinessPartner
  */
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class BusinessPartner(
+class BusinessPartner() {
+
     @JsonProperty("CardCode")
-    val cardCode: String,
+    private var cardCode: String? = null
+
     @JsonProperty("CardName")
-    val cardName: String,
+    private var cardName: String? = null
+
     @JsonProperty("Phone1")
-    val phone1: String?,
+    private var phone1: String? = null
+
     @JsonProperty("Phone2")
-    val phone2: String?,
+    private var phone2: String? = null
+
     @JsonProperty("VatLiable")
-    val vatLiable: String,
+    private var vatLiable: String? = null
+
     @JsonProperty("FederalTaxID")
-    val federalTaxID: String?,
+    private var federalTaxID: String? = null
+
     @JsonProperty("EmailAddress")
-    val emailAddress: String?,
+    private var emailAddress: String? = null
+
     @JsonProperty("CardForeignName")
-    val cardForeignName: String?,
+    private var cardForeignName: String? = null
+
     @JsonProperty("BPAddresses")
-    val bPAddresses: List<BPAddress>,
+    private var bPAddresses: List<BPAddress> = emptyList()
+
     @JsonProperty("BPBankAccounts")
-    val bPBankAccounts: List<BPBankAccount>,
+    private var bPBankAccounts: List<BPBankAccount> = emptyList()
+
     @JsonProperty("UpdateDate")
-    val updateDate: String,
+    private var updateDate: String? = null
+
     @JsonProperty("UpdateTime")
-    val updateTime: String,
+    private var updateTime: String? = null
+
     @JsonProperty("U_PFZ_LegCardCode")
-    val U_PFZ_LegCardCode: Int?
-)
+    private var legCardCode: Int? = null
+
+    fun getCardCode(): String? {
+        return cardCode
+    }
+
+    fun setCardCode(value: String?) {
+        this.cardCode = value
+    }
+
+    fun getCardName(): String? {
+        return cardName
+    }
+
+    fun getPhone1(): String? {
+        return phone1
+    }
+
+    fun getPhone2(): String? {
+        return phone2
+    }
+
+    fun getVatLiable(): String? {
+        return vatLiable
+    }
+
+    fun getFederalTaxID(): String? {
+        return federalTaxID
+    }
+
+    fun getEmailAddress(): String? {
+        return emailAddress
+    }
+
+    fun getCardForeignName(): String? {
+        return cardForeignName
+    }
+
+    fun getBPAddresses(): List<BPAddress> {
+        return bPAddresses
+    }
+
+    fun getBPBankAccounts(): List<BPBankAccount> {
+        return bPBankAccounts
+    }
+
+    fun getUpdateDate(): String? {
+        return updateDate
+    }
+
+    fun getUpdateTime(): String? {
+        return updateTime
+    }
+
+    fun getLegCardCode(): Int? {
+        return legCardCode
+    }
+
+    fun setLegCardCode(value: Int?) {
+        this.legCardCode = value
+    }
+
+    fun setCardName(value: String?) {
+        this.cardName = value
+    }
+
+    fun setPhone1(value: String?) {
+        this.phone1 = value
+    }
+
+    fun setPhone2(value: String?) {
+        this.phone2 = value
+    }
+
+    fun setVatLiable(value: String?) {
+        this.vatLiable = value
+    }
+
+    fun setFederalTaxID(value: String?) {
+        this.federalTaxID = value
+    }
+
+    fun setEmailAddress(value: String?) {
+        this.emailAddress = value
+    }
+
+    fun setCardForeignName(value: String?) {
+        this.cardForeignName = value
+    }
+
+    fun setBPAddresses(value: List<BPAddress>) {
+        this.bPAddresses = value
+    }
+
+    fun setBPBankAccounts(value: List<BPBankAccount>) {
+        this.bPBankAccounts = value
+    }
+
+    fun setUpdateDate(value: String?) {
+        this.updateDate = value
+    }
+
+    fun setUpdateTime(value: String?) {
+        this.updateTime = value
+    }
+
+}

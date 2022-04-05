@@ -22,17 +22,22 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
      * @return translated business partner
      */
     override fun translate(sapEntity: BusinessPartner): SapBusinessPartner {
+        val phoneNumbers = mutableListOf<String>()
+
+        sapEntity.getPhone1()?.let { phoneNumbers.add(it) }
+        sapEntity.getPhone2()?.let { phoneNumbers.add(it) }
+
         return SapBusinessPartner(
-            code = sapEntity.cardCode.toInt(),
-            email = sapEntity.emailAddress ?: "",
-            phoneNumbers = listOf(sapEntity.phone1 ?: "", sapEntity.phone2 ?: ""),
-            addresses = sapEntity.bPAddresses.map(this::translateAddress),
-            companyName = sapEntity.cardName,
-            federalTaxId = sapEntity.federalTaxID,
-            vatLiable = translateVatLiable(sapEntity.vatLiable),
-            updated = getUpdatedDateTime(sapEntity.updateDate, sapEntity.updateTime),
-            bankAccounts = sapEntity.bPBankAccounts.map(this::translateBankAccount),
-            legacyCode = sapEntity.U_PFZ_LegCardCode
+            code = sapEntity.getCardCode()!!.toInt(),
+            email = sapEntity.getEmailAddress()!!,
+            phoneNumbers = phoneNumbers,
+            addresses = sapEntity.getBPAddresses().map(this::translateAddress),
+            companyName = sapEntity.getCardName(),
+            federalTaxId = sapEntity.getFederalTaxID(),
+            vatLiable = translateVatLiable(sapEntity.getVatLiable()),
+            updated = getUpdatedDateTime(sapEntity.getUpdateDate()!!, sapEntity.getUpdateTime()!!),
+            bankAccounts = sapEntity.getBPBankAccounts().map(this::translateBankAccount),
+            legacyCode = sapEntity.getLegCardCode()
         )
     }
 
@@ -52,7 +57,7 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
      * @param vatLiable vatLiable from SAP
      * @return translated vatLiable
      */
-    private fun translateVatLiable(vatLiable: String): SapBusinessPartner.VatLiable? {
+    private fun translateVatLiable(vatLiable: String?): SapBusinessPartner.VatLiable? {
         return when (vatLiable) {
             "vLiable" -> SapBusinessPartner.VatLiable.FI
             "vExempted" -> SapBusinessPartner.VatLiable.NOT_LIABLE
