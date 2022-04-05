@@ -185,8 +185,15 @@ abstract class AbstractSapResourceController <T> {
                 .GET()
                 .build()
 
+            println("LIST REQUEST: $requestUrl")
+
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+
+            println("LIST RESPONSE: ${response.statusCode()}")
+
             val body = response.body() ?: throw SapListException("Failed to fetch items from SAP: ${response.statusCode()}")
+
+            println("LIST RESPONSE BODY: ${body.toString(Charsets.UTF_8)}")
 
             if (response.statusCode() != 200) {
                 throw SapListException("Failed send list request to $requestUrl: ${body.toString(Charsets.UTF_8)}")
