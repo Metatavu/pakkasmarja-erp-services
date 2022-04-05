@@ -57,6 +57,15 @@ class SapMock: AutoCloseable {
     }
 
     /**
+     * Mock SAP stock transfers
+     *
+     * @param ids stock transfer ids
+     */
+    fun mockStockTransfers(vararg ids: String) {
+        ids.forEach(this::mockStockTransfer)
+    }
+
+    /**
      * Request mock from OData mock server
      *
      * @param entryName entry name
@@ -99,4 +108,14 @@ class SapMock: AutoCloseable {
     private fun mockBusinessPartner(id: String) {
         requestMock("BusinessPartner", "sap/resources/business-partners/$id.json")
     }
+
+    /**
+     * Mock single SAP stock transfer
+     *
+     * @param id stock transfer id
+     */
+    private fun mockStockTransfer(id: String) {
+        requestMock("StockTransfer", "sap/resources/stock-transfers/$id.json")
+    }
+
 }

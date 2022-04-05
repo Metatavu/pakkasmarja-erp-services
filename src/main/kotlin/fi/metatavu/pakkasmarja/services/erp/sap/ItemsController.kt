@@ -4,7 +4,6 @@ import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.model.GroupProperty
 import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
-import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.OffsetDateTime
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -16,51 +15,60 @@ import javax.inject.Inject
  * @author Jari Nykänen
  */
 @ApplicationScoped
-class ItemsController: AbstractSapResourceController() {
-
-    @Inject
-    lateinit var sapSessionController: SapSessionController
+class ItemsController: AbstractSapResourceController<Item>() {
 
     @Inject
     lateinit var configController: ConfigController
 
+    /**
+     * Lists items from SAP
+     *
+     * @param sapSession SAP session
+     * @param itemGroupCode item group code
+     * @param updatedAfter updated after
+     * @param firstResult first result
+     * @param maxResults max results
+     * @return list of items
+     */
     fun listItems(
+        sapSession: SapSession,
         itemGroupCode: Int?,
         updatedAfter: OffsetDateTime?,
         firstResult: Int? = 0,
         maxResults: Int? = 9999
     ): List<Item> {
-        sapSessionController.createSapSession().use { sapSession ->
-            val requestUrl = constructItemRequestUrl(
-                sapSession = sapSession,
-                updatedAfter = updatedAfter,
-                itemGroupCode = itemGroupCode,
-                firstResult = firstResult,
-                maxResults = maxResults
-            )
+        val requestUrl = constructItemRequestUrl(
+            sapSession = sapSession,
+            updatedAfter = updatedAfter,
+            itemGroupCode = itemGroupCode,
+            firstResult = firstResult,
+            maxResults = maxResults
+        )
 
-            return sapListItemsRequest(
-                requestUrl = requestUrl,
-                sapSession = sapSession,
-            ) ?: return emptyList()
-        }
+        return sapListRequest(
+            targetClass = Item::class.java,
+            requestUrl = requestUrl,
+            sapSession = sapSession,
+        ) ?: return emptyList()
     }
 
     /**
      * Find item from SAP with given SAP ID
      *
+     * @param sapSession SAP session
      * @param sapId SAP ID to search
      * @return found sap item or null
      */
-    fun findItem(sapId: Int): Item? {
-        sapSessionController.createSapSession().use { sapSession ->
-            return findSapEntity(
-                targetClass = Item::class.java,
-                itemUrl = "${sapSession.apiUrl}/Items('$sapId')",
-                sessionId = sapSession.sessionId,
-                routeId = sapSession.routeId
-            )
-        }
+    fun findItem(
+        sapSession: SapSession,
+        sapId: Int
+    ): Item? {
+        return findSapEntity(
+            targetClass = Item::class.java,
+            itemUrl = "${sapSession.apiUrl}/Items('$sapId')",
+            sessionId = sapSession.sessionId,
+            routeId = sapSession.routeId
+        )
     }
 
     /**

@@ -7,6 +7,7 @@ import fi.metatavu.pakkasmarja.services.erp.test.functional.TestBuilder
 import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.BusinessPartnersTestBuilderResource
 import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.ContractsResourceTestBuilderResource
 import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.ItemsResourceTestBuilderResource
+import fi.metatavu.pakkasmarja.services.erp.test.functional.impl.StockTransfersResourceTestBuilderResource
 import fi.metatavu.pakkasmarja.services.erp.test.functional.settings.ApiTestSettings
 
 
@@ -29,6 +30,7 @@ class TestBuilderAuthentication(
     val businessPartners = BusinessPartnersTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val contracts = ContractsResourceTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
     val items = ItemsResourceTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
+    val stockTransfers = StockTransfersResourceTestBuilderResource(testBuilder, this.accessTokenProvider, createClient())
 
     override fun createClient(authProvider: AccessTokenProvider): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)
