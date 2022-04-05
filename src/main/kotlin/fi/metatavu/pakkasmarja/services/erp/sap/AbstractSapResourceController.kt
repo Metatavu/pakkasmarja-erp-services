@@ -347,6 +347,8 @@ abstract class AbstractSapResourceController <T> {
         val objectMapper = jacksonObjectMapper()
         val responseValue = objectMapper.readTree(body).get("value").map { it }
         val collectionType = objectMapper.typeFactory.constructCollectionType(ArrayList::class.java, targetClass)
+        println("Body")
+        println(body.toString(Charsets.UTF_8))
         return objectMapper.convertValue(responseValue, collectionType)
     }
 }
