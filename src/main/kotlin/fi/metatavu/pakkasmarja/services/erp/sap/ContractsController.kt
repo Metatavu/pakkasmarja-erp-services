@@ -369,7 +369,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     private fun getDocNum(sapContract: SapContract): Int? {
         val id = sapContract.id ?: return null
         val parts = id.split("-")
-        if (parts.size != 2) {
+        if (parts.size < 2) {
             return null
         }
 
