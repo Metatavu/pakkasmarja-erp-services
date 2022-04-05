@@ -32,7 +32,7 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
             vatLiable = translateVatLiable(sapEntity.vatLiable),
             updated = getUpdatedDateTime(sapEntity.updateDate, sapEntity.updateTime),
             bankAccounts = sapEntity.bPBankAccounts.map(this::translateBankAccount),
-            legacyCode = sapEntity.legCardCode
+            legacyCode = sapEntity.U_PFZ_LegCardCode
         )
     }
 
