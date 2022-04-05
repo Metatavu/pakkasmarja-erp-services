@@ -18,7 +18,7 @@ data class BPAddress(
     @JsonProperty("AddressType")
     val addressType: String,
     @JsonProperty("Street")
-    val street: String,
+    val street: String?,
     @JsonProperty("ZipCode")
     val zipCode: String,
     @JsonProperty("City")

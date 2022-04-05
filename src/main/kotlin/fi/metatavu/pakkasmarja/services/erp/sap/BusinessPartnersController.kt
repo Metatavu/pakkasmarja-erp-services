@@ -30,7 +30,7 @@ class BusinessPartnersController: AbstractSapResourceController<BusinessPartner>
         }
 
         val filter = "\$filter=(CardType eq SAPB1.BoCardTypes'cSupplier' $updatedAfterFilter)"
-        val select = "\$select=CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime,U_PFZ_LegCardCode"
+        val select = "\$select=*"
 
         val requestUrl = constructSAPRequestUrl(
             baseUrl = resourceUrl,
