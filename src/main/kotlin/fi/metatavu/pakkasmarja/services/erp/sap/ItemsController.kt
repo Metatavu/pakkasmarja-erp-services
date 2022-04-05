@@ -137,12 +137,6 @@ class ItemsController: AbstractSapResourceController<Item>() {
         groupProperties.forEach { groupProperty ->
             val groupIsFrozen = groupProperty.isFrozen
             val groupIsOrganic = groupProperty.isOrganic
-
-            println("itemIsFrozen: $itemIsFrozen, groupIsFrozen: $groupIsFrozen, " +
-                    "property: ${groupProperty.property}, " +
-                    "value: ${properties[groupProperty.property]}, " +
-                    "itemIsOrganic: $itemIsOrganic, groupIsOrganic, $groupIsOrganic")
-
             if (properties[groupProperty.property] == true && groupIsFrozen == itemIsFrozen && groupIsOrganic == itemIsOrganic) {
                 return groupProperty.code
             }
