@@ -23,7 +23,7 @@ data class BusinessPartner(
     @JsonProperty("VatLiable")
     val vatLiable: String,
     @JsonProperty("FederalTaxID")
-    val federalTaxID: String,
+    val federalTaxID: String?,
     @JsonProperty("EmailAddress")
     val emailAddress: String?,
     @JsonProperty("CardForeignName")
