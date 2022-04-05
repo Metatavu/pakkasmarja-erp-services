@@ -54,6 +54,7 @@ class PurchaseDeliveryNotesController: AbstractSapResourceController<PurchaseDel
      */
     private fun buildNewPurchaseDeliveryNote(sapPurchaseDeliveryNote: SapPurchaseDeliveryNote): PurchaseDeliveryNote {
         return PurchaseDeliveryNote(
+            docObjectCode = "oPurchaseDeliveryNotes",
             docDate = DateTimeFormatter.ISO_DATE.format(sapPurchaseDeliveryNote.docDate),
             cardCode = sapPurchaseDeliveryNote.businessPartnerCode.toString(),
             comments = sapPurchaseDeliveryNote.comments,
