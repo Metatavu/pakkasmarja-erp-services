@@ -14,8 +14,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 data class GroupProperty(
     @JsonProperty("code")
     val code: Int,
-    @JsonProperty("itemGroupPropertyName")
-    val itemGroupPropertyName: String,
+    @JsonProperty("property")
+    val property: Int,
     @JsonProperty("isFrozen")
     val isFrozen: Boolean,
     @JsonProperty("isOrganic")

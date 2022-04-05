@@ -1,25 +1,25 @@
 [
   {
-    "code": 105,
-    "itemGroupPropertyName": "Properties1",
-    "isFrozen": true,
-    "isOrganic": false
-  },
-  {
     "code": 100,
-    "itemGroupPropertyName": "Properties1",
+    "property": 1,
     "isFrozen": false,
     "isOrganic": true
   },
   {
     "code": 101,
-    "itemGroupPropertyName": "Properties2",
+    "property": 2,
     "isFrozen": false,
     "isOrganic": false
   },
   {
     "code": 102,
-    "itemGroupPropertyName": "Properties3",
+    "property": 3,
+    "isFrozen": true,
+    "isOrganic": false
+  },
+  {
+    "code": 105,
+    "property": 1,
     "isFrozen": true,
     "isOrganic": false
   }

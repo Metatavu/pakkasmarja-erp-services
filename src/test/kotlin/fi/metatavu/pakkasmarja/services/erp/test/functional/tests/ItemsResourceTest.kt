@@ -128,6 +128,23 @@ class ItemsResourceTest: AbstractResourceTest() {
     }
 
     /**
+     * Test finding items
+     */
+    @Test
+    fun testFindItemGroup105() {
+        createTestBuilder().use {
+            SapMock().use { sapMock ->
+                sapMock.mockItems("4")
+
+                val foundItem = it.manager.items.find(sapId = 4)
+                assertNotNull(foundItem)
+                assertEquals(4, foundItem.code)
+                assertEquals(105, foundItem.itemGroupCode)
+            }
+        }
+    }
+
+    /**
      * Get offset date-time for tests
      *
      * @return offset date-time in string format
