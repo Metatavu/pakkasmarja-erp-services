@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapResponseReadException
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import org.slf4j.Logger
 import java.net.URI
@@ -322,9 +323,14 @@ abstract class AbstractSapResourceController <T> {
      * @return SAP response
      */
     private fun <T> readSapResponse(targetClass: Class<T>, body: ByteArray): T {
-        val objectMapper = jacksonObjectMapper()
-        val type = objectMapper.typeFactory.constructType(targetClass)
-        return objectMapper.convertValue(ObjectMapper().readTree(body), type)
+        try {
+            val objectMapper = jacksonObjectMapper()
+            val type = objectMapper.typeFactory.constructType(targetClass)
+            return objectMapper.convertValue(ObjectMapper().readTree(body), type)
+        } catch (e: Exception) {
+            logger.error("Failed to read response ${body.toString(Charsets.UTF_8)} from SAP", e)
+            throw SapResponseReadException("Failed to read response ${body.toString(Charsets.UTF_8)} from SAP")
+        }
     }
 
     /**
