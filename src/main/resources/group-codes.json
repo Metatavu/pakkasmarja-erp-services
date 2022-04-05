@@ -1,5 +1,11 @@
 [
   {
+    "code": 105,
+    "itemGroupPropertyName": "Properties1",
+    "isFrozen": true,
+    "isOrganic": false
+  },
+  {
     "code": 100,
     "itemGroupPropertyName": "Properties1",
     "isFrozen": false,
