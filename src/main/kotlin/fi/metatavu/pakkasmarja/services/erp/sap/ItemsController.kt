@@ -148,7 +148,7 @@ class ItemsController: AbstractSapResourceController<Item>() {
             }
         }
 
-        logger.error("Could not find group code for item ${item.itemCode} with properties: ${jacksonObjectMapper().writeValueAsString(properties)}")
+        logger.error("Could not find group code for item ${item.itemCode} with properties: ${jacksonObjectMapper().writeValueAsString(properties)}, group properties: ${jacksonObjectMapper().writeValueAsString(groupProperties)}")
 
         return null
     }
