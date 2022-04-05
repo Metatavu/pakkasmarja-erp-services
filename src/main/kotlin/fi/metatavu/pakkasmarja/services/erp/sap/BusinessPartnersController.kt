@@ -1,5 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.model.BusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import java.time.OffsetDateTime
@@ -40,11 +41,15 @@ class BusinessPartnersController: AbstractSapResourceController<BusinessPartner>
             maxResults = null
         )
 
-        return sapListRequest(
+        val result = sapListRequest(
             targetClass = BusinessPartner::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
         )
+
+        println("result:" + jacksonObjectMapper().writeValueAsString(result))
+
+        return result
     }
 
 }
