@@ -40,6 +40,8 @@ class BusinessPartnersController: AbstractSapResourceController<BusinessPartner>
             maxResults = null
         )
 
+        println("businessPartners requestUrl: $requestUrl")
+
         return sapListRequest(
             targetClass = BusinessPartner::class.java,
             requestUrl = requestUrl,
