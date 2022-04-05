@@ -31,7 +31,8 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
             federalTaxId = sapEntity.federalTaxID,
             vatLiable = translateVatLiable(sapEntity.vatLiable),
             updated = getUpdatedDateTime(sapEntity.updateDate, sapEntity.updateTime),
-            bankAccounts = sapEntity.bPBankAccounts.map(this::translateBankAccount)
+            bankAccounts = sapEntity.bPBankAccounts.map(this::translateBankAccount),
+            legacyCode = sapEntity.legCardCode
         )
     }
 
