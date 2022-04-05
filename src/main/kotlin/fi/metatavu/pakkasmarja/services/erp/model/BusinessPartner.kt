@@ -35,5 +35,7 @@ data class BusinessPartner(
     @JsonProperty("UpdateDate")
     val updateDate: String,
     @JsonProperty("UpdateTime")
-    val updateTime: String
+    val updateTime: String,
+    @JsonProperty("U_PFZ_LegCardCode")
+    val legCardCode: Int?
 )

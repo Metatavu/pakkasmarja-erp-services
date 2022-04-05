@@ -71,6 +71,11 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
                 assertEquals("FI61000000000", bankAccount.iban)
                 assertEquals("SBANFIHH", bankAccount.bic)
 
+                val withLegacyCode = businessPartners.find { sapBusinessPartner -> sapBusinessPartner.code == 3 }
+                assertNotNull(withLegacyCode)
+                assertEquals(3, withLegacyCode?.code)
+                assertEquals(12345, withLegacyCode?.legacyCode)
+
                 it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
                 it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
             }
