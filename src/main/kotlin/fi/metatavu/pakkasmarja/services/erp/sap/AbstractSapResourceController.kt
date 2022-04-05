@@ -2,10 +2,7 @@ package fi.metatavu.pakkasmarja.services.erp.sap
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
-import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
-import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
-import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapResponseReadException
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.*
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import org.slf4j.Logger
 import java.net.URI
@@ -178,7 +175,7 @@ abstract class AbstractSapResourceController <T> {
      * @param <T> response generic type
      * @return list of items
      */
-    fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T>? {
+    fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T> {
         try {
             val client = HttpClient.newHttpClient()
 
@@ -189,14 +186,20 @@ abstract class AbstractSapResourceController <T> {
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+            val body = response.body() ?: throw SapListException("Failed to fetch items from SAP: ${response.statusCode()}")
 
             if (response.statusCode() != 200) {
-                return null
+                throw SapListException("Failed send list request to $requestUrl: ${body.toString(Charsets.UTF_8)}")
+            }
+
+            if (body.isEmpty()) {
+                throw SapListException("Failed send list request to $requestUrl: Empty response")
             }
 
             return readSapListResponse(targetClass, response.body())
         } catch (e: Exception) {
-            throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
+            logger.error("Failed to list from SAP", e)
+            throw SapListException("Failed to fetch items from SAP: ${e.message}")
         }
     }
 
