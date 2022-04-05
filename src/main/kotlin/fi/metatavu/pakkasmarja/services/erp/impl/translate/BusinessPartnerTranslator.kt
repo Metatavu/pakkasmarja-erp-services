@@ -29,7 +29,7 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
 
         return SapBusinessPartner(
             code = sapEntity.getCardCode()!!.toInt(),
-            email = sapEntity.getEmailAddress()!!,
+            email = sapEntity.getEmailAddress() ?: "",
             phoneNumbers = phoneNumbers,
             addresses = sapEntity.getBPAddresses().map(this::translateAddress),
             companyName = sapEntity.getCardName(),
