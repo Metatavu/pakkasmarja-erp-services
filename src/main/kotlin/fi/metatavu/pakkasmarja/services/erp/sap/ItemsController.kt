@@ -1,5 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.model.GroupProperty
 import fi.metatavu.pakkasmarja.services.erp.model.Item
@@ -140,6 +141,8 @@ class ItemsController: AbstractSapResourceController<Item>() {
                 return groupProperty.code
             }
         }
+
+        logger.error("Could not find group code for item ${item.itemCode} with properties: ${jacksonObjectMapper().writeValueAsString(properties)}")
 
         return null
     }
