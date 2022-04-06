@@ -5,6 +5,7 @@ import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.model.GroupProperty
 import fi.metatavu.pakkasmarja.services.erp.model.Item
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
+import java.net.URI
 import java.time.OffsetDateTime
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
@@ -47,9 +48,9 @@ class ItemsController: AbstractSapResourceController<Item>() {
 
         return sapListRequest(
             targetClass = Item::class.java,
-            requestUrl = requestUrl,
+            requestUri = requestUrl,
             sapSession = sapSession,
-        ) ?: return emptyList()
+        )
     }
 
     /**
@@ -87,13 +88,13 @@ class ItemsController: AbstractSapResourceController<Item>() {
      *
      * @return constructed query selector
      */
-    fun getItemPropertiesSelect(): String {
+    fun getItemPropertiesSelect(): List<String> {
         val combinedList = mutableListOf("ItemCode", "ItemName", "UpdateTime", "UpdateDate")
         for (i in 1..64) {
             combinedList.add("Properties$i")
         }
 
-        return "\$select=${combinedList.joinToString(",")}"
+        return combinedList
     }
 
     /**
@@ -116,7 +117,7 @@ class ItemsController: AbstractSapResourceController<Item>() {
         }
 
         if (filterList.size > 0) {
-            return "\$filter=${filterList.joinToString(" and ")}"
+            return filterList.joinToString(" and ")
         }
 
         return null
@@ -175,13 +176,13 @@ class ItemsController: AbstractSapResourceController<Item>() {
         itemGroupCode: Int?,
         firstResult: Int?,
         maxResults: Int?
-    ): String {
-        val baseUrl = "${sapSession.apiUrl}/Items"
+    ): URI {
         val select = getItemPropertiesSelect()
         val filter = constructFilter(updatedAfter = updatedAfter, itemGroupCode = itemGroupCode)
 
-        return constructSAPRequestUrl(
-            baseUrl = baseUrl,
+        return constructSapUrl(
+            sapSession = sapSession,
+            entitySetName = "Items",
             select = select,
             filter = filter,
             firstResult = firstResult,

@@ -37,7 +37,6 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         businessPartnerCode: String?,
         contractStatus: SapContractStatus?
     ): List<SAPItemGroupContract> {
-        val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
         val combinedFilter = getCombinedFilter(
             startDate = startDate,
             businessPartnerCode = businessPartnerCode,
@@ -53,9 +52,9 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         )
 
         val contracts = if (combinedFilter.isEmpty()) {
-            getContracts(resourceUrl = resourceUrl, sapSession = sapSession, filter = null)
+            getContracts(sapSession = sapSession, filter = null)
         } else {
-            getContracts(resourceUrl = resourceUrl, sapSession = sapSession, filter = "\$filter=$combinedFilter")
+            getContracts(sapSession = sapSession, filter = combinedFilter)
         }
 
         return spreadContracts(contracts = contracts, items = items)
@@ -77,7 +76,6 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq '${sapContract.businessPartnerCode}' and Status eq SAPB1.BlanketAgreementStatusEnum'asApproved'"
 
             val contracts = getContracts(
-                resourceUrl = resourceUrl,
                 sapSession = sapSession,
                 filter = filter
             )
@@ -136,31 +134,25 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     /**
      * Gets list of contracts
      *
-     * @param resourceUrl resource URL
      * @param sapSession current active SAP session
      * @param filter filter string or null
      * @return list of contracts
      */
-    private fun getContracts(resourceUrl: String, sapSession: SapSession, filter: String?): List<Contract> {
-        var filterString: String? = null
-
-        if (filter != null) {
-            filterString = filter
-        }
-
-        val requestUrl = constructSAPRequestUrl(
-            baseUrl = resourceUrl,
-            select = "\$select=*",
-            filter = filterString,
+    private fun getContracts(sapSession: SapSession, filter: String?): List<Contract> {
+        val requestUrl = constructSapUrl(
+            sapSession = sapSession,
+            entitySetName = "BlanketAgreements",
+            filter = filter,
+            select = null,
             firstResult = null,
             maxResults = null
         )
 
-        return  sapListRequest(
+        return sapListRequest(
             targetClass = Contract::class.java,
-            requestUrl = requestUrl,
+            requestUri = requestUrl,
             sapSession = sapSession,
-        ) ?: return emptyList()
+        )
     }
 
     /**

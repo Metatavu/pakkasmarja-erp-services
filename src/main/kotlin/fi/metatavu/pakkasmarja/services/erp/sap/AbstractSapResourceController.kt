@@ -175,50 +175,6 @@ abstract class AbstractSapResourceController <T> {
     }
 
     /**
-     * Constructs SAP request URL
-     *
-     * @param baseUrl base URL
-     * @param select select string
-     * @param filter filter string
-     * @return list of SAP request URL
-     */
-    fun constructSAPRequestUrl(
-        baseUrl: String,
-        select: String?,
-        filter: String?,
-        firstResult: Int?,
-        maxResults: Int?
-    ): String {
-        val list = mutableListOf<String>()
-
-        if (filter != null) {
-            list.add(escapeSapQuery(filter))
-        }
-
-        if (firstResult != null) {
-            list.add("\$skip=$firstResult")
-        }
-
-        if (maxResults != null) {
-            list.add("\$top=$maxResults")
-        }
-
-        return if (list.size > 0) {
-            "$baseUrl?$select&${list.joinToString("&")}"
-        } else {
-            "$baseUrl?$select"
-        }
-    }
-
-    fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T> {
-        return sapListRequest(
-            targetClass = targetClass,
-            requestUri = URI.create(requestUrl),
-            sapSession = sapSession
-        )
-    }
-
-    /**
      * Fetches items from multiple urls and combines them into a single list
      *
      * @param targetClass target class
@@ -227,7 +183,11 @@ abstract class AbstractSapResourceController <T> {
      * @param <T> response generic type
      * @return list of items
      */
-    fun sapListRequest(targetClass: Class<T>, requestUri: URI, sapSession: SapSession): List<T> {
+    fun sapListRequest(
+        targetClass: Class<T>,
+        requestUri: URI,
+        sapSession: SapSession
+    ): List<T> {
         try {
             val client = HttpClient.newHttpClient()
             val cookie = "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}"
@@ -238,16 +198,8 @@ abstract class AbstractSapResourceController <T> {
                 .GET()
                 .build()
 
-            println("COOKIE $cookie")
-            println("LIST REQUEST: $requestUri")
-
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-
-            println("LIST RESPONSE: ${response.statusCode()}")
-
             val body = response.body() ?: throw SapListException("Failed to fetch items from SAP: ${response.statusCode()}")
-
-            println("LIST RESPONSE BODY: ${body.toString(Charsets.UTF_8)}")
 
             if (response.statusCode() != 200) {
                 throw SapListException("Failed send list request to $requestUri: ${body.toString(Charsets.UTF_8)}")
@@ -408,8 +360,6 @@ abstract class AbstractSapResourceController <T> {
         val objectMapper = jacksonObjectMapper()
         val responseValue = objectMapper.readTree(body).get("value").map { it }
         val collectionType = objectMapper.typeFactory.constructCollectionType(ArrayList::class.java, targetClass)
-        println("Body")
-        println(body.toString(Charsets.UTF_8))
         return objectMapper.convertValue(responseValue, collectionType)
     }
 }

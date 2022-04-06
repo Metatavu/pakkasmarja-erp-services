@@ -23,17 +23,11 @@ class BusinessPartnersController: AbstractSapResourceController<BusinessPartner>
         sapSession: SapSession,
         updatedAfter: OffsetDateTime?
     ): List<BusinessPartner> {
-        val resourceUrl = "${sapSession.apiUrl}/BusinessPartners"
-
         var updatedAfterFilter = ""
         if (updatedAfter != null) {
             updatedAfterFilter = "and ${createdUpdatedAfterFilter(updatedAfter)}"
         }
 
-        /**
-        val filter = "\$filter=(CardType eq SAPB1.BoCardTypes'cSupplier' $updatedAfterFilter)"
-        val select = "\$select=U_PFZ_LegCardCode,CardCode,CardType,CardName,Phone1,Phone2,EmailAddress,BPAddresses,BPBankAccounts,FederalTaxID,VatLiable,UpdateDate,UpdateTime"
-**/
         val requestUri = constructSapUrl(
             sapSession = sapSession,
             entitySetName = "BusinessPartners",
