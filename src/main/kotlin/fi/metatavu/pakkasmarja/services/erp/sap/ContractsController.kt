@@ -142,7 +142,13 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                         routeId = sapSession.routeId
                     )
 
-                    spreadContract(contract = contractForUpdate, items = items)[0]
+                    println("contractForUpdate: " + jacksonObjectMapper().writeValueAsString(contractForUpdate))
+                    println("items: " + jacksonObjectMapper().writeValueAsString(items))
+
+                    spreadContract(
+                        contract = contractForUpdate,
+                        items = items
+                    ).firstOrNull()
                 } finally {
                     if (wasApproved) {
                         logger.info("Contract was approved, updating it back to approved")

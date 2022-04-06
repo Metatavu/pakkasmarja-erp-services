@@ -351,10 +351,8 @@ abstract class AbstractSapResourceController <T> {
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        val body = response.body() ?: throw SapModificationException("Failed to fetch items from SAP: ${response.statusCode()}")
-
         if (response.statusCode() != 204) {
-            throw SapModificationException("Failed send PUT request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
+            throw SapModificationException("Failed send PUT request to $resourceUrl")
         }
     }
 
