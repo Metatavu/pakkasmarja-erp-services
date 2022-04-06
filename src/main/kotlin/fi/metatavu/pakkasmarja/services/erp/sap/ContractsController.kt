@@ -112,24 +112,48 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 spreadContract(contract = createdContract, items = items)[0]
             } else {
                 val contractToUpdate = contracts.first()
+
                 val contractForUpdate = buildContractForUpdate(
                     contractToUpdate = contractToUpdate,
                     newData = sapContract,
                     sapSession = sapSession
                 )
 
+                val resourceUpdateUrl = "$resourceUrl%28${contractToUpdate.getAgreementNo()}%29"
+                val wasApproved = contractToUpdate.getStatus() == "asApproved"
+
                 val payload = jacksonObjectMapper().writeValueAsString(contractForUpdate)
                 logger.info("Updating contract with payload: $payload")
 
-                val updatedItem = updateSapEntity(
-                    targetClass = Contract::class.java,
-                    item = payload,
-                    resourceUrl = "$resourceUrl%28${contractToUpdate.getAgreementNo()}%29",
-                    sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
-                )
+                if (wasApproved) {
+                    logger.info("Contract was approved, updating it to on hold")
+                    updateContractStatus(
+                        sapSession = sapSession,
+                        resourceUrl = resourceUpdateUrl,
+                        status = "asOnHold"
+                    )
+                }
 
-                spreadContract(contract = updatedItem, items = items)[0]
+                try {
+                    val updatedItem = updateSapEntity(
+                        targetClass = Contract::class.java,
+                        item = payload,
+                        resourceUrl = resourceUpdateUrl,
+                        sessionId = sapSession.sessionId,
+                        routeId = sapSession.routeId
+                    )
+
+                    spreadContract(contract = updatedItem, items = items)[0]
+                } finally {
+                    if (wasApproved) {
+                        logger.info("Contract was approved, updating it back to approved")
+                        updateContractStatus(
+                            sapSession = sapSession,
+                            resourceUrl = resourceUpdateUrl,
+                            status = "asApproved"
+                        )
+                    }
+                }
             }
         } catch (error: Exception) {
             logger.error("Error while creating SAP contract", error)
@@ -300,10 +324,11 @@ class ContractsController: AbstractSapResourceController<Contract>() {
 
         val newLines = itemCodesToAdd.map { itemCode ->
             ContractLine(
-                itemNo = itemCode,
-                plannedQuantity = 1.0,
-                cumulativeQuantity = 0.0,
-                shippingType = -1
+                itemCode,
+                1.0,
+                0.0,
+                null,
+                mutableMapOf()
             )
         }
 
@@ -322,7 +347,8 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             contractToUpdate.getTerminateDate(),
             contractToUpdate.getRemarks(),
             contractToUpdate.getAgreementNo(),
-            allLines
+            allLines,
+            contractToUpdate.getAdditionalFields()
         )
     }
 
@@ -341,10 +367,11 @@ class ContractsController: AbstractSapResourceController<Contract>() {
 
         val lines = itemCodes.map { code ->
             ContractLine(
-                itemNo = code,
-                plannedQuantity = 1.0,
-                cumulativeQuantity = 0.0,
-                shippingType = -1
+                code,
+                1.0,
+                0.0,
+                null,
+                mutableMapOf()
             )
         }
 
@@ -359,7 +386,8 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             sapContract.terminateDate.toString(),
             sapContract.remarks,
             null,
-            lines
+            lines,
+            mutableMapOf()
         )
     }
 
@@ -392,6 +420,23 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         }
 
         return parts[1].toIntOrNull()
+    }
+
+    /**
+     * Updates SAP contract status
+     *
+     * @param sapSession a SAP session to use
+     * @param resourceUrl SAP contract url
+     * @param status new status
+     */
+    private fun updateContractStatus(sapSession: SapSession, resourceUrl: String, status: String) {
+        val payload = jacksonObjectMapper().writeValueAsString(ContractStatus(status = status))
+        patchSapEntity(
+            item = payload,
+            resourceUrl = resourceUrl,
+            sessionId = sapSession.sessionId,
+            routeId = sapSession.routeId
+        )
     }
 
 }

@@ -42,13 +42,12 @@ abstract class AbstractSapResourceController <T> {
         routeId: String
     ): T {
         try {
-            return sendSapPostOrPatchRequest(
+            return sendSapPostRequest(
                 targetClass = targetClass,
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
-                routeId = routeId,
-                method = "POST"
+                routeId = routeId
             )
         } catch (e: Exception) {
             logger.error("Failed to create an item to SAP", e)
@@ -56,6 +55,62 @@ abstract class AbstractSapResourceController <T> {
         }
     }
 
+    /**
+     * Updates an item to SAP
+     *
+     * @param item item to create
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @return created item
+     */
+    fun updateSapEntity(
+        targetClass: Class<T>,
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ): T {
+        try {
+            return sendSapPutRequest(
+                targetClass = targetClass,
+                item = item,
+                resourceUrl = resourceUrl,
+                sessionId = sessionId,
+                routeId = routeId
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to update an item to SAP", e)
+            throw SapModificationException("Failed to update an item to SAP: ${e.message}")
+        }
+    }
+
+    /**
+     * Updates an item to SAP
+     *
+     * @param item item to update
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @return updated item
+     */
+    fun patchSapEntity(
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ) {
+        try {
+            sendSapPatchRequest(
+                item = item,
+                resourceUrl = resourceUrl,
+                sessionId = sessionId,
+                routeId = routeId
+            )
+        } catch (e: Exception) {
+            throw SapModificationException("Failed to update an item to SAP: ${e.message}")
+        }
+    }
     /**
      * Finds item from SAP
      *
@@ -87,37 +142,6 @@ abstract class AbstractSapResourceController <T> {
             return readSapResponse(targetClass, response.body())
         } catch (e: Exception) {
             throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
-        }
-    }
-
-    /**
-     * Updates an item to SAP
-     *
-     * @param targetClass target class
-     * @param item item to update
-     * @param resourceUrl resource url
-     * @param sessionId SAP session id
-     * @param routeId SAP session route id
-     * @return updated item
-     */
-    fun updateSapEntity(
-        targetClass: Class<T>,
-        item: String,
-        resourceUrl: String,
-        sessionId: String,
-        routeId: String
-    ): T {
-        try {
-            return sendSapPostOrPatchRequest(
-                targetClass = targetClass,
-                item = item,
-                resourceUrl = resourceUrl,
-                sessionId = sessionId,
-                routeId = routeId,
-                method = "PATCH"
-            )
-        } catch (e: Exception) {
-            throw SapModificationException("Failed to update an item to SAP: ${e.message}")
         }
     }
 
@@ -235,42 +259,111 @@ abstract class AbstractSapResourceController <T> {
     }
 
     /**
-     * Sends a POST or PATCH request to SAP
+     * Sends PATCH request to SAP
+     *
+     * @param item body to send
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @param <T> response type
+     * @return the response from SAP
+     */
+    private fun sendSapPatchRequest(
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ) {
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest
+            .newBuilder(URI.create(resourceUrl))
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .method("PATCH", HttpRequest.BodyPublishers.ofString(item))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+
+        if (response.statusCode() != 204) {
+            throw SapModificationException("Failed send PATCH request to $resourceUrl")
+        }
+    }
+
+    /**
+     * Sends a POST request to SAP
      *
      * @param targetClass target class
      * @param item body to send
      * @param resourceUrl resource url
      * @param sessionId SAP session id
      * @param routeId SAP session route id
-     * @param method request method
      * @param <T> response type
      * @return the response from SAP
      */
-    private fun <T> sendSapPostOrPatchRequest(
+    private fun <T> sendSapPostRequest(
         targetClass: Class<T>,
         item: String,
         resourceUrl: String,
         sessionId: String,
-        routeId: String,
-        method: String
+        routeId: String
     ): T {
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
             .setHeader("Content-Type", "application/json")
             .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-            .method(method, HttpRequest.BodyPublishers.ofString(item))
+            .method("POST", HttpRequest.BodyPublishers.ofString(item))
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
         val body = response.body() ?: throw SapModificationException("Failed to fetch items from SAP: ${response.statusCode()}")
 
         if (response.statusCode() != 200) {
-            throw SapModificationException("Failed send $method request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
+            throw SapModificationException("Failed send POST request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
         }
 
         if (body.isEmpty()) {
-            throw SapModificationException("Failed send $method request to $resourceUrl: Empty response")
+            throw SapModificationException("Failed send POST request to $resourceUrl: Empty response")
+        }
+
+        return readSapResponse(targetClass, body) ?: throw SapModificationException("Failed to read response from SAP: ${body.toString(Charsets.UTF_8)}")
+    }
+
+    /**
+     * Sends a POST request to SAP
+     *
+     * @param targetClass target class
+     * @param item body to send
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @param <T> response type
+     * @return the response from SAP
+     */
+    private fun <T> sendSapPutRequest(
+        targetClass: Class<T>,
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ): T {
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest
+            .newBuilder(URI.create(resourceUrl))
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .method("PUT", HttpRequest.BodyPublishers.ofString(item))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        val body = response.body() ?: throw SapModificationException("Failed to fetch items from SAP: ${response.statusCode()}")
+
+        if (response.statusCode() != 200) {
+            throw SapModificationException("Failed send PUT request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
+        }
+
+        if (body.isEmpty()) {
+            throw SapModificationException("Failed send PUT request to $resourceUrl: Empty response")
         }
 
         return readSapResponse(targetClass, body) ?: throw SapModificationException("Failed to read response from SAP: ${body.toString(Charsets.UTF_8)}")

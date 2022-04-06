@@ -1,10 +1,12 @@
 package fi.metatavu.pakkasmarja.services.erp.model
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.quarkus.runtime.annotations.RegisterForReflection
+
 
 /**
  * Model class for Contract
@@ -13,7 +15,6 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  * @author Antti Leppä
  */
 @RegisterForReflection
-@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
 class Contract() {
 
@@ -50,6 +51,8 @@ class Contract() {
     @JsonProperty("BlanketAgreements_ItemsLines")
     private var contractLines: List<ContractLine> = listOf()
 
+    private var additionalFields: MutableMap<String, Any> = mutableMapOf()
+
     constructor(
         startDate: String?,
         endDate: String?,
@@ -61,7 +64,8 @@ class Contract() {
         terminateDate: String?,
         remarks: String?,
         agreementNo: Int?,
-        contractLines: List<ContractLine>
+        contractLines: List<ContractLine>,
+        additionalFields: MutableMap<String, Any>
     ) : this() {
         this.startDate = startDate
         this.endDate = endDate
@@ -74,6 +78,7 @@ class Contract() {
         this.remarks = remarks
         this.agreementNo = agreementNo
         this.contractLines = contractLines
+        this.additionalFields = additionalFields
     }
 
     fun getStartDate(): String? {
@@ -162,6 +167,16 @@ class Contract() {
 
     fun setContractLines(contractLines: List<ContractLine>) {
         this.contractLines = contractLines
+    }
+
+    @JsonAnyGetter
+    fun getAdditionalFields(): MutableMap<String, Any> {
+        return additionalFields
+    }
+
+    @JsonAnySetter
+    fun setAdditionalFields(name: String, value: Any) {
+        this.additionalFields[name] = value
     }
 
 }
