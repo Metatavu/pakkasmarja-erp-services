@@ -184,7 +184,7 @@ abstract class AbstractSapResourceController <T> {
      */
     fun constructSAPRequestUrl(
         baseUrl: String,
-        select: List<String>,
+        select: String?,
         filter: String?,
         firstResult: Int?,
         maxResults: Int?
