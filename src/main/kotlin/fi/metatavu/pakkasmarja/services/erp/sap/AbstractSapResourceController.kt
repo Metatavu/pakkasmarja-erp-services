@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.*
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
+import org.apache.olingo.client.api.ODataClient
+import org.apache.olingo.client.core.ODataClientFactory
 import org.slf4j.Logger
 import java.net.URI
 import java.net.http.HttpClient
@@ -133,6 +135,48 @@ abstract class AbstractSapResourceController <T> {
     /**
      * Constructs SAP request URL
      *
+     * @param sapSession SAP session
+     * @param entitySetName entity set name
+     * @param filter filter
+     * @param select select
+     * @param firstResult first result
+     * @param maxResults max results
+     * @return SAP request URL
+     */
+    fun constructSapUrl(
+        sapSession: SapSession,
+        entitySetName: String,
+        filter: String?,
+        select: List<String>?,
+        firstResult: Int?,
+        maxResults: Int?
+    ): URI {
+        val oDataClient: ODataClient = ODataClientFactory.getClient()
+        val builder = oDataClient.newURIBuilder(sapSession.apiUrl)
+            .appendEntitySetSegment(entitySetName)
+
+        if (filter != null) {
+            builder.filter(filter)
+        }
+
+        if (select != null) {
+            builder.select(*select.toTypedArray())
+        }
+
+        if (firstResult != null) {
+            builder.skip(firstResult)
+        }
+
+        if (maxResults != null) {
+            builder.top(maxResults)
+        }
+
+        return builder.build()
+    }
+
+    /**
+     * Constructs SAP request URL
+     *
      * @param baseUrl base URL
      * @param select select string
      * @param filter filter string
@@ -140,7 +184,7 @@ abstract class AbstractSapResourceController <T> {
      */
     fun constructSAPRequestUrl(
         baseUrl: String,
-        select: String,
+        select: List<String>,
         filter: String?,
         firstResult: Int?,
         maxResults: Int?
@@ -166,28 +210,36 @@ abstract class AbstractSapResourceController <T> {
         }
     }
 
+    fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T> {
+        return sapListRequest(
+            targetClass = targetClass,
+            requestUri = URI.create(requestUrl),
+            sapSession = sapSession
+        )
+    }
+
     /**
      * Fetches items from multiple urls and combines them into a single list
      *
      * @param targetClass target class
-     * @param requestUrl list SAP request URL's
+     * @param requestUri list SAP request URL's
      * @param sapSession SAP-session
      * @param <T> response generic type
      * @return list of items
      */
-    fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T> {
+    fun sapListRequest(targetClass: Class<T>, requestUri: URI, sapSession: SapSession): List<T> {
         try {
             val client = HttpClient.newHttpClient()
             val cookie = "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}"
 
             val request = HttpRequest
-                .newBuilder(URI.create(requestUrl))
+                .newBuilder(requestUri)
                 .setHeader("Cookie", cookie)
                 .GET()
                 .build()
 
             println("COOKIE $cookie")
-            println("LIST REQUEST: $requestUrl")
+            println("LIST REQUEST: $requestUri")
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
 
@@ -198,11 +250,11 @@ abstract class AbstractSapResourceController <T> {
             println("LIST RESPONSE BODY: ${body.toString(Charsets.UTF_8)}")
 
             if (response.statusCode() != 200) {
-                throw SapListException("Failed send list request to $requestUrl: ${body.toString(Charsets.UTF_8)}")
+                throw SapListException("Failed send list request to $requestUri: ${body.toString(Charsets.UTF_8)}")
             }
 
             if (body.isEmpty()) {
-                throw SapListException("Failed send list request to $requestUrl: Empty response")
+                throw SapListException("Failed send list request to $requestUri: Empty response")
             }
 
             return readSapListResponse(targetClass, response.body())

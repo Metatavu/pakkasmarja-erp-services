@@ -18,6 +18,7 @@ val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
 val wiremockVersion: String by project
 val targetEnvironment: String by project
+val olingoVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -35,6 +36,8 @@ dependencies {
     implementation("io.quarkus:quarkus-arc")
     implementation("org.apache.commons:commons-lang3")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    implementation("org.apache.olingo:odata-client-core:$olingoVersion")
 
     testImplementation("io.quarkus:quarkus-junit5")
 
