@@ -97,10 +97,13 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 )
 
                 val mapper = jacksonObjectMapper()
-                val contractString = mapper.writeValueAsString(newContract)
+                val payload = mapper.writeValueAsString(newContract)
+
+                logger.info("Creating new contract with payload: $payload")
+
                 val createdContract = createSapEntity(
                     targetClass = Contract::class.java,
-                    item = contractString,
+                    item = payload,
                     resourceUrl = resourceUrl,
                     sessionId = sapSession.sessionId,
                     routeId = sapSession.routeId
@@ -116,6 +119,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 )
 
                 val payload = jacksonObjectMapper().writeValueAsString(contractForUpdate)
+                logger.info("Updating contract with payload: $payload")
 
                 val updatedItem = updateSapEntity(
                     targetClass = Contract::class.java,
