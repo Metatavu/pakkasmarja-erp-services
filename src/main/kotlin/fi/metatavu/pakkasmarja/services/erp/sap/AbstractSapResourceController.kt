@@ -178,13 +178,15 @@ abstract class AbstractSapResourceController <T> {
     fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T> {
         try {
             val client = HttpClient.newHttpClient()
+            val cookie = "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}"
 
             val request = HttpRequest
                 .newBuilder(URI.create(requestUrl))
-                .setHeader("Cookie", "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}")
+                .setHeader("Cookie", cookie)
                 .GET()
                 .build()
 
+            println("COOKIE $cookie")
             println("LIST REQUEST: $requestUrl")
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
