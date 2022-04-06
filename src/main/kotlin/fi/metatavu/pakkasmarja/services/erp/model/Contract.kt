@@ -51,7 +51,7 @@ class Contract() {
     @JsonProperty("BlanketAgreements_ItemsLines")
     private var contractLines: List<ContractLine> = listOf()
 
-    private var additionalFields: MutableMap<String, Any> = mutableMapOf()
+    private var additionalFields: MutableMap<String, Any?> = mutableMapOf()
 
     constructor(
         startDate: String?,
@@ -65,7 +65,7 @@ class Contract() {
         remarks: String?,
         agreementNo: Int?,
         contractLines: List<ContractLine>,
-        additionalFields: MutableMap<String, Any>
+        additionalFields: MutableMap<String, Any?>
     ) : this() {
         this.startDate = startDate
         this.endDate = endDate
@@ -170,12 +170,12 @@ class Contract() {
     }
 
     @JsonAnyGetter
-    fun getAdditionalFields(): MutableMap<String, Any> {
+    fun getAdditionalFields(): MutableMap<String, Any?> {
         return additionalFields
     }
 
     @JsonAnySetter
-    fun setAdditionalFields(name: String, value: Any) {
+    fun setAdditionalFields(name: String, value: Any?) {
         this.additionalFields[name] = value
     }
 
