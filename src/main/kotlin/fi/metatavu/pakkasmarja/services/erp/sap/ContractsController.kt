@@ -124,7 +124,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 val updatedItem = updateSapEntity(
                     targetClass = Contract::class.java,
                     item = payload,
-                    resourceUrl = "$resourceUrl%28${contractToUpdate.agreementNo}%29",
+                    resourceUrl = "$resourceUrl%28${contractToUpdate.getAgreementNo()}%29",
                     sessionId = sapSession.sessionId,
                     routeId = sapSession.routeId
                 )
@@ -216,16 +216,16 @@ class ContractsController: AbstractSapResourceController<Contract>() {
 
         return itemGroupDeliveredQuantities.map { item ->
             SAPItemGroupContract(
-                startDate = contract.startDate,
-                endDate = contract.endDate,
-                docNum = contract.docNum ?: 0,
-                bPCode = contract.BPCode,
-                contactPersonCode = contract.contactPersonCode,
-                status = contract.status,
-                signingDate = contract.signingDate,
-                terminateDate = contract.terminateDate,
-                remarks = contract.remarks,
-                agreementNo = contract.agreementNo ?: 0,
+                startDate = contract.getStartDate(),
+                endDate = contract.getEndDate(),
+                docNum = contract.getDocNum() ?: 0,
+                bPCode = contract.getBpCode()!!,
+                contactPersonCode = contract.getContactPersonCode(),
+                status = contract.getStatus(),
+                signingDate = contract.getSigningDate(),
+                terminateDate = contract.getTerminateDate(),
+                remarks = contract.getRemarks(),
+                agreementNo = contract.getAgreementNo() ?: 0,
                 cumulativeQuantity = item.value,
                 itemGroupCode = item.key
             )
@@ -241,7 +241,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
      */
     private fun getItemGroupsFromContract(contract: Contract, items: List<Item>): Map<Int, Double> {
         val itemGroupsInContract = mutableMapOf<Int, Double>()
-        val itemLines = contract.contractLines
+        val itemLines = contract.getContractLines()
         val groupProperties = configController.getGroupPropertiesFromConfigFile()
 
         itemLines.forEach { itemLine ->
@@ -288,7 +288,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
      */
     private fun buildContractForUpdate(contractToUpdate: Contract, newData: SapContract, sapSession: SapSession): Contract {
         val itemCodesToBeAdded = getGroupItemCodes(groupCode = newData.itemGroupCode, sapSession = sapSession)
-        val existingContractLines = contractToUpdate.contractLines
+        val existingContractLines = contractToUpdate.getContractLines()
         val itemCodesToAdd = mutableListOf<String>()
 
         itemCodesToBeAdded.map { itemCode ->
@@ -310,7 +310,19 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         allLines.addAll(existingContractLines)
         allLines.addAll(newLines)
 
-        return contractToUpdate.copy(contractLines = allLines)
+        return Contract(
+            contractToUpdate.getStartDate(),
+            contractToUpdate.getEndDate(),
+            contractToUpdate.getDocNum(),
+            contractToUpdate.getBpCode(),
+            contractToUpdate.getContactPersonCode(),
+            contractToUpdate.getStatus(),
+            contractToUpdate.getSigningDate(),
+            contractToUpdate.getTerminateDate(),
+            contractToUpdate.getRemarks(),
+            contractToUpdate.getAgreementNo(),
+            allLines
+        )
     }
 
     /**
@@ -336,16 +348,17 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         }
 
         return Contract(
-            docNum = getDocNum(sapContract),
-            startDate = sapContract.startDate.toString(),
-            endDate = sapContract.endDate.toString(),
-            terminateDate = sapContract.terminateDate.toString(),
-            status = contractStatusToSapFormat(SapContractStatus.APPROVED),
-            BPCode = sapContract.businessPartnerCode.toString(),
-            contactPersonCode = sapContract.contactPersonCode,
-            remarks = sapContract.remarks ?: "",
-            signingDate = sapContract.signingDate.toString(),
-            contractLines = lines
+            sapContract.startDate.toString(),
+            sapContract.endDate.toString(),
+            getDocNum(sapContract),
+            sapContract.businessPartnerCode.toString(),
+            sapContract.contactPersonCode,
+            contractStatusToSapFormat(SapContractStatus.APPROVED),
+            sapContract.signingDate.toString(),
+            sapContract.terminateDate.toString(),
+            sapContract.remarks,
+            null,
+            lines
         )
     }
 

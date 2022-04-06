@@ -14,26 +14,153 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
-data class Contract(
+class Contract() {
+
     @JsonProperty("StartDate")
-    val startDate: String,
+    private var startDate: String? = null
+
     @JsonProperty("EndDate")
-    val endDate: String,
+    private var endDate: String? = null
+    
     @JsonProperty("DocNum")
-    val docNum: Int? = null,
-    val BPCode: String,
+    private var docNum: Int? = null
+
+    @JsonProperty("BPCode")
+    private var bpCode: String? = null
+
     @JsonProperty("ContactPersonCode")
-    val contactPersonCode: Int,
+    private var contactPersonCode: Int? = null
+
     @JsonProperty("Status")
-    var status: String,
+    private var status: String? = null
+
     @JsonProperty("SigningDate")
-    val signingDate: String,
+    private var signingDate: String? = null
+
     @JsonProperty("TerminateDate")
-    val terminateDate: String? = null,
+    private var terminateDate: String? = null
+
     @JsonProperty("Remarks")
-    val remarks: String,
+    private var remarks: String? = null
+
     @JsonProperty("AgreementNo")
-    val agreementNo: Int? = null,
+    private var agreementNo: Int? = null
+
     @JsonProperty("BlanketAgreements_ItemsLines")
-    val contractLines: List<ContractLine>
-)
+    private var contractLines: List<ContractLine> = listOf()
+
+    constructor(
+        startDate: String?,
+        endDate: String?,
+        docNum: Int?,
+        bpCode: String?,
+        contactPersonCode: Int?,
+        status: String?,
+        signingDate: String?,
+        terminateDate: String?,
+        remarks: String?,
+        agreementNo: Int?,
+        contractLines: List<ContractLine>
+    ) : this() {
+        this.startDate = startDate
+        this.endDate = endDate
+        this.docNum = docNum
+        this.bpCode = bpCode
+        this.contactPersonCode = contactPersonCode
+        this.status = status
+        this.signingDate = signingDate
+        this.terminateDate = terminateDate
+        this.remarks = remarks
+        this.agreementNo = agreementNo
+        this.contractLines = contractLines
+    }
+
+    fun getStartDate(): String? {
+        return startDate
+    }
+
+    fun setStartDate(startDate: String?) {
+        this.startDate = startDate
+    }
+
+    fun getEndDate(): String? {
+        return endDate
+    }
+
+    fun setEndDate(endDate: String?) {
+        this.endDate = endDate
+    }
+
+    fun getDocNum(): Int? {
+        return docNum
+    }
+
+    fun setDocNum(docNum: Int?) {
+        this.docNum = docNum
+    }
+
+    fun getBpCode(): String? {
+        return bpCode
+    }
+
+    fun setBpCode(bpCode: String?) {
+        this.bpCode = bpCode
+    }
+
+    fun getContactPersonCode(): Int? {
+        return contactPersonCode
+    }
+
+    fun setContactPersonCode(contactPersonCode: Int?) {
+        this.contactPersonCode = contactPersonCode
+    }
+
+    fun getStatus(): String? {
+        return status
+    }
+
+    fun setStatus(status: String?) {
+        this.status = status
+    }
+
+    fun getSigningDate(): String? {
+        return signingDate
+    }
+
+    fun setSigningDate(signingDate: String?) {
+        this.signingDate = signingDate
+    }
+
+    fun getTerminateDate(): String? {
+        return terminateDate
+    }
+
+    fun setTerminateDate(terminateDate: String?) {
+        this.terminateDate = terminateDate
+    }
+
+    fun getRemarks(): String? {
+        return remarks
+    }
+
+    fun setRemarks(remarks: String?) {
+        this.remarks = remarks
+    }
+
+    fun getAgreementNo(): Int? {
+        return agreementNo
+    }
+
+    fun setAgreementNo(agreementNo: Int?) {
+        this.agreementNo = agreementNo
+    }
+
+    fun getContractLines(): List<ContractLine> {
+        return contractLines
+    }
+
+    fun setContractLines(contractLines: List<ContractLine>) {
+        this.contractLines = contractLines
+    }
+
+}
