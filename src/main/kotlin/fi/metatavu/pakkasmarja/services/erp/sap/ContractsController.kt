@@ -135,15 +135,14 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 }
 
                 try {
-                    val updatedItem = updateSapEntity(
-                        targetClass = Contract::class.java,
+                    updateSapEntity(
                         item = payload,
                         resourceUrl = resourceUpdateUrl,
                         sessionId = sapSession.sessionId,
                         routeId = sapSession.routeId
                     )
 
-                    spreadContract(contract = updatedItem, items = items)[0]
+                    spreadContract(contract = contractForUpdate, items = items)[0]
                 } finally {
                     if (wasApproved) {
                         logger.info("Contract was approved, updating it back to approved")

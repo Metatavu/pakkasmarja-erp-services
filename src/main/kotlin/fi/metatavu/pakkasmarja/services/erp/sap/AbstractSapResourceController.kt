@@ -65,15 +65,13 @@ abstract class AbstractSapResourceController <T> {
      * @return created item
      */
     fun updateSapEntity(
-        targetClass: Class<T>,
         item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): T {
+    ) {
         try {
-            return sendSapPutRequest(
-                targetClass = targetClass,
+            sendSapPutRequest(
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
@@ -332,21 +330,18 @@ abstract class AbstractSapResourceController <T> {
     /**
      * Sends a POST request to SAP
      *
-     * @param targetClass target class
      * @param item body to send
      * @param resourceUrl resource url
      * @param sessionId SAP session id
      * @param routeId SAP session route id
-     * @param <T> response type
      * @return the response from SAP
      */
-    private fun <T> sendSapPutRequest(
-        targetClass: Class<T>,
+    private fun sendSapPutRequest(
         item: String,
         resourceUrl: String,
         sessionId: String,
         routeId: String
-    ): T {
+    ) {
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
@@ -358,15 +353,9 @@ abstract class AbstractSapResourceController <T> {
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
         val body = response.body() ?: throw SapModificationException("Failed to fetch items from SAP: ${response.statusCode()}")
 
-        if (response.statusCode() != 200) {
+        if (response.statusCode() != 204) {
             throw SapModificationException("Failed send PUT request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
         }
-
-        if (body.isEmpty()) {
-            throw SapModificationException("Failed send PUT request to $resourceUrl: Empty response")
-        }
-
-        return readSapResponse(targetClass, body) ?: throw SapModificationException("Failed to read response from SAP: ${body.toString(Charsets.UTF_8)}")
     }
 
     /**
