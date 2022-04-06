@@ -14,19 +14,101 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
-data class StockTransfer (
+class StockTransfer() {
+
     @JsonProperty("DocDate")
-    val docDate: String,
+    private var docDate: String? = null
+
     @JsonProperty("CardCode")
-    val cardCode: String,
+    private var cardCode: String? = null
+
     @JsonProperty("Comments")
-    val comments: String?,
+    private var comments: String? = null
+
     @JsonProperty("SalesPersonCode")
-    val salesPersonCode: Int,
+    private var salesPersonCode: Int? = null
+
     @JsonProperty("FromWarehouse")
-    val fromWarehouse: String,
+    private var fromWarehouse: String? = null
+
     @JsonProperty("ToWarehouse")
-    val toWarehouse: String,
+    private var toWarehouse: String? = null
+
     @JsonProperty("StockTransferLines")
-    val stockTransferLines: List<StockTransferLine>
-)
+    private var stockTransferLines: List<StockTransferLine> = listOf()
+
+    constructor(
+        docDate: String?,
+        cardCode: String?,
+        comments: String?,
+        salesPersonCode: Int?,
+        fromWarehouse: String?,
+        toWarehouse: String?,
+        stockTransferLines: List<StockTransferLine>
+    ) : this() {
+        this.docDate = docDate
+        this.cardCode = cardCode
+        this.comments = comments
+        this.salesPersonCode = salesPersonCode
+        this.fromWarehouse = fromWarehouse
+        this.toWarehouse = toWarehouse
+        this.stockTransferLines = stockTransferLines
+    }
+
+    fun getDocDate(): String? {
+        return docDate
+    }
+
+    fun setDocDate(docDate: String?) {
+        this.docDate = docDate
+    }
+
+    fun getCardCode(): String? {
+        return cardCode
+    }
+
+    fun setCardCode(cardCode: String?) {
+        this.cardCode = cardCode
+    }
+
+    fun getComments(): String? {
+        return comments
+    }
+
+    fun setComments(comments: String?) {
+        this.comments = comments
+    }
+
+    fun getSalesPersonCode(): Int? {
+        return salesPersonCode
+    }
+
+    fun setSalesPersonCode(salesPersonCode: Int?) {
+        this.salesPersonCode = salesPersonCode
+    }
+
+    fun getFromWarehouse(): String? {
+        return fromWarehouse
+    }
+
+    fun setFromWarehouse(fromWarehouse: String?) {
+        this.fromWarehouse = fromWarehouse
+    }
+
+    fun getToWarehouse(): String? {
+        return toWarehouse
+    }
+
+    fun setToWarehouse(toWarehouse: String?) {
+        this.toWarehouse = toWarehouse
+    }
+
+    fun getStockTransferLines(): List<StockTransferLine> {
+        return stockTransferLines
+    }
+
+    fun setStockTransferLines(stockTransferLines: List<StockTransferLine>) {
+        this.stockTransferLines = stockTransferLines
+    }
+
+}

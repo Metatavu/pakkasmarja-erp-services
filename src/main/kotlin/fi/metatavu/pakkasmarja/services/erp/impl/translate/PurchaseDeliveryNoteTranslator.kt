@@ -21,14 +21,14 @@ class PurchaseDeliveryNoteTranslator: AbstractTranslator<PurchaseDeliveryNote, S
      * @return translated contract
      */
     override fun translate(sapEntity: PurchaseDeliveryNote): SapPurchaseDeliveryNote {
-        val docDate = LocalDate.from(DateTimeFormatter.ISO_DATE.parse(sapEntity.docDate))
+        val docDate = LocalDate.from(DateTimeFormatter.ISO_DATE.parse(sapEntity.getDocDate()))
 
         return SapPurchaseDeliveryNote(
             docDate = docDate,
-            businessPartnerCode = sapEntity.cardCode.toInt(),
-            salesPersonCode = sapEntity.salesPersonCode,
-            comments = sapEntity.comments,
-            lines = sapEntity.documentLines.map {
+            businessPartnerCode = sapEntity.getCardCode()?.toInt() ?: 0,
+            salesPersonCode = sapEntity.getSalesPersonCode() ?: 0,
+            comments = sapEntity.getComments(),
+            lines = sapEntity.getDocumentLines().map {
                 this.translateLine(
                     line = it
                 )
@@ -44,11 +44,11 @@ class PurchaseDeliveryNoteTranslator: AbstractTranslator<PurchaseDeliveryNote, S
      */
     private fun translateLine(line: PurchaseDeliveryNoteLine): SapPurchaseDeliveryNoteLine {
         return SapPurchaseDeliveryNoteLine(
-            itemCode = line.itemCode.toInt(),
-            quantity = line.quantity,
-            unitPrice = line.unitPrice,
-            warehouseCode = line.warehouseCode,
-            batchNumbers = line.batchNumbers.map(this::translateBatchNumber)
+            itemCode = line.getItemCode()?.toInt() ?: 0,
+            quantity = line.getQuantity() ?: 0.0,
+            unitPrice = line.getUnitPrice() ?: 0.0,
+            warehouseCode = line.getWarehouseCode() ?: "",
+            batchNumbers = line.getBatchNumbers().map(this::translateBatchNumber)
         )
     }
 

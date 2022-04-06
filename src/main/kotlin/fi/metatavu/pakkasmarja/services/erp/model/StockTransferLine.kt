@@ -14,15 +14,74 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
-data class StockTransferLine(
+class StockTransferLine() {
     @JsonProperty("ItemCode")
-    val itemCode: String,
+    private var itemCode: String? = null
+
     @JsonProperty("Quantity")
-    val quantity: Double,
+    private var quantity: Double? = null
+
     @JsonProperty("WarehouseCode")
-    val warehouseCode: String,
+    private var warehouseCode: String? = null
+
     @JsonProperty("FromWarehouseCode")
-    val fromWarehouseCode: String,
+    private var fromWarehouseCode: String? = null
+
     @JsonProperty("StockTransferLinesBinAllocations")
-    val stockTransferLinesBinAllocations: List<StockTransferLinesBinAllocation>,
-)
+    private var stockTransferLinesBinAllocations: List<StockTransferLinesBinAllocation> = listOf()
+
+    constructor(
+        itemCode: String?,
+        quantity: Double?,
+        warehouseCode: String?,
+        fromWarehouseCode: String?,
+        stockTransferLinesBinAllocations: List<StockTransferLinesBinAllocation>
+    ) : this() {
+        this.itemCode = itemCode
+        this.quantity = quantity
+        this.warehouseCode = warehouseCode
+        this.fromWarehouseCode = fromWarehouseCode
+        this.stockTransferLinesBinAllocations = stockTransferLinesBinAllocations
+    }
+
+    fun getItemCode(): String? {
+        return itemCode
+    }
+
+    fun setItemCode(itemCode: String?) {
+        this.itemCode = itemCode
+    }
+
+    fun getQuantity(): Double? {
+        return quantity
+    }
+
+    fun setQuantity(quantity: Double?) {
+        this.quantity = quantity
+    }
+
+    fun getWarehouseCode(): String? {
+        return warehouseCode
+    }
+
+    fun setWarehouseCode(warehouseCode: String?) {
+        this.warehouseCode = warehouseCode
+    }
+
+    fun getFromWarehouseCode(): String? {
+        return fromWarehouseCode
+    }
+
+    fun setFromWarehouseCode(fromWarehouseCode: String?) {
+        this.fromWarehouseCode = fromWarehouseCode
+    }
+
+    fun getStockTransferLinesBinAllocations(): List<StockTransferLinesBinAllocation> {
+        return stockTransferLinesBinAllocations
+    }
+
+    fun setStockTransferLinesBinAllocations(stockTransferLinesBinAllocations: List<StockTransferLinesBinAllocation>) {
+        this.stockTransferLinesBinAllocations = stockTransferLinesBinAllocations
+    }
+
+}
