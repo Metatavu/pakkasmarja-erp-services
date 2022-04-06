@@ -245,16 +245,17 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         val groupProperties = configController.getGroupPropertiesFromConfigFile()
 
         itemLines.forEach { itemLine ->
-            val item = itemsController.findItemFromItemList(items = items, itemCode = itemLine.itemNo)
+            val item = itemsController.findItemFromItemList(items = items, itemCode = itemLine.getItemNo())
 
             if (item != null) {
                 val itemGroupCode = itemsController.getItemGroupCode(item = item, groupProperties = groupProperties)
 
                 if (itemGroupCode != null) {
+                    val cumulativeQuantity = itemLine.getCumulativeQuantity() ?: 0.0
                     if (!itemGroupsInContract.containsKey(itemGroupCode)) {
-                        itemGroupsInContract[itemGroupCode] = itemLine.cumulativeQuantity
+                        itemGroupsInContract[itemGroupCode] = cumulativeQuantity
                     } else {
-                        itemGroupsInContract[itemGroupCode]?.plus(itemLine.cumulativeQuantity)
+                        itemGroupsInContract[itemGroupCode]?.plus(cumulativeQuantity)
                     }
                 }
             }
@@ -292,7 +293,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         val itemCodesToAdd = mutableListOf<String>()
 
         itemCodesToBeAdded.map { itemCode ->
-            if (existingContractLines.find { existingContract -> existingContract.itemNo == itemCode } == null) {
+            if (existingContractLines.find { existingContract -> existingContract.getItemNo() == itemCode } == null) {
                 itemCodesToAdd.add(itemCode)
             }
         }

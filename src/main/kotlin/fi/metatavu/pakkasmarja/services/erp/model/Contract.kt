@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Data class for Contract
+ * Model class for Contract
  *
  * @author Jari Nykänen
+ * @author Antti Leppä
  */
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
