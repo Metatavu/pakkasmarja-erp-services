@@ -86,8 +86,6 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 val mapper = jacksonObjectMapper()
                 val payload = mapper.writeValueAsString(newContract)
 
-                logger.info("Creating new contract with payload: $payload")
-
                 val createdContract = createSapEntity(
                     targetClass = Contract::class.java,
                     item = payload,
@@ -113,9 +111,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
 
                 val resourceUpdateUrl = "$resourceUrl%28${contractToUpdate.getAgreementNo()}%29"
                 val wasApproved = contractToUpdate.getStatus() == "asApproved"
-
                 val payload = jacksonObjectMapper().writeValueAsString(contractForUpdate)
-                logger.info("Updating contract with payload: $payload")
 
                 if (wasApproved) {
                     logger.info("Contract was approved, updating it to on hold")
