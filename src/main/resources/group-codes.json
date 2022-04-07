@@ -30,5 +30,12 @@
     "property": 1,
     "isFrozen": true,
     "isOrganic": true
+  },
+  {
+    "comment": "304400/Mustaherukka",
+    "code": 108,
+    "property": 5,
+    "isFrozen": true,
+    "isOrganic": false
   }
 ]
