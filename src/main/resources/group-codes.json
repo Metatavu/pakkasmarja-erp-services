@@ -18,9 +18,17 @@
     "isOrganic": false
   },
   {
+    "comment": "304100/Mansikka",
     "code": 105,
     "property": 1,
     "isFrozen": true,
     "isOrganic": false
+  },
+  {
+    "comment": "304100/Mansikka",
+    "code": 105,
+    "property": 1,
+    "isFrozen": true,
+    "isOrganic": true
   }
 ]
