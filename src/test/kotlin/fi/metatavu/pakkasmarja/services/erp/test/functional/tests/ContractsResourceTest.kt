@@ -51,7 +51,7 @@ class ContractsResourceTest: AbstractResourceTest() {
                 assertEquals("2022-12-31", contractToTest.endDate)
                 assertEquals("2022-12-31", contractToTest.terminateDate)
                 assertEquals("Some remarks", contractToTest.remarks)
-                assertEquals("2022-1", contractToTest.id)
+                assertEquals("2022-1-100", contractToTest.id)
                 assertEquals(0.0, contractToTest.deliveredQuantity)
                 assertEquals(100, contractToTest.itemGroupCode)
 
@@ -85,7 +85,7 @@ class ContractsResourceTest: AbstractResourceTest() {
             SapMock().use { sapMock ->
                 sapMock.mockItems("1", "2", "3")
                 val newContract = SapContract(
-                    id = "2022-1",
+                    id = "2022-1-100",
                     businessPartnerCode = 122,
                     contactPersonCode = 122,
                     itemGroupCode = 100,
@@ -116,7 +116,7 @@ class ContractsResourceTest: AbstractResourceTest() {
                 sapMock.mockItems("1", "2", "3")
                 sapMock.mockContracts("6")
                 val newContract = SapContract(
-                    id = "2022-6",
+                    id = "2022-6-100",
                     businessPartnerCode = 23,
                     contactPersonCode = 64,
                     itemGroupCode = 100,
