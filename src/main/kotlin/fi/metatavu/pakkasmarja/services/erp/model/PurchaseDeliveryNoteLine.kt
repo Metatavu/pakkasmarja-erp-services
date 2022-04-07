@@ -14,6 +14,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
+@Suppress("common-java:DuplicatedBlocks")
 class PurchaseDeliveryNoteLine() {
 
     @JsonProperty("ItemCode")
