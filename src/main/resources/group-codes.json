@@ -61,5 +61,12 @@
     "property": 2,
     "isOrganic": false,
     "isFrozen": false
+  },
+  {
+    "comment": "304700/Karviainen, p",
+    "code": 111,
+    "property": 11,
+    "isOrganic": false,
+    "isFrozen": true
   }
 ]
