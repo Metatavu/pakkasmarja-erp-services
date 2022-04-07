@@ -96,10 +96,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                     routeId = sapSession.routeId
                 )
 
-                spreadContract(
+                val createdContracts = spreadContract(
                     sapSession = sapSession,
                     contract = createdContract
-                ).first()
+                )
+
+                return createdContracts.find { it.itemGroupCode == sapContract.itemGroupCode }
             } else {
                 val contractToUpdate = contracts.first()
 
@@ -132,10 +134,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                         routeId = sapSession.routeId
                     )
 
-                    spreadContract(
+                    val updatedContracts = spreadContract(
                         sapSession = sapSession,
                         contract = contractForUpdate
-                    ).first()
+                    )
+
+                    return updatedContracts.find { it.itemGroupCode == sapContract.itemGroupCode }
                 } finally {
                     if (wasApproved) {
                         logger.info("Contract was approved, updating it back to approved")

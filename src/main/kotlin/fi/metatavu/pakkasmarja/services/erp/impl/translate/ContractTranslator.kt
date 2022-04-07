@@ -26,7 +26,7 @@ class ContractTranslator: AbstractTranslator<SAPItemGroupContract, SapContract>(
         val year = startDate?.year.toString()
 
         return SapContract(
-            id = "$year-${sapEntity.docNum}",
+            id = "$year-${sapEntity.docNum}-${sapEntity.itemGroupCode}",
             businessPartnerCode = sapEntity.bPCode.toInt(),
             contactPersonCode = sapEntity.contactPersonCode?: 0,
             itemGroupCode = sapEntity.itemGroupCode ?: 0,
