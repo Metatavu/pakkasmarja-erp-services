@@ -54,7 +54,7 @@ class ItemsApiImpl: ItemsApi, AbstractApi() {
         val foundItem = sapSessionController.createSapSession().use { sapSession ->
             itemsController.findItem(
                 sapSession = sapSession,
-                sapId = sapId
+                itemCode = sapId
             ) ?: return createNotFound("Sap item with ID: $sapId could not be found")
         }
 

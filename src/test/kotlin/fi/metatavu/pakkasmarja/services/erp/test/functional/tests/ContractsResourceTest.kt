@@ -55,14 +55,24 @@ class ContractsResourceTest: AbstractResourceTest() {
                 assertEquals(0.0, contractToTest.deliveredQuantity)
                 assertEquals(100, contractToTest.itemGroupCode)
 
-                val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
-                assertEquals(4, filteredContracts.size)
-                assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)
-
                 it.nullAccess.contracts.assertListFailStatus(401)
                 it.invalidAccess.contracts.assertListFailStatus(401)
             }
 
+        }
+    }
+
+    @Test
+    fun testListContractsByStatus() {
+        createTestBuilder().use {
+            SapMock().use { sapMock ->
+                sapMock.mockItems("1", "2", "3")
+                sapMock.mockContracts("1", "2", "3", "4", "5")
+
+                val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
+                assertEquals(4, filteredContracts.size)
+                assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)
+            }
         }
     }
 
