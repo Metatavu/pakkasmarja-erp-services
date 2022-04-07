@@ -147,6 +147,16 @@ class ItemsController: AbstractSapResourceController<Item>() {
     }
 
     /**
+     * Returns whether given item group code is valid or not
+     *
+     * @param itemGroupCode item group code
+     * @return whether given item group code is valid or not
+     */
+    fun isValidItemGroupCode(itemGroupCode: Int): Boolean {
+        return findItemGroupProperty(itemGroupCode) != null
+    }
+
+    /**
      * Finds item group property settings by group code
      *
      * @param itemGroupCode item group code or null

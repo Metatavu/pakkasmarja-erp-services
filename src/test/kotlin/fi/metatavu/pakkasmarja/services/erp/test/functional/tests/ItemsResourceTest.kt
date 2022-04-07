@@ -51,14 +51,6 @@ class ItemsResourceTest: AbstractResourceTest() {
                 )
                 assertEquals(3, allItems.size)
 
-                val emptyList = it.manager.items.list(
-                    itemGroupCode = 9999,
-                    updatedAfter = null,
-                    firstResult = null,
-                    maxResults = null
-                )
-                assertEquals(0, emptyList.size)
-
                val oneItem = it.manager.items.list(
                     itemGroupCode = null,
                     updatedAfter = getTestDate(),
@@ -85,6 +77,14 @@ class ItemsResourceTest: AbstractResourceTest() {
                 )
                 assertEquals(1, filterFirstAndMax.size)
                 assertEquals(3, filterFirstAndMax[0].code)
+
+                it.manager.items.assertListFailStatus(
+                    expectedStatus = 400,
+                    itemGroupCode = 9999,
+                    updatedAfter = null,
+                    firstResult = null,
+                    maxResults = null
+                )
 
                 it.invalidAccess.items.assertListFailStatus(
                     expectedStatus = 401,

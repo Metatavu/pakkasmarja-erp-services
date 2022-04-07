@@ -5,6 +5,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ContractsApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.ContractTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.ContractsController
+import fi.metatavu.pakkasmarja.services.erp.sap.ItemsController
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import io.quarkus.security.Authenticated
 import java.time.LocalDate
@@ -31,6 +32,9 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
     @Inject
     lateinit var sapSessionController: SapSessionController
 
+    @Inject
+    lateinit var itemsController: ItemsController
+
     override fun listContracts(
         startDate: LocalDate?,
         businessPartnerCode: String?,
@@ -49,6 +53,10 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
     }
 
     override fun createContract(sapContract: SapContract): Response {
+        if (!itemsController.isValidItemGroupCode(itemGroupCode = sapContract.itemGroupCode)) {
+            return createBadRequest("Item group code ${sapContract.itemGroupCode} is not valid")
+        }
+
         val newContract = sapSessionController.createSapSession().use { sapSession ->
             contractsController.createContract(
                 sapSession = sapSession,
