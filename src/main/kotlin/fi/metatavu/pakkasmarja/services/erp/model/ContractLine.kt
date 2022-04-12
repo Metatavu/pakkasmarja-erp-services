@@ -1,23 +1,88 @@
 package fi.metatavu.pakkasmarja.services.erp.model
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.quarkus.runtime.annotations.RegisterForReflection
 
 /**
- * Data class ContractLine
+ * Model class ContractLine
  *
  * @author Jari Nykänen
+ * @author Antti Leppä
  */
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class ContractLine(
+class ContractLine() {
+
     @JsonProperty("ItemNo")
-    val itemNo: String,
+    private var itemNo: String? = null
+
     @JsonProperty("PlannedQuantity")
-    val plannedQuantity: Double,
+    private var plannedQuantity: Double? = null
+
     @JsonProperty("CumulativeQuantity")
-    val cumulativeQuantity: Double,
+    private var cumulativeQuantity: Double? = null
+
     @JsonProperty("ShippingType")
-    val shippingType: Int
-)
+    private var shippingType: Int? = null
+
+    private var additionalFields: MutableMap<String, Any?> = mutableMapOf()
+
+    constructor(
+        itemNo: String?,
+        plannedQuantity: Double?,
+        cumulativeQuantity: Double?,
+        shippingType: Int?,
+        additionalFields: MutableMap<String, Any?>
+    ) : this() {
+        this.itemNo = itemNo
+        this.plannedQuantity = plannedQuantity
+        this.cumulativeQuantity = cumulativeQuantity
+        this.shippingType = shippingType
+        this.additionalFields = additionalFields
+    }
+
+    fun getItemNo(): String? {
+        return itemNo
+    }
+
+    fun setItemNo(itemNo: String?) {
+        this.itemNo = itemNo
+    }
+
+    fun getPlannedQuantity(): Double? {
+        return plannedQuantity
+    }
+
+    fun setPlannedQuantity(plannedQuantity: Double?) {
+        this.plannedQuantity = plannedQuantity
+    }
+
+    fun getCumulativeQuantity(): Double? {
+        return cumulativeQuantity
+    }
+
+    fun setCumulativeQuantity(cumulativeQuantity: Double?) {
+        this.cumulativeQuantity = cumulativeQuantity
+    }
+
+    fun getShippingType(): Int? {
+        return shippingType
+    }
+
+    fun setShippingType(shippingType: Int?) {
+        this.shippingType = shippingType
+    }
+
+    @JsonAnyGetter
+    fun getAdditionalFields(): MutableMap<String, Any?> {
+        return additionalFields
+    }
+
+    @JsonAnySetter
+    fun setAdditionalFields(name: String, value: Any?) {
+        this.additionalFields[name] = value
+    }
+}

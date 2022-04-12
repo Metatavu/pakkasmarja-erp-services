@@ -24,16 +24,16 @@ class StockTransferTranslator: AbstractTranslator<StockTransfer, SapStockTransfe
      * @return translated contract
      */
     override fun translate(sapEntity: StockTransfer): SapStockTransfer {
-        val docDate = LocalDate.from(DateTimeFormatter.ISO_DATE.parse(sapEntity.docDate))
+        val docDate = LocalDate.from(DateTimeFormatter.ISO_DATE.parse(sapEntity.getDocDate()))
 
         return SapStockTransfer(
             docDate = docDate,
-            businessPartnerCode = sapEntity.cardCode.toInt(),
-            salesPersonCode = sapEntity.salesPersonCode,
-            fromWarehouse = sapEntity.fromWarehouse,
-            toWarehouse = sapEntity.toWarehouse,
-            comments = sapEntity.comments,
-            lines = sapEntity.stockTransferLines.map {
+            businessPartnerCode = sapEntity.getCardCode()?.toInt() ?: 0,
+            salesPersonCode = sapEntity.getSalesPersonCode() ?: 0,
+            fromWarehouse = sapEntity.getFromWarehouse() ?: "",
+            toWarehouse = sapEntity.getToWarehouse() ?: "",
+            comments = sapEntity.getComments(),
+            lines = sapEntity.getStockTransferLines().map {
                 this.translateLine(
                     line = it
                 )
@@ -49,9 +49,9 @@ class StockTransferTranslator: AbstractTranslator<StockTransfer, SapStockTransfe
      */
     private fun translateLine(line: StockTransferLine): SapStockTransferLine {
         return SapStockTransferLine(
-            itemCode = line.itemCode.toInt(),
-            quantity = line.quantity,
-            binAllocations = line.stockTransferLinesBinAllocations.map(this::translateBinAllocation)
+            itemCode = line.getItemCode()?.toInt() ?: 0,
+            quantity = line.getQuantity() ?: 0.0,
+            binAllocations = line.getStockTransferLinesBinAllocations().map(this::translateBinAllocation)
         )
     }
 
@@ -62,13 +62,13 @@ class StockTransferTranslator: AbstractTranslator<StockTransfer, SapStockTransfe
      * @return translated bin allocation
      */
     private fun translateBinAllocation(sapEntity: StockTransferLinesBinAllocation): SapStockTransferLineBinAllocation {
-        val actionType = when (sapEntity.binActionType) {
+        val actionType = when (sapEntity.getBinActionType()!!) {
             fi.metatavu.pakkasmarja.services.erp.model.BinActionType.batFromWarehouse -> BinActionType.FROM_WAREHOUSE
             fi.metatavu.pakkasmarja.services.erp.model.BinActionType.batToWarehouse -> BinActionType.TO_WAREHOUSE
         }
 
         return SapStockTransferLineBinAllocation(
-            absEntry = sapEntity.binAbsEntry,
+            absEntry = sapEntity.getBinAbsEntry() ?: 0,
             actionType = actionType
         )
     }

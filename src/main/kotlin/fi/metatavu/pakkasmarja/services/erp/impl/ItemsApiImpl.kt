@@ -37,6 +37,10 @@ class ItemsApiImpl: ItemsApi, AbstractApi() {
         firstResult: Int?,
         maxResults: Int?
     ): Response {
+        if (itemGroupCode != null && !itemsController.isValidItemGroupCode(itemGroupCode = itemGroupCode)) {
+             return createBadRequest("Item group code $itemGroupCode is not valid")
+        }
+
         val items = sapSessionController.createSapSession().use { sapSession ->
             itemsController.listItems(
                 sapSession = sapSession,
@@ -54,7 +58,7 @@ class ItemsApiImpl: ItemsApi, AbstractApi() {
         val foundItem = sapSessionController.createSapSession().use { sapSession ->
             itemsController.findItem(
                 sapSession = sapSession,
-                sapId = sapId
+                itemCode = sapId
             ) ?: return createNotFound("Sap item with ID: $sapId could not be found")
         }
 

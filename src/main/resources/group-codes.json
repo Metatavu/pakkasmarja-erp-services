@@ -1,26 +1,72 @@
 [
   {
+    "comment": "Test",
     "code": 100,
     "property": 1,
     "isFrozen": false,
     "isOrganic": true
   },
   {
+    "comment": "Test",
     "code": 101,
     "property": 2,
     "isFrozen": false,
     "isOrganic": false
   },
   {
+    "comment": "Test",
     "code": 102,
     "property": 3,
     "isFrozen": true,
     "isOrganic": false
   },
   {
+    "comment": "304100/Mansikka",
     "code": 105,
     "property": 1,
-    "isFrozen": true,
-    "isOrganic": false
+    "isOrganic": false,
+    "isFrozen": true
+  },
+  {
+    "comment": "304100/Mansikka",
+    "code": 105,
+    "property": 1,
+    "isOrganic": true,
+    "isFrozen": true
+  },
+  {
+    "comment": "304400/Mustaherukka",
+    "code": 108,
+    "property": 5,
+    "isOrganic": false,
+    "isFrozen": true
+  },
+  {
+    "comment": "304500/Punaherukka",
+    "code": 109,
+    "property": 7,
+    "isOrganic": false,
+    "isFrozen": true
+  },
+  {
+    "comment": "304600/Vadelma punai",
+    "code": 110,
+    "property": 2,
+    "isOrganic": true,
+    "isFrozen": false
+  },
+  {
+    "comment": "304600/Vadelma punai",
+    "code": 110,
+    "property": 2,
+    "isOrganic": false,
+    "isFrozen": false
+  },
+  {
+    "comment": "304700/Karviainen, p",
+    "code": 111,
+    "property": 11,
+    "isOrganic": false,
+    "isFrozen": true
   }
 ]

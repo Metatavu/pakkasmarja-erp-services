@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.model.GroupProperty
 import fi.metatavu.pakkasmarja.services.erp.model.Item
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import java.time.OffsetDateTime
 import javax.enterprise.context.ApplicationScoped
@@ -56,30 +57,19 @@ class ItemsController: AbstractSapResourceController<Item>() {
      * Find item from SAP with given SAP ID
      *
      * @param sapSession SAP session
-     * @param sapId SAP ID to search
+     * @param itemCode SAP item code
      * @return found sap item or null
      */
     fun findItem(
         sapSession: SapSession,
-        sapId: Int
+        itemCode: Int
     ): Item? {
         return findSapEntity(
             targetClass = Item::class.java,
-            itemUrl = "${sapSession.apiUrl}/Items('$sapId')",
+            itemUrl = "${sapSession.apiUrl}/Items('$itemCode')",
             sessionId = sapSession.sessionId,
             routeId = sapSession.routeId
         )
-    }
-
-    /**
-     * Find item from item list
-     *
-     * @param items list of items
-     * @param itemCode item code to search for
-     * @return found item or null
-     */
-    fun findItemFromItemList(items: List<Item>, itemCode: String?): Item? {
-        return items.find { item -> item.itemCode == itemCode }
     }
 
     /**
@@ -107,8 +97,17 @@ class ItemsController: AbstractSapResourceController<Item>() {
         val filterList = mutableListOf<String>()
 
         if (itemGroupCode != null) {
-            val property = findItemPropertyFilterByGroupCode(itemGroupCode)
-            filterList.add("$property eq SAPB1.BoYesNoEnum'tYES'")
+            val property = findItemGroupProperty(itemGroupCode)
+            property ?: throw SapItemFetchException("Item group code $itemGroupCode not found")
+
+            filterList.add("Properties${property.property} eq SAPB1.BoYesNoEnum'tYES'")
+            if (property.isFrozen) {
+                filterList.add("Properties28 eq SAPB1.BoYesNoEnum'tYES'")
+            }
+
+            if (property.isOrganic) {
+                filterList.add("Properties21 eq SAPB1.BoYesNoEnum'tYES'")
+            }
         }
 
         if (updatedAfter != null) {
@@ -148,15 +147,24 @@ class ItemsController: AbstractSapResourceController<Item>() {
     }
 
     /**
-     * Constructs item select string
+     * Returns whether given item group code is valid or not
+     *
+     * @param itemGroupCode item group code
+     * @return whether given item group code is valid or not
+     */
+    fun isValidItemGroupCode(itemGroupCode: Int): Boolean {
+        return findItemGroupProperty(itemGroupCode) != null
+    }
+
+    /**
+     * Finds item group property settings by group code
      *
      * @param itemGroupCode item group code or null
-     * @return constructed select string or null if something failed during construction
+     * @return item group property settings
      */
-    private fun findItemPropertyFilterByGroupCode(itemGroupCode: Int): String {
+    private fun findItemGroupProperty(itemGroupCode: Int): GroupProperty? {
         val groupProperties = configController.getGroupPropertiesFromConfigFile()
-        val foundGroup = groupProperties.find { property -> property.code == itemGroupCode } ?: return ""
-        return "Properties${foundGroup.property}"
+        return groupProperties.find { property -> property.code == itemGroupCode }
     }
 
     /**

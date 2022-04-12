@@ -26,10 +26,10 @@ class ContractTranslator: AbstractTranslator<SAPItemGroupContract, SapContract>(
         val year = startDate?.year.toString()
 
         return SapContract(
-            id = "$year-${sapEntity.docNum}",
+            id = "$year-${sapEntity.docNum}-${sapEntity.itemGroupCode}",
             businessPartnerCode = sapEntity.bPCode.toInt(),
-            contactPersonCode = sapEntity.contactPersonCode,
-            itemGroupCode = sapEntity.itemGroupCode,
+            contactPersonCode = sapEntity.contactPersonCode?: 0,
+            itemGroupCode = sapEntity.itemGroupCode ?: 0,
             status = resolveContractStatus(sapEntity.status)!!,
             deliveredQuantity = sapEntity.cumulativeQuantity,
             startDate = startDate,
@@ -46,7 +46,7 @@ class ContractTranslator: AbstractTranslator<SAPItemGroupContract, SapContract>(
      * @param status status from SAP
      * @return translated status
      */
-    private fun resolveContractStatus(status: String): SapContractStatus? {
+    private fun resolveContractStatus(status: String?): SapContractStatus? {
         return when (status) {
             "asApproved" -> SapContractStatus.APPROVED
             "asDraft" -> SapContractStatus.DRAFT

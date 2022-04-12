@@ -44,21 +44,16 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             contractStatus = contractStatus
         )
 
-        val items = itemsController.listItems(
-            sapSession = sapSession,
-            itemGroupCode = null,
-            updatedAfter = null,
-            firstResult = null,
-            maxResults = null
-        )
-
         val contracts = if (combinedFilter.isEmpty()) {
             getContracts(resourceUrl = resourceUrl, sapSession = sapSession, filter = null)
         } else {
             getContracts(resourceUrl = resourceUrl, sapSession = sapSession, filter = "\$filter=$combinedFilter")
         }
 
-        return spreadContracts(contracts = contracts, items = items)
+        return spreadContracts (
+            sapSession = sapSession,
+            contracts = contracts
+        )
     }
 
     /**
@@ -82,14 +77,6 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 filter = filter
             )
 
-            val items = itemsController.listItems(
-                sapSession = sapSession,
-                itemGroupCode = null,
-                updatedAfter = null,
-                firstResult = null,
-                maxResults = null
-            )
-
             if (contracts.isEmpty()) {
                 val newContract = buildNewSapContract(
                     sapContract = sapContract,
@@ -97,35 +84,68 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 )
 
                 val mapper = jacksonObjectMapper()
-                val contractString = mapper.writeValueAsString(newContract)
+                val payload = mapper.writeValueAsString(newContract)
+
                 val createdContract = createSapEntity(
                     targetClass = Contract::class.java,
-                    item = contractString,
+                    item = payload,
                     resourceUrl = resourceUrl,
                     sessionId = sapSession.sessionId,
                     routeId = sapSession.routeId
                 )
 
-                spreadContract(contract = createdContract, items = items)[0]
+                val createdContracts = spreadContract(
+                    sapSession = sapSession,
+                    contract = createdContract
+                )
+
+                return createdContracts.find { it.itemGroupCode == sapContract.itemGroupCode }
             } else {
                 val contractToUpdate = contracts.first()
+
                 val contractForUpdate = buildContractForUpdate(
                     contractToUpdate = contractToUpdate,
                     newData = sapContract,
                     sapSession = sapSession
                 )
 
+                val resourceUpdateUrl = "$resourceUrl%28${contractToUpdate.getAgreementNo()}%29"
+                val wasApproved = contractToUpdate.getStatus() == "asApproved"
                 val payload = jacksonObjectMapper().writeValueAsString(contractForUpdate)
 
-                val updatedItem = updateSapEntity(
-                    targetClass = Contract::class.java,
-                    item = payload,
-                    resourceUrl = "$resourceUrl%28${contractToUpdate.agreementNo}%29",
-                    sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
-                )
+                if (wasApproved) {
+                    logger.info("Contract was approved, updating it to on hold")
+                    updateContractStatus(
+                        sapSession = sapSession,
+                        resourceUrl = resourceUpdateUrl,
+                        status = SapContractStatus.ON_HOLD
+                    )
+                }
 
-                spreadContract(contract = updatedItem, items = items)[0]
+                try {
+                    updateSapEntity(
+                        item = payload,
+                        resourceUrl = resourceUpdateUrl,
+                        sessionId = sapSession.sessionId,
+                        routeId = sapSession.routeId
+                    )
+
+                    val updatedContracts = spreadContract(
+                        sapSession = sapSession,
+                        contract = contractForUpdate
+                    )
+
+                    return updatedContracts.find { it.itemGroupCode == sapContract.itemGroupCode }
+                } finally {
+                    if (wasApproved) {
+                        logger.info("Contract was approved, updating it back to approved")
+                        updateContractStatus(
+                            sapSession = sapSession,
+                            resourceUrl = resourceUpdateUrl,
+                            status = SapContractStatus.APPROVED
+                        )
+                    }
+                }
             }
         } catch (error: Exception) {
             logger.error("Error while creating SAP contract", error)
@@ -174,85 +194,108 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     private fun getCombinedFilter(startDate: LocalDate?, businessPartnerCode: String?, contractStatus: SapContractStatus?): String {
         val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
         val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
-        val contractStatusFilter = contractStatus?.let { "Status eq SAPB1.BlanketAgreementStatusEnum'${contractStatusToSapFormat(contractStatus)}'" }
+        val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
         return listOfNotNull(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).joinToString(" and ")
     }
 
     /**
      * Spreads contracts to one contract per item group
      *
+     * @param sapSession sap session
      * @param contracts contracts to spread
-     * @param items list of SAP items
      * @return spread
      */
-    private fun spreadContracts(contracts: List<Contract>, items: List<Item>): List<SAPItemGroupContract> {
-        val newContracts = mutableListOf<SAPItemGroupContract>()
-
-        contracts.forEach { contract ->
-            try {
-                val newContractsForThisContract = spreadContract(contract = contract, items = items)
-                newContracts.addAll(newContractsForThisContract)
-            } catch (e: Exception) {
-                logger.error("Failed to compress a contract from SAP: ${e.message}")
-            }
-        }
-
-        return newContracts
-    }
-
-    /**
-     * Spreads a contract to one contract per item group
-     *
-     * @param contract a contract to spread
-     * @param items items to use for spreading
-     * @return spread contract
-     */
-    private fun spreadContract(contract: Contract, items: List<Item>): List<SAPItemGroupContract> {
-        val itemGroupDeliveredQuantities = getItemGroupsFromContract(contract, items)
-
-        return itemGroupDeliveredQuantities.map { item ->
-            SAPItemGroupContract(
-                startDate = contract.startDate,
-                endDate = contract.endDate,
-                docNum = contract.docNum ?: 0,
-                bPCode = contract.bpCode,
-                contactPersonCode = contract.contactPersonCode,
-                status = contract.status,
-                signingDate = contract.signingDate,
-                terminateDate = contract.terminateDate,
-                remarks = contract.remarks,
-                agreementNo = contract.agreementNo ?: 0,
-                cumulativeQuantity = item.value,
-                itemGroupCode = item.key
+    private fun spreadContracts(
+        sapSession: SapSession,
+        contracts: List<Contract>
+    ): List<SAPItemGroupContract> {
+        return contracts.flatMap { contract ->
+            spreadContract(
+                sapSession = sapSession,
+                contract = contract
             )
         }
     }
 
     /**
-     * Gets item groups from contract
+     * Spreads a contract to one contract per item group
      *
-     * @param contract contract
-     * @param items list of items
-     * @return map of group code as key and cumulative quantity as value
+     * @param sapSession sap session
+     * @param contract a contract to spread
+     * @return spread contract
      */
-    private fun getItemGroupsFromContract(contract: Contract, items: List<Item>): Map<Int, Double> {
+    fun spreadContract(
+        sapSession: SapSession,
+        contract: Contract
+    ): List<SAPItemGroupContract> {
+        val itemGroupsWithQuantities = getContractItemGroupsWithQuantities(
+            sapSession = sapSession,
+            contract = contract
+        )
+
+        return itemGroupsWithQuantities.map { itemGroupWithQuantity ->
+            val itemGroupCode = itemGroupWithQuantity.key
+            val cumulativeQuantity = itemGroupWithQuantity.value
+
+            SAPItemGroupContract(
+                startDate = contract.getStartDate(),
+                endDate = contract.getEndDate(),
+                docNum = contract.getDocNum() ?: 0,
+                bPCode = contract.getBpCode()!!,
+                contactPersonCode = contract.getContactPersonCode(),
+                status = contract.getStatus(),
+                signingDate = contract.getSigningDate(),
+                terminateDate = contract.getTerminateDate(),
+                remarks = contract.getRemarks(),
+                agreementNo = contract.getAgreementNo() ?: 0,
+                cumulativeQuantity = cumulativeQuantity,
+                itemGroupCode = itemGroupCode
+            )
+        }
+    }
+
+    /**
+     * Returns map of contract item groups with cumulative quantities
+     *
+     * @param sapSession current active SAP session
+     * @param contract contract
+     * @return map of contract item groups with cumulative quantities
+     */
+    private fun getContractItemGroupsWithQuantities(
+        sapSession: SapSession,
+        contract: Contract
+    ): Map<Int, Double> {
         val itemGroupsInContract = mutableMapOf<Int, Double>()
-        val itemLines = contract.contractLines
         val groupProperties = configController.getGroupPropertiesFromConfigFile()
 
-        itemLines.forEach { itemLine ->
-            val item = itemsController.findItemFromItemList(items = items, itemCode = itemLine.itemNo)
+        contract.getContractLines().forEachIndexed { index, contractLine ->
+            val itemCode = contractLine.getItemNo()?.toInt()
+            if (itemCode == null) {
+                logger.error("Contract ${contract.getAgreementNo()} line $index does not have item code")
+                return@forEachIndexed
+            }
 
-            if (item != null) {
-                val itemGroupCode = itemsController.getItemGroupCode(item = item, groupProperties = groupProperties)
+            val item = itemsController.findItem(
+                sapSession = sapSession,
+                itemCode = itemCode
+            )
 
-                if (itemGroupCode != null) {
-                    if (!itemGroupsInContract.containsKey(itemGroupCode)) {
-                        itemGroupsInContract[itemGroupCode] = itemLine.cumulativeQuantity
-                    } else {
-                        itemGroupsInContract[itemGroupCode]?.plus(itemLine.cumulativeQuantity)
-                    }
-                }
+            if (item == null) {
+                logger.error("Could not find item with code $itemCode")
+                return@forEachIndexed
+            }
+
+            val itemGroupCode = itemsController.getItemGroupCode(item = item, groupProperties = groupProperties)
+            if (itemGroupCode == null) {
+                logger.error("Could not find item group for item $itemCode")
+                return@forEachIndexed
+            }
+
+            val cumulativeQuantity = contractLine.getCumulativeQuantity() ?: 0.0
+            if (!itemGroupsInContract.containsKey(itemGroupCode)) {
+                itemGroupsInContract[itemGroupCode] = cumulativeQuantity
+            } else {
+                itemGroupsInContract[itemGroupCode]?.plus(cumulativeQuantity)
             }
         }
 
@@ -284,21 +327,22 @@ class ContractsController: AbstractSapResourceController<Contract>() {
      */
     private fun buildContractForUpdate(contractToUpdate: Contract, newData: SapContract, sapSession: SapSession): Contract {
         val itemCodesToBeAdded = getGroupItemCodes(groupCode = newData.itemGroupCode, sapSession = sapSession)
-        val existingContractLines = contractToUpdate.contractLines
+        val existingContractLines = contractToUpdate.getContractLines()
         val itemCodesToAdd = mutableListOf<String>()
 
         itemCodesToBeAdded.map { itemCode ->
-            if (existingContractLines.find { existingContract -> existingContract.itemNo == itemCode } == null) {
+            if (existingContractLines.find { existingContract -> existingContract.getItemNo() == itemCode } == null) {
                 itemCodesToAdd.add(itemCode)
             }
         }
 
         val newLines = itemCodesToAdd.map { itemCode ->
             ContractLine(
-                itemNo = itemCode,
-                plannedQuantity = 1.0,
-                cumulativeQuantity = 0.0,
-                shippingType = -1
+                itemCode,
+                1.0,
+                0.0,
+                null,
+                mutableMapOf()
             )
         }
 
@@ -306,7 +350,20 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         allLines.addAll(existingContractLines)
         allLines.addAll(newLines)
 
-        return contractToUpdate.copy(contractLines = allLines)
+        return Contract(
+            contractToUpdate.getStartDate(),
+            contractToUpdate.getEndDate(),
+            contractToUpdate.getDocNum(),
+            contractToUpdate.getBpCode(),
+            contractToUpdate.getContactPersonCode(),
+            contractToUpdate.getStatus(),
+            contractToUpdate.getSigningDate(),
+            contractToUpdate.getTerminateDate(),
+            contractToUpdate.getRemarks(),
+            contractToUpdate.getAgreementNo(),
+            allLines,
+            contractToUpdate.getAdditionalFields()
+        )
     }
 
     /**
@@ -324,24 +381,27 @@ class ContractsController: AbstractSapResourceController<Contract>() {
 
         val lines = itemCodes.map { code ->
             ContractLine(
-                itemNo = code,
-                plannedQuantity = 1.0,
-                cumulativeQuantity = 0.0,
-                shippingType = -1
+                code,
+                1.0,
+                0.0,
+                null,
+                mutableMapOf()
             )
         }
 
         return Contract(
-            docNum = getDocNum(sapContract),
-            startDate = sapContract.startDate.toString(),
-            endDate = sapContract.endDate.toString(),
-            terminateDate = sapContract.terminateDate.toString(),
-            status = contractStatusToSapFormat(SapContractStatus.APPROVED),
-            bpCode = sapContract.businessPartnerCode.toString(),
-            contactPersonCode = sapContract.contactPersonCode,
-            remarks = sapContract.remarks ?: "",
-            signingDate = sapContract.signingDate.toString(),
-            contractLines = lines
+            sapContract.startDate.toString(),
+            sapContract.endDate.toString(),
+            getDocNum(sapContract),
+            sapContract.businessPartnerCode.toString(),
+            sapContract.contactPersonCode,
+            contractStatusToSapFormat(SapContractStatus.APPROVED),
+            sapContract.signingDate.toString(),
+            sapContract.terminateDate.toString(),
+            sapContract.remarks,
+            null,
+            lines,
+            mutableMapOf()
         )
     }
 
@@ -374,6 +434,23 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         }
 
         return parts[1].toIntOrNull()
+    }
+
+    /**
+     * Updates SAP contract status
+     *
+     * @param sapSession a SAP session to use
+     * @param resourceUrl SAP contract url
+     * @param status new status
+     */
+    private fun updateContractStatus(sapSession: SapSession, resourceUrl: String, status: SapContractStatus) {
+        val payload = jacksonObjectMapper().writeValueAsString(ContractStatus(status = contractStatusToSapFormat(status)))
+        patchSapEntity(
+            item = payload,
+            resourceUrl = resourceUrl,
+            sessionId = sapSession.sessionId,
+            routeId = sapSession.routeId
+        )
     }
 
 }

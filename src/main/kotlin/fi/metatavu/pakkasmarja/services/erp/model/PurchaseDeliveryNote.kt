@@ -14,22 +14,89 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
-data class PurchaseDeliveryNote (
+@Suppress("common-java:DuplicatedBlocks")
+class PurchaseDeliveryNote() {
+
     @JsonProperty("DocObjectCode")
-    val docObjectCode: String,
+    private var docObjectCode: String? = null
 
     @JsonProperty("DocDate")
-    val docDate: String,
+    private var docDate: String? = null
 
     @JsonProperty("CardCode")
-    val cardCode: String,
+    private var cardCode: String? = null
 
     @JsonProperty("Comments")
-    val comments: String?,
+    private var comments: String? = null
 
     @JsonProperty("SalesPersonCode")
-    val salesPersonCode: Int,
+    private var salesPersonCode: Int? = null
 
     @JsonProperty("DocumentLines")
-    val documentLines: List<PurchaseDeliveryNoteLine>
-)
+    private var documentLines: List<PurchaseDeliveryNoteLine> = listOf()
+
+    constructor(
+        docObjectCode: String?,
+        docDate: String?,
+        cardCode: String?,
+        comments: String?,
+        salesPersonCode: Int?,
+        documentLines: List<PurchaseDeliveryNoteLine>
+    ) : this() {
+        this.docObjectCode = docObjectCode
+        this.docDate = docDate
+        this.cardCode = cardCode
+        this.comments = comments
+        this.salesPersonCode = salesPersonCode
+        this.documentLines = documentLines
+    }
+
+    fun getDocObjectCode(): String? {
+        return docObjectCode
+    }
+
+    fun setDocObjectCode(docObjectCode: String?) {
+        this.docObjectCode = docObjectCode
+    }
+
+    fun getDocDate(): String? {
+        return docDate
+    }
+
+    fun setDocDate(docDate: String?) {
+        this.docDate = docDate
+    }
+
+    fun getCardCode(): String? {
+        return cardCode
+    }
+
+    fun setCardCode(cardCode: String?) {
+        this.cardCode = cardCode
+    }
+
+    fun getComments(): String? {
+        return comments
+    }
+
+    fun setComments(comments: String?) {
+        this.comments = comments
+    }
+
+    fun getSalesPersonCode(): Int? {
+        return salesPersonCode
+    }
+
+    fun setSalesPersonCode(salesPersonCode: Int?) {
+        this.salesPersonCode = salesPersonCode
+    }
+
+    fun getDocumentLines(): List<PurchaseDeliveryNoteLine> {
+        return documentLines
+    }
+
+    fun setDocumentLines(documentLines: List<PurchaseDeliveryNoteLine>) {
+        this.documentLines = documentLines
+    }
+
+}

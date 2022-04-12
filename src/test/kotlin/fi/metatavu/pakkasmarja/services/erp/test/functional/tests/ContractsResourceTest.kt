@@ -51,18 +51,28 @@ class ContractsResourceTest: AbstractResourceTest() {
                 assertEquals("2022-12-31", contractToTest.endDate)
                 assertEquals("2022-12-31", contractToTest.terminateDate)
                 assertEquals("Some remarks", contractToTest.remarks)
-                assertEquals("2022-1", contractToTest.id)
+                assertEquals("2022-1-100", contractToTest.id)
                 assertEquals(0.0, contractToTest.deliveredQuantity)
                 assertEquals(100, contractToTest.itemGroupCode)
-
-                val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
-                assertEquals(4, filteredContracts.size)
-                assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)
 
                 it.nullAccess.contracts.assertListFailStatus(401)
                 it.invalidAccess.contracts.assertListFailStatus(401)
             }
 
+        }
+    }
+
+    @Test
+    fun testListContractsByStatus() {
+        createTestBuilder().use {
+            SapMock().use { sapMock ->
+                sapMock.mockItems("1", "2", "3")
+                sapMock.mockContracts("1", "2", "3", "4", "5")
+
+                val filteredContracts = it.manager.contracts.list(sapContractStatus = SapContractStatus.APPROVED)
+                assertEquals(4, filteredContracts.size)
+                assertEquals(SapContractStatus.APPROVED, filteredContracts[0].status)
+            }
         }
     }
 
@@ -75,7 +85,7 @@ class ContractsResourceTest: AbstractResourceTest() {
             SapMock().use { sapMock ->
                 sapMock.mockItems("1", "2", "3")
                 val newContract = SapContract(
-                    id = "2022-1",
+                    id = "2022-1-100",
                     businessPartnerCode = 122,
                     contactPersonCode = 122,
                     itemGroupCode = 100,
@@ -106,7 +116,7 @@ class ContractsResourceTest: AbstractResourceTest() {
                 sapMock.mockItems("1", "2", "3")
                 sapMock.mockContracts("6")
                 val newContract = SapContract(
-                    id = "2022-6",
+                    id = "2022-6-100",
                     businessPartnerCode = 23,
                     contactPersonCode = 64,
                     itemGroupCode = 100,
