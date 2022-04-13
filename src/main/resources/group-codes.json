@@ -1,72 +1,66 @@
 [
   {
-    "comment": "Test",
+    "displayName": "Test",
     "code": 100,
-    "property": 1,
-    "isFrozen": false,
-    "isOrganic": true
+    "constraints": {
+      "Properties1": true,
+      "Properties21": true,
+      "Properties28": false
+    }
   },
   {
-    "comment": "Test",
+    "displayName": "Test",
     "code": 101,
-    "property": 2,
-    "isFrozen": false,
-    "isOrganic": false
+    "constraints": {
+      "Properties2": true,
+      "Properties21": false,
+      "Properties28": false
+    }
   },
   {
-    "comment": "Test",
+    "displayName": "Test",
     "code": 102,
-    "property": 3,
-    "isFrozen": true,
-    "isOrganic": false
+    "constraints": {
+      "Properties3": true,
+      "Properties21": false,
+      "Properties28": true
+    }
   },
   {
-    "comment": "304100/Mansikka",
-    "code": 105,
-    "property": 1,
-    "isOrganic": false,
-    "isFrozen": true
-  },
-  {
-    "comment": "304100/Mansikka",
-    "code": 105,
-    "property": 1,
-    "isOrganic": true,
-    "isFrozen": true
-  },
-  {
-    "comment": "304400/Mustaherukka",
+    "displayName": "Mustaherukka pakastukseen",
     "code": 108,
-    "property": 5,
-    "isOrganic": false,
-    "isFrozen": true
+    "constraints": {
+      "Properties5": true,
+      "Properties28": true,
+      "Properties35": false
+    }
   },
   {
-    "comment": "304500/Punaherukka",
-    "code": 109,
-    "property": 7,
-    "isOrganic": false,
-    "isFrozen": true
+    "displayName": "Punaherukka luomu pakastukseen",
+    "code": 149,
+    "constraints": {
+      "Properties7": true,
+      "Properties28": true,
+      "Properties35": true
+    }
   },
   {
-    "comment": "304600/Vadelma punai",
-    "code": 110,
-    "property": 2,
-    "isOrganic": true,
-    "isFrozen": false
+    "displayName": "Mansikka pakastukseen",
+    "code": 105,
+    "constraints": {
+      "Properties1": true,
+      "Properties28": true,
+      "Properties35": false
+    }
   },
   {
-    "comment": "304600/Vadelma punai",
-    "code": 110,
-    "property": 2,
-    "isOrganic": false,
-    "isFrozen": false
-  },
-  {
-    "comment": "304700/Karviainen, p",
-    "code": 111,
-    "property": 11,
-    "isOrganic": false,
-    "isFrozen": true
+    "displayName": "Mustaherukka lastenruokalaatu pakastukseen",
+    "code": 168,
+    "constraints": {
+      "Properties5": true,
+      "Properties28": true,
+      "Properties35": false,
+      "Properties36": true
+    }
   }
 ]
