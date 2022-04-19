@@ -87,6 +87,16 @@ class ItemsController: AbstractSapResourceController<Item>() {
     }
 
     /**
+     * Translates boolean value into sap string
+     *
+     * @param value boolean value
+     * @return sap string
+     */
+    private fun getSapBool(value: Boolean): String {
+        return if (value) "tYES" else "tNO"
+    }
+
+    /**
      * Constructs filter for SAP request
      *
      * @param updatedAfter updated after date or null
@@ -99,14 +109,8 @@ class ItemsController: AbstractSapResourceController<Item>() {
         if (itemGroupCode != null) {
             val property = findItemGroupProperty(itemGroupCode)
             property ?: throw SapItemFetchException("Item group code $itemGroupCode not found")
-
-            filterList.add("Properties${property.property} eq SAPB1.BoYesNoEnum'tYES'")
-            if (property.isFrozen) {
-                filterList.add("Properties28 eq SAPB1.BoYesNoEnum'tYES'")
-            }
-
-            if (property.isOrganic) {
-                filterList.add("Properties21 eq SAPB1.BoYesNoEnum'tYES'")
+            property.constraints.forEach { (propName, value) ->
+                filterList.add("$propName eq SAPB1.BoYesNoEnum'${getSapBool(value)}'")
             }
         }
 
@@ -129,19 +133,25 @@ class ItemsController: AbstractSapResourceController<Item>() {
      * @return group code or null
      */
     fun getItemGroupCode(item: Item, groupProperties: List<GroupProperty>): Int? {
-        val properties = getItemPropertyMap(item)
-        val itemIsOrganic = properties[21]
-        val itemIsFrozen = properties[28]
+        val itemProperties = getItemPropertyMap(item)
 
-        groupProperties.forEach { groupProperty ->
-            val groupIsFrozen = groupProperty.isFrozen
-            val groupIsOrganic = groupProperty.isOrganic
-            if (properties[groupProperty.property] == true && groupIsFrozen == itemIsFrozen && groupIsOrganic == itemIsOrganic) {
-                return groupProperty.code
+        group@ for (groupProperty in groupProperties) {
+            for ((constraintName, expected) in groupProperty.constraints) {
+                val property = constraintName.substringAfter("Properties").toIntOrNull()
+                if (property == null) {
+                    logger.error("Invalid property name $constraintName of ${groupProperty.displayName}")
+                    continue@group
+                }
+
+                if (itemProperties[property] != expected) {
+                    continue@group
+                }
             }
+
+            return groupProperty.code
         }
 
-        logger.error("Could not find group code for item ${item.itemCode} with properties: ${jacksonObjectMapper().writeValueAsString(properties)}, group properties: ${jacksonObjectMapper().writeValueAsString(groupProperties)}")
+        logger.error("Could not find group code for item ${item.itemCode} with properties: ${jacksonObjectMapper().writeValueAsString(itemProperties)}, group properties: ${jacksonObjectMapper().writeValueAsString(groupProperties)}")
 
         return null
     }
