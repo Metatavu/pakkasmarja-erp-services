@@ -93,7 +93,7 @@ class ItemsController: AbstractSapResourceController<Item>() {
      * @return sap string
      */
     private fun getSapBool(value: Boolean): String {
-        return if(value) "tYES" else "tNO"
+        return if (value) "tYES" else "tNO"
     }
 
     /**
@@ -136,14 +136,14 @@ class ItemsController: AbstractSapResourceController<Item>() {
         val itemProperties = getItemPropertyMap(item)
 
         group@ for (groupProperty in groupProperties) {
-            for ((constraintName, expectedTrue) in groupProperty.constraints) {
+            for ((constraintName, expected) in groupProperty.constraints) {
                 val property = constraintName.substringAfter("Properties").toIntOrNull()
                 if (property == null) {
                     logger.error("Invalid property name $constraintName of ${groupProperty.displayName}")
                     continue@group
                 }
 
-                if ((itemProperties[property] == false && expectedTrue) || (itemProperties[property] == true && !expectedTrue)) {
+                if (itemProperties[property] != expected) {
                     continue@group
                 }
             }
