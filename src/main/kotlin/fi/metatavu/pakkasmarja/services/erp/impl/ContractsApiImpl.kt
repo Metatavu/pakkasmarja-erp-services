@@ -7,8 +7,8 @@ import fi.metatavu.pakkasmarja.services.erp.impl.translate.ContractTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.ContractsController
 import fi.metatavu.pakkasmarja.services.erp.sap.ItemsController
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
-import io.quarkus.security.Authenticated
 import java.time.LocalDate
+import javax.annotation.security.RolesAllowed
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.transaction.Transactional
@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response
 @RequestScoped
 @Transactional
 @Suppress("unused")
-@Authenticated
+@RolesAllowed(UserRole.INTEGRATION.name)
 class ContractsApiImpl: ContractsApi, AbstractApi() {
 
     @Inject

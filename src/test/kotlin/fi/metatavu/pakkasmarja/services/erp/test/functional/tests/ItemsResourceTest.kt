@@ -9,7 +9,8 @@ import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalTime
 
 /**
  * Tests for items
@@ -51,7 +52,7 @@ class ItemsResourceTest: AbstractResourceTest() {
                 )
                 assertEquals(3, allItems.size)
 
-               val oneItem = it.manager.items.list(
+                val oneItem = it.manager.items.list(
                     itemGroupCode = null,
                     updatedAfter = getTestDate(),
                     firstResult = null,
@@ -101,6 +102,14 @@ class ItemsResourceTest: AbstractResourceTest() {
                     firstResult = null,
                     maxResults = null
                 )
+
+                it.user.items.assertListFailStatus(
+                    expectedStatus = 403,
+                    itemGroupCode = 102,
+                    updatedAfter = null,
+                    firstResult = null,
+                    maxResults = null
+                )
             }
 
         }
@@ -123,6 +132,7 @@ class ItemsResourceTest: AbstractResourceTest() {
                 it.manager.items.assertFindFailStatus(expectedStatus = 404, sapId = 9999)
                 it.nullAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
                 it.invalidAccess.items.assertFindFailStatus(expectedStatus = 401, sapId = 1)
+                it.user.items.assertFindFailStatus(expectedStatus = 403, sapId = 1)
             }
         }
     }
