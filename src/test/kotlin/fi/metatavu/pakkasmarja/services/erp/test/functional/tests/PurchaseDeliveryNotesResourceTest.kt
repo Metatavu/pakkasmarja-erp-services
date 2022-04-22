@@ -69,6 +69,10 @@ class PurchaseDeliveryNotesResourceTest: AbstractResourceTest() {
                 assertEquals(purchaseDeliveryNotePayload.lines[0].batchNumbers[0].batchNumber, purchaseDeliveryNote.lines[0].batchNumbers[0].batchNumber)
                 assertEquals(purchaseDeliveryNotePayload.lines[0].batchNumbers[0].quantity, purchaseDeliveryNote.lines[0].batchNumbers[0].quantity)
                 assertEquals(purchaseDeliveryNotePayload.comments, purchaseDeliveryNote.comments)
+
+                it.nullAccess.purchaseDeliveryNotes.assertCreateFail(401, purchaseDeliveryNotePayload)
+                it.invalidAccess.purchaseDeliveryNotes.assertCreateFail(401, purchaseDeliveryNotePayload)
+                it.user.purchaseDeliveryNotes.assertCreateFail(403, purchaseDeliveryNotePayload)
             }
         }
     }

@@ -78,6 +78,7 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
 
                 it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
                 it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
+                it.user.businessPartners.assertListFailStatus(expectedStatus = 403, updatedAfter = getTestDate())
             }
 
         }

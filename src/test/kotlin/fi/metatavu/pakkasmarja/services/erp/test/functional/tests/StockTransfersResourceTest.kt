@@ -75,6 +75,10 @@ class StockTransfersResourceTest: AbstractResourceTest() {
                 assertEquals(stockTransferPayload.lines[0].binAllocations[1].absEntry, stockTransfer.lines[0].binAllocations[1].absEntry)
                 assertEquals(stockTransferPayload.lines[0].binAllocations[1].actionType, stockTransfer.lines[0].binAllocations[1].actionType)
                 assertEquals(stockTransferPayload.comments, stockTransfer.comments)
+
+                it.nullAccess.stockTransfers.assertCreateFail(401, stockTransferPayload)
+                it.invalidAccess.stockTransfers.assertCreateFail(401, stockTransferPayload)
+                it.user.stockTransfers.assertCreateFail(403, stockTransferPayload)
             }
         }
     }

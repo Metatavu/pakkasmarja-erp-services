@@ -57,6 +57,7 @@ class ContractsResourceTest: AbstractResourceTest() {
 
                 it.nullAccess.contracts.assertListFailStatus(401)
                 it.invalidAccess.contracts.assertListFailStatus(401)
+                it.user.contracts.assertListFailStatus(403)
             }
 
         }
@@ -102,6 +103,7 @@ class ContractsResourceTest: AbstractResourceTest() {
                 assertEquals(newContract, createdContract)
                 it.nullAccess.contracts.assertCreateFailStatus(401)
                 it.invalidAccess.contracts.assertCreateFailStatus(401)
+                it.user.contracts.assertCreateFailStatus(403)
             }
         }
     }

@@ -4,8 +4,8 @@ import fi.metatavu.pakkasmarja.services.erp.api.spec.ItemsApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.ItemTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.ItemsController
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
-import io.quarkus.security.Authenticated
 import java.time.OffsetDateTime
+import javax.annotation.security.RolesAllowed
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.transaction.Transactional
@@ -19,7 +19,7 @@ import javax.ws.rs.core.Response
 @RequestScoped
 @Transactional
 @Suppress("unused")
-@Authenticated
+@RolesAllowed(UserRole.INTEGRATION.name)
 class ItemsApiImpl: ItemsApi, AbstractApi() {
 
     @Inject

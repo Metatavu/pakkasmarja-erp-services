@@ -16,6 +16,7 @@ import java.net.URL
  */
 class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenTestBuilder<ApiClient>() {
     val manager = createTestBuilderAuthentication(username = "manager", password = "test")
+    val user = createTestBuilderAuthentication(username = "user", password = "test")
     val nullAccess = TestBuilderAuthentication(this, NullAccessTokenProvider())
     val invalidAccess = TestBuilderAuthentication(this, InvalidAccessTokenProvider())
 
