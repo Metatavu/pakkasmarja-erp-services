@@ -105,6 +105,7 @@ class ItemsController: AbstractSapResourceController<Item>() {
      */
     private fun constructFilter(updatedAfter: OffsetDateTime?, itemGroupCode: Int?): String? {
         val filterList = mutableListOf<String>()
+        filterList.add("Properties64 eq SAPB1.BoYesNoEnum'tYES'")
 
         if (itemGroupCode != null) {
             val property = findItemGroupProperty(itemGroupCode)
