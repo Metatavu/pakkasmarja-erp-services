@@ -205,7 +205,6 @@
     "displayName": "Karhunvadelma tuore",
     "code": 167,
     "constraints": {
-      "Properties2": true,
       "Properties15": true,
       "Properties28": false,
       "Properties35": false
