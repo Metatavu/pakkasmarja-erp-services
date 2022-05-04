@@ -15,15 +15,15 @@ data class BusinessPartner(
     @JsonProperty("CardCode")
     val cardCode: String,
     @JsonProperty("CardName")
-    val cardName: String,
+    val cardName: String?,
     @JsonProperty("Phone1")
     val phone1: String?,
     @JsonProperty("Phone2")
     val phone2: String?,
     @JsonProperty("VatLiable")
-    val vatLiable: String,
+    val vatLiable: String?,
     @JsonProperty("FederalTaxID")
-    val federalTaxID: String,
+    val federalTaxID: String?,
     @JsonProperty("EmailAddress")
     val emailAddress: String?,
     @JsonProperty("CardForeignName")
