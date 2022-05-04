@@ -52,7 +52,7 @@ class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusiness
      * @param vatLiable vatLiable from SAP
      * @return translated vatLiable
      */
-    private fun translateVatLiable(vatLiable: String): SapBusinessPartner.VatLiable? {
+    private fun translateVatLiable(vatLiable: String?): SapBusinessPartner.VatLiable? {
         return when (vatLiable) {
             "vLiable" -> SapBusinessPartner.VatLiable.FI
             "vExempted" -> SapBusinessPartner.VatLiable.NOT_LIABLE
