@@ -172,14 +172,14 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             baseUrl = resourceUrl,
             select = "\$select=*",
             filter = filterString,
-            firstResult = null,
-            maxResults = null
+            firstResult = null
         )
 
         return  sapListRequest(
             targetClass = Contract::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
+            maxResults = null
         ) ?: return emptyList()
     }
 

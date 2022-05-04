@@ -35,7 +35,12 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
             SapMock().use { sapMock ->
                 sapMock.mockBusinessPartners("1", "2", "3")
 
-                val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = getTestDate())
+                val businessPartners = it.manager.businessPartners.listBusinessPartners(
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+
                 assertEquals(3, businessPartners.size)
 
                 val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
@@ -76,9 +81,26 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
                 assertEquals(3, withLegacyCode?.code)
                 assertEquals(12345, withLegacyCode?.legacyCode)
 
-                it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
-                it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = getTestDate())
-                it.user.businessPartners.assertListFailStatus(expectedStatus = 403, updatedAfter = getTestDate())
+                it.invalidAccess.businessPartners.assertListFailStatus(
+                    expectedStatus = 401,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+
+                it.nullAccess.businessPartners.assertListFailStatus(
+                    expectedStatus = 401,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+
+                it.user.businessPartners.assertListFailStatus(
+                    expectedStatus = 403,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
             }
 
         }

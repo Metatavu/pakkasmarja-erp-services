@@ -42,14 +42,14 @@ class ItemsController: AbstractSapResourceController<Item>() {
             sapSession = sapSession,
             updatedAfter = updatedAfter,
             itemGroupCode = itemGroupCode,
-            firstResult = firstResult,
-            maxResults = maxResults
+            firstResult = firstResult
         )
 
         return sapListRequest(
             targetClass = Item::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
+            maxResults = maxResults
         ) ?: return emptyList()
     }
 
@@ -185,15 +185,13 @@ class ItemsController: AbstractSapResourceController<Item>() {
      * @param updatedAfter updated after filter or null
      * @param itemGroupCode item group code or null
      * @param firstResult first result or null
-     * @param maxResults max results or null
      * @return list of SAP request URL
      */
     private fun constructItemRequestUrl(
         sapSession: SapSession,
         updatedAfter: OffsetDateTime?,
         itemGroupCode: Int?,
-        firstResult: Int?,
-        maxResults: Int?
+        firstResult: Int?
     ): String {
         val baseUrl = "${sapSession.apiUrl}/Items"
         val select = getItemPropertiesSelect()
@@ -203,8 +201,7 @@ class ItemsController: AbstractSapResourceController<Item>() {
             baseUrl = baseUrl,
             select = select,
             filter = filter,
-            firstResult = firstResult,
-            maxResults = maxResults
+            firstResult = firstResult
         )
     }
 

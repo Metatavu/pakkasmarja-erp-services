@@ -31,11 +31,13 @@ class BusinessPartnersApiImpl: BusinessPartnersApi, AbstractApi() {
     @Inject
     lateinit var sapSessionController: SapSessionController
 
-    override fun listBusinessPartners(updatedAfter: OffsetDateTime?): Response {
+    override fun listBusinessPartners(updatedAfter: OffsetDateTime?, firstResult: Int?, maxResults: Int?): Response {
         val businessPartners = sapSessionController.createSapSession().use { sapSession ->
             businessPartnersController.listBusinessPartners(
                 sapSession = sapSession,
-                updatedAfter = updatedAfter
+                updatedAfter = updatedAfter,
+                firstResult = firstResult ?: 0,
+                maxResults = maxResults ?: 10
             )
         }
 

@@ -16,11 +16,15 @@ class BusinessPartnersController: AbstractSapResourceController<BusinessPartner>
      *
      * @param sapSession SAP session
      * @param updatedAfter "updated after"-filter
+     * @param firstResult first result
+     * @param maxResults max results
      * @return business partners
      */
     fun listBusinessPartners(
         sapSession: SapSession,
-        updatedAfter: OffsetDateTime?
+        updatedAfter: OffsetDateTime?,
+        firstResult: Int,
+        maxResults: Int
     ): List<BusinessPartner> {
         val resourceUrl = "${sapSession.apiUrl}/BusinessPartners"
 
@@ -36,14 +40,14 @@ class BusinessPartnersController: AbstractSapResourceController<BusinessPartner>
             baseUrl = resourceUrl,
             select = select,
             filter = filter,
-            firstResult = null,
-            maxResults = null
+            firstResult = firstResult
         )
 
         return sapListRequest(
             targetClass = BusinessPartner::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
+            maxResults = maxResults
         ) ?: return emptyList()
     }
 
