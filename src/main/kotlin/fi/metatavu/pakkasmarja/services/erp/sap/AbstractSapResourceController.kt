@@ -161,14 +161,14 @@ abstract class AbstractSapResourceController <T> {
      * @param baseUrl base URL
      * @param select select string
      * @param filter filter string
+     * @param firstResult first result
      * @return list of SAP request URL
      */
     fun constructSAPRequestUrl(
         baseUrl: String,
         select: String,
         filter: String?,
-        firstResult: Int?,
-        maxResults: Int?
+        firstResult: Int?
     ): String {
         val list = mutableListOf<String>()
 
@@ -178,10 +178,6 @@ abstract class AbstractSapResourceController <T> {
 
         if (firstResult != null) {
             list.add("\$skip=$firstResult")
-        }
-
-        if (maxResults != null) {
-            list.add("\$top=$maxResults")
         }
 
         return if (list.size > 0) {
@@ -200,17 +196,25 @@ abstract class AbstractSapResourceController <T> {
      * @param <T> response generic type
      * @return list of items
      */
-    fun sapListRequest(targetClass: Class<T>, requestUrl: String, sapSession: SapSession): List<T>? {
+    fun sapListRequest(
+        targetClass: Class<T>,
+        requestUrl: String,
+        sapSession: SapSession,
+        maxResults: Int?
+    ): List<T>? {
         try {
             val client = HttpClient.newHttpClient()
 
-            val request = HttpRequest
+            val requestBuilder = HttpRequest
                 .newBuilder(URI.create(requestUrl))
                 .setHeader("Cookie", "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}")
                 .GET()
-                .build()
 
-            val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+            if (maxResults != null) {
+                requestBuilder.header("Prefer", "odata.maxpagesize=$maxResults")
+            }
+
+            val response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofByteArray())
 
             if (response.statusCode() != 200) {
                 return null
