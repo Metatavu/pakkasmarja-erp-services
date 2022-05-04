@@ -14,13 +14,13 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class BPAddress(
     @JsonProperty("AddressName")
-    val addressName: String,
+    val addressName: String?,
     @JsonProperty("AddressType")
     val addressType: String,
     @JsonProperty("Street")
-    val street: String,
+    val street: String?,
     @JsonProperty("ZipCode")
-    val zipCode: String,
+    val zipCode: String?,
     @JsonProperty("City")
-    val city: String
+    val city: String?
 )
