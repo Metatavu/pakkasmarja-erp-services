@@ -2,6 +2,7 @@ package fi.metatavu.pakkasmarja.services.erp.impl
 
 import fi.metatavu.pakkasmarja.services.erp.api.model.Error
 import org.eclipse.microprofile.jwt.JsonWebToken
+import org.slf4j.Logger
 import java.util.*
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
@@ -16,6 +17,9 @@ import javax.ws.rs.core.SecurityContext
  */
 @RequestScoped
 abstract class AbstractApi {
+
+    @Inject
+    lateinit var logger: Logger
 
     @Inject
     lateinit var jsonWebToken: JsonWebToken

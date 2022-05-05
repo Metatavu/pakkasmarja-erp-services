@@ -1,6 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapStockTransfer
 import fi.metatavu.pakkasmarja.services.erp.api.spec.StockTransfersApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.StockTransferTranslator
@@ -36,7 +37,12 @@ class StockTransfersApiImpl: StockTransfersApi, AbstractApi() {
                 sapSession = sapSession,
                 sapStockTransfer = sapStockTransfer
             )
-        } ?: return createInternalServerError("Failed to create stock transfer from ${ObjectMapper().writeValueAsString(sapStockTransfer)}")
+        }
+
+        if (result == null) {
+            logger.error("Failed to create stock transfer from ${ObjectMapper().registerModule(JavaTimeModule()).writeValueAsString(sapStockTransfer)}")
+            return createInternalServerError("Failed to create stock transfer")
+        }
 
         return createOk(stockTransferTranslator.translate(result))
     }

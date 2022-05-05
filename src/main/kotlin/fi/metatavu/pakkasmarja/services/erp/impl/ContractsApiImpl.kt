@@ -1,6 +1,7 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ContractsApi
@@ -62,7 +63,12 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
             contractsController.createContract(
                 sapSession = sapSession,
                 sapContract = sapContract
-            ) ?: return createInternalServerError("Error while creating contract from ${ObjectMapper().writeValueAsString(sapContract)}")
+            )
+        }
+
+        if (newContract == null) {
+            logger.error("Error while creating contract from ${ObjectMapper().registerModule(JavaTimeModule()).writeValueAsString(sapContract)}")
+            return createInternalServerError("Error while creating contract")
         }
 
         return createOk(contractTranslator.translate(newContract))
