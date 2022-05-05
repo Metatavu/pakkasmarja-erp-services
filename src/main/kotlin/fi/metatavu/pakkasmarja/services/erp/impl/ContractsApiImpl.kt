@@ -1,7 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ContractsApi
@@ -55,6 +54,8 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
     }
 
     override fun createContract(sapContract: SapContract): Response {
+        logger.info("Trying to create contract to SAP from request body ${jacksonObjectMapper().writeValueAsString(sapContract)}")
+
         if (!itemsController.isValidItemGroupCode(itemGroupCode = sapContract.itemGroupCode)) {
             return createBadRequest("Item group code ${sapContract.itemGroupCode} is not valid")
         }
@@ -64,12 +65,7 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
                 sapSession = sapSession,
                 sapContract = sapContract
             )
-        }
-
-        if (newContract == null) {
-            logger.error("Error while creating contract from ${ObjectMapper().registerModule(JavaTimeModule()).writeValueAsString(sapContract)}")
-            return createInternalServerError("Error while creating contract")
-        }
+        } ?: return createInternalServerError("Error while creating contract")
 
         return createOk(contractTranslator.translate(newContract))
     }
