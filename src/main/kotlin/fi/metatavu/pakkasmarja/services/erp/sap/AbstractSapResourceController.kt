@@ -133,7 +133,7 @@ abstract class AbstractSapResourceController <T> {
                 .build()
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-            if (response.statusCode() != 200) {
+            if (response.statusCode() !in 200..299) {
                 return null
             }
 
@@ -216,7 +216,7 @@ abstract class AbstractSapResourceController <T> {
 
             val response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofByteArray())
 
-            if (response.statusCode() != 200) {
+            if (response.statusCode() !in 200..299) {
                 return null
             }
 
@@ -289,7 +289,7 @@ abstract class AbstractSapResourceController <T> {
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
 
-        if (response.statusCode() != 204) {
+        if (response.statusCode() !in 200..299) {
             throw SapModificationException("Failed send PATCH request to $resourceUrl")
         }
     }
@@ -326,7 +326,7 @@ abstract class AbstractSapResourceController <T> {
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
         val body = response.body() ?: throw SapModificationException("Failed to fetch items from SAP: ${response.statusCode()}")
 
-        if (response.statusCode() != 200) {
+        if (response.statusCode() !in 200..299) {
             throw SapModificationException("Failed send POST request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
         }
 
@@ -364,7 +364,7 @@ abstract class AbstractSapResourceController <T> {
             .build()
 
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
-        if (response.statusCode() != 204) {
+        if (response.statusCode() !in 200..299) {
             throw SapModificationException("Failed send PUT request to $resourceUrl")
         }
     }
@@ -388,7 +388,7 @@ abstract class AbstractSapResourceController <T> {
 
             val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 
-            if (response.statusCode() != 200) {
+            if (response.statusCode() !in 200..299) {
                 return null
             }
 

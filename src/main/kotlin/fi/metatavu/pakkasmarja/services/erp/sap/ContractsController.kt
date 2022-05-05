@@ -381,11 +381,11 @@ class ContractsController: AbstractSapResourceController<Contract>() {
 
         val lines = itemCodes.map { code ->
             ContractLine(
-                code,
-                1.0,
-                0.0,
-                null,
-                mutableMapOf()
+                itemNo = code,
+                plannedQuantity = 1.0,
+                cumulativeQuantity = 0.0,
+                shippingType = null,
+                additionalFields = mutableMapOf()
             )
         }
 
