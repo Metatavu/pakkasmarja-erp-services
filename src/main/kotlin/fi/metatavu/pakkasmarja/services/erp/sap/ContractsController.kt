@@ -351,18 +351,18 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         allLines.addAll(newLines)
 
         return Contract(
-            contractToUpdate.getStartDate(),
-            contractToUpdate.getEndDate(),
-            contractToUpdate.getDocNum(),
-            contractToUpdate.getBpCode(),
-            contractToUpdate.getContactPersonCode(),
-            contractToUpdate.getStatus(),
-            contractToUpdate.getSigningDate(),
-            contractToUpdate.getTerminateDate(),
-            contractToUpdate.getRemarks(),
-            contractToUpdate.getAgreementNo(),
-            allLines,
-            contractToUpdate.getAdditionalFields()
+            startDate = contractToUpdate.getStartDate(),
+            endDate = contractToUpdate.getEndDate(),
+            docNum = contractToUpdate.getDocNum(),
+            bpCode = contractToUpdate.getBpCode(),
+            contactPersonCode = contractToUpdate.getContactPersonCode(),
+            status = contractToUpdate.getStatus(),
+            signingDate = contractToUpdate.getSigningDate(),
+            terminateDate = null,
+            remarks = contractToUpdate.getRemarks(),
+            agreementNo = contractToUpdate.getAgreementNo(),
+            contractLines = allLines,
+            additionalFields = contractToUpdate.getAdditionalFields()
         )
     }
 
@@ -390,18 +390,18 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         }
 
         return Contract(
-            sapContract.startDate.toString(),
-            sapContract.endDate.toString(),
-            getDocNum(sapContract),
-            sapContract.businessPartnerCode.toString(),
-            sapContract.contactPersonCode,
-            contractStatusToSapFormat(SapContractStatus.APPROVED),
-            sapContract.signingDate.toString(),
-            sapContract.terminateDate.toString(),
-            sapContract.remarks,
-            null,
-            lines,
-            mutableMapOf()
+            startDate = sapContract.startDate.toString(),
+            endDate = sapContract.endDate.toString(),
+            docNum = getDocNum(sapContract),
+            bpCode = sapContract.businessPartnerCode.toString(),
+            contactPersonCode = sapContract.contactPersonCode,
+            status = contractStatusToSapFormat(SapContractStatus.APPROVED),
+            signingDate = sapContract.signingDate.toString(),
+            terminateDate = null,
+            remarks = sapContract.remarks,
+            agreementNo = null,
+            contractLines = lines,
+            additionalFields = mutableMapOf()
         )
     }
 

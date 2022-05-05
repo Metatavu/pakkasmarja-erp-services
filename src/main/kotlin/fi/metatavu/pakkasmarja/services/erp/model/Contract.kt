@@ -1,8 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.model
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.*
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import io.quarkus.runtime.annotations.RegisterForReflection
@@ -16,6 +14,7 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  */
 @RegisterForReflection
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class Contract() {
 
     @JsonProperty("StartDate")
@@ -40,6 +39,7 @@ class Contract() {
     private var signingDate: String? = null
 
     @JsonProperty("TerminateDate")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private var terminateDate: String? = null
 
     @JsonProperty("Remarks")

@@ -94,7 +94,6 @@ class ContractsResourceTest: AbstractResourceTest() {
                     deliveredQuantity = 0.0,
                     startDate = "2022-01-01",
                     endDate = "2022-12-31",
-                    terminateDate = "2022-12-31",
                     signingDate = "2022-01-01",
                     remarks = "Remarks"
                 )
@@ -126,7 +125,6 @@ class ContractsResourceTest: AbstractResourceTest() {
                     deliveredQuantity = 0.0,
                     startDate = "2022-01-01",
                     endDate = "2022-12-31",
-                    terminateDate = "2022-12-31",
                     signingDate = "2022-01-01",
                     remarks = "Some remarks"
                 )
