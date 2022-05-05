@@ -1,5 +1,6 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapPurchaseDeliveryNote
 import fi.metatavu.pakkasmarja.services.erp.api.spec.PurchaseDeliveryNotesApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.PurchaseDeliveryNoteTranslator
@@ -35,7 +36,7 @@ class PurchaseDeliveryNotesApiImpl: PurchaseDeliveryNotesApi, AbstractApi() {
                 sapSession = sapSession,
                 sapPurchaseDeliveryNote = sapPurchaseDeliveryNote
             )
-        } ?: return createInternalServerError("Failed to create stock transfer")
+        } ?: return createInternalServerError("Failed to create purchase delivery note from ${ObjectMapper().writeValueAsString(sapPurchaseDeliveryNote)}")
 
         return createOk(purchaseDeliveryNoteTranslator.translate(result))
     }
