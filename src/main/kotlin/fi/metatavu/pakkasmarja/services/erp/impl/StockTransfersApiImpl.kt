@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapStockTransfer
 import fi.metatavu.pakkasmarja.services.erp.api.spec.StockTransfersApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.StockTransferTranslator
@@ -31,8 +30,6 @@ class StockTransfersApiImpl: StockTransfersApi, AbstractApi() {
     lateinit var sapSessionController: SapSessionController
 
     override fun createStockTransfer(sapStockTransfer: SapStockTransfer): Response {
-        logger.info("Trying to create stock transfer from request body ${jacksonObjectMapper().writeValueAsString(sapStockTransfer)}")
-
         val result = sapSessionController.createSapSession().use { sapSession ->
             stockTransfersController.createStockTransfer(
                 sapSession = sapSession,

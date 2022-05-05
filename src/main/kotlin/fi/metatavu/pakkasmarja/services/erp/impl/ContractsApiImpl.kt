@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContract
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ContractsApi
@@ -54,8 +53,6 @@ class ContractsApiImpl: ContractsApi, AbstractApi() {
     }
 
     override fun createContract(sapContract: SapContract): Response {
-        logger.info("Trying to create contract to SAP from request body ${jacksonObjectMapper().writeValueAsString(sapContract)}")
-
         if (!itemsController.isValidItemGroupCode(itemGroupCode = sapContract.itemGroupCode)) {
             return createBadRequest("Item group code ${sapContract.itemGroupCode} is not valid")
         }

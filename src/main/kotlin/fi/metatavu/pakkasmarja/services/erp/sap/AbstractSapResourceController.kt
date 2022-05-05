@@ -276,6 +276,9 @@ abstract class AbstractSapResourceController <T> {
         sessionId: String,
         routeId: String
     ) {
+        logger.info("Sending PATCH request to SAP: $resourceUrl")
+        logger.info("request body: $item")
+
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
@@ -309,6 +312,9 @@ abstract class AbstractSapResourceController <T> {
         sessionId: String,
         routeId: String
     ): T {
+        logger.info("Sending POST request to SAP: $resourceUrl")
+        logger.info("request body: $item")
+
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
@@ -346,6 +352,9 @@ abstract class AbstractSapResourceController <T> {
         sessionId: String,
         routeId: String
     ) {
+        logger.info("Sending PUT request to SAP: $resourceUrl")
+        logger.info("request body: $item")
+
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))

@@ -1,6 +1,5 @@
 package fi.metatavu.pakkasmarja.services.erp.impl
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapPurchaseDeliveryNote
 import fi.metatavu.pakkasmarja.services.erp.api.spec.PurchaseDeliveryNotesApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.PurchaseDeliveryNoteTranslator
@@ -31,8 +30,6 @@ class PurchaseDeliveryNotesApiImpl: PurchaseDeliveryNotesApi, AbstractApi() {
     lateinit var sapSessionController: SapSessionController
 
     override fun createPurchaseDeliveryNote(sapPurchaseDeliveryNote: SapPurchaseDeliveryNote): Response {
-        logger.info("Trying to create purchase delivery note from request body ${jacksonObjectMapper().writeValueAsString(sapPurchaseDeliveryNote)}")
-
         val result = sapSessionController.createSapSession().use { sapSession ->
             purchaseDeliveryNotesController.createPurchaseDeliveryNote(
                 sapSession = sapSession,
