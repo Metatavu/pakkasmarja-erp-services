@@ -359,7 +359,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             status = contractToUpdate.getStatus(),
             signingDate = contractToUpdate.getSigningDate(),
             terminateDate = null,
-            remarks = contractToUpdate.getRemarks(),
+            remarks = "${contractToUpdate.getRemarks()}\n${newData.remarks}",
             agreementNo = contractToUpdate.getAgreementNo(),
             contractLines = allLines,
             additionalFields = contractToUpdate.getAdditionalFields()
