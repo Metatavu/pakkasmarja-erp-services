@@ -69,7 +69,8 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     ): SAPItemGroupContract? {
         return try {
             val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
-            val filter = "\$filter=StartDate ge ${sapContract.startDate} and BPCode eq '${sapContract.businessPartnerCode}' and Status eq SAPB1.BlanketAgreementStatusEnum'asApproved'"
+            val startOfCurrentYear = LocalDate.now().withMonth(1).withDayOfMonth(1)
+            val filter = "\$filter=StartDate ge $startOfCurrentYear and BPCode eq '${sapContract.businessPartnerCode}' and Status eq SAPB1.BlanketAgreementStatusEnum'asApproved'"
 
             val contracts = getContracts(
                 resourceUrl = resourceUrl,
@@ -421,7 +422,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     }
 
     /**
-     * Reads doc nummer from sap contract
+     * Reads doc number from sap contract
      *
      * @param sapContract SAP contract
      * @return doc number
