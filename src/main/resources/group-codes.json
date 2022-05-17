@@ -1,0 +1,222 @@
+[
+  {
+    "displayName": "Test",
+    "code": 100,
+    "constraints": {
+      "Properties1": true,
+      "Properties21": true,
+      "Properties28": false
+    }
+  },
+  {
+    "displayName": "Test",
+    "code": 101,
+    "constraints": {
+      "Properties2": true,
+      "Properties21": false,
+      "Properties28": false
+    }
+  },
+  {
+    "displayName": "Test",
+    "code": 102,
+    "constraints": {
+      "Properties3": true,
+      "Properties21": false,
+      "Properties28": true
+    }
+  },
+  {
+    "displayName": "Mansikka pakastukseen",
+    "code": 105,
+    "constraints": {
+      "Properties1": true,
+      "Properties28": true,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Mustaherukka pakastukseen",
+    "code": 108,
+    "constraints": {
+      "Properties5": true,
+      "Properties28": true,
+      "Properties35": false,
+      "Properties36": false
+    }
+  },
+  {
+    "displayName": "Punaherukka pakastukseen",
+    "code": 109,
+    "constraints": {
+      "Properties7": true,
+      "Properties28": true,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Vadelma punainen pakastukseen",
+    "code": 110,
+    "constraints": {
+      "Properties2": true,
+      "Properties28": true,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Karviainen punainen pakastukseen",
+    "code": 111,
+    "constraints": {
+      "Properties11": true,
+      "Properties28": true,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Pensasmustikka pakastukseen",
+    "code": 113,
+    "constraints": {
+      "Properties4": true,
+      "Properties28": true,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Tyrni pakastukseen",
+    "code": 114,
+    "constraints": {
+      "Properties6": true,
+      "Properties28": true,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Raparperi pakastukseen",
+    "code": 116,
+    "constraints": {
+      "Properties14": true,
+      "Properties28": true,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Mansikka tuore",
+    "code": 144,
+    "constraints": {
+      "Properties1": true,
+      "Properties28": false,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Vadelma tuore",
+    "code": 145,
+    "constraints": {
+      "Properties2": true,
+      "Properties28": false,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Mansikka luomu pakastukseen",
+    "code": 147,
+    "constraints": {
+      "Properties1": true,
+      "Properties28": true,
+      "Properties35": true
+    }
+  },
+  {
+    "displayName": "Mustaherukka luomu pakastukseen",
+    "code": 148,
+    "constraints": {
+      "Properties5": true,
+      "Properties28": true,
+      "Properties35": true,
+      "Properties36": false
+    }
+  },
+  {
+    "displayName": "Punaherukka luomu pakastukseen",
+    "code": 149,
+    "constraints": {
+      "Properties7": true,
+      "Properties28": true,
+      "Properties35": true
+    }
+  },
+  {
+    "displayName": "Pensasmustikka tuore",
+    "code": 150,
+    "constraints": {
+      "Properties4": true,
+      "Properties28": false,
+      "Properties37": false
+    }
+  },
+  {
+    "displayName": "Vadelma luomu punainen pakastukseen",
+    "code": 157,
+    "constraints": {
+      "Properties2": true,
+      "Properties28": true,
+      "Properties35": true
+    }
+  },
+  {
+    "displayName": "Viherherukka luomu pakastukseen",
+    "code": 158,
+    "constraints": {
+      "Properties13": true,
+      "Properties28": true,
+      "Properties35": true
+    }
+  },
+  {
+    "displayName": "Mustaherukka tuore",
+    "code": 160,
+    "constraints": {
+      "Properties5": true,
+      "Properties28": false,
+      "Properties29": false,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Punaherukka tuore",
+    "code": 161,
+    "constraints": {
+      "Properties7": true,
+      "Properties28": false,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Mansikka luomu tuore",
+    "code": 166,
+    "constraints": {
+      "Properties1": true,
+      "Properties28": false,
+      "Properties32": false,
+      "Properties35": true
+    }
+  },
+  {
+    "displayName": "Karhunvadelma tuore",
+    "code": 167,
+    "constraints": {
+      "Properties15": true,
+      "Properties28": false,
+      "Properties35": false
+    }
+  },
+  {
+    "displayName": "Mustaherukka lastenruokalaatu pakastukseen",
+    "code": 168,
+    "constraints": {
+      "Properties5": true,
+      "Properties28": true,
+      "Properties36": true
+    }
+  }
+]

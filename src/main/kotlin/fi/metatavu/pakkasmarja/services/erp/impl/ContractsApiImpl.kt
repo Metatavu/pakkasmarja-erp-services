@@ -5,8 +5,10 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapContractStatus
 import fi.metatavu.pakkasmarja.services.erp.api.spec.ContractsApi
 import fi.metatavu.pakkasmarja.services.erp.impl.translate.ContractTranslator
 import fi.metatavu.pakkasmarja.services.erp.sap.ContractsController
-import io.quarkus.security.Authenticated
+import fi.metatavu.pakkasmarja.services.erp.sap.ItemsController
+import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSessionController
 import java.time.LocalDate
+import javax.annotation.security.RolesAllowed
 import javax.enterprise.context.RequestScoped
 import javax.inject.Inject
 import javax.transaction.Transactional
@@ -17,46 +19,56 @@ import javax.ws.rs.core.Response
  */
 @RequestScoped
 @Transactional
+@Suppress("unused")
+@RolesAllowed(UserRole.INTEGRATION.name)
 class ContractsApiImpl: ContractsApi, AbstractApi() {
 
     @Inject
-    private lateinit var contractsController: ContractsController
+    lateinit var contractsController: ContractsController
 
     @Inject
-    private lateinit var contractTranslator: ContractTranslator
+    lateinit var contractTranslator: ContractTranslator
 
-    @Authenticated
-    override fun createContract(sapContract: SapContract): Response {
-        val newContract = contractsController.createContract(sapContract = sapContract)
-        val translatedContract = contractTranslator.translate(newContract)
-        return createOk(translatedContract)
+    @Inject
+    lateinit var sapSessionController: SapSessionController
+
+    @Inject
+    lateinit var itemsController: ItemsController
+
+    override fun listContracts(
+        startDate: LocalDate?,
+        businessPartnerCode: String?,
+        contractStatus: SapContractStatus?
+    ): Response {
+        val contracts = sapSessionController.createSapSession().use { sapSession ->
+            contractsController.listContracts(
+                sapSession = sapSession,
+                startDate = startDate,
+                businessPartnerCode = businessPartnerCode,
+                contractStatus = contractStatus
+            )
+        }
+
+        return createOk(contracts.map(contractTranslator::translate))
     }
 
-    override fun deleteContract(sapId: String): Response {
-        TODO("Not yet implemented")
+    override fun createContract(sapContract: SapContract): Response {
+        if (!itemsController.isValidItemGroupCode(itemGroupCode = sapContract.itemGroupCode)) {
+            return createBadRequest("Item group code ${sapContract.itemGroupCode} is not valid")
+        }
+
+        val newContract = sapSessionController.createSapSession().use { sapSession ->
+            contractsController.createContract(
+                sapSession = sapSession,
+                sapContract = sapContract
+            )
+        } ?: return createInternalServerError("Error while creating contract")
+
+        return createOk(contractTranslator.translate(newContract))
     }
 
     override fun findContract(sapId: String): Response {
         TODO("Not yet implemented")
     }
 
-    @Authenticated
-    override fun listContracts(
-        startDate: LocalDate?,
-        businessPartnerCode: String?,
-        contractStatus: SapContractStatus?
-    ): Response {
-        val contracts = contractsController.listContracts(
-            startDate = startDate,
-            businessPartnerCode = businessPartnerCode,
-            contractStatus = contractStatus
-        )
-        val translatedContracts = contracts.mapNotNull(contractTranslator::translate)
-
-        return createOk(translatedContracts)
-    }
-
-    override fun updateContract(sapId: String, sapContract: SapContract): Response {
-        TODO("Not yet implemented")
-    }
 }

@@ -1,63 +1,39 @@
 package fi.metatavu.pakkasmarja.services.erp.impl.translate
 
-import com.fasterxml.jackson.databind.JsonNode
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddress
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapAddressType
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBankAccount
 import fi.metatavu.pakkasmarja.services.erp.api.model.SapBusinessPartner
-import org.jboss.logging.Logger
-import java.time.*
+import fi.metatavu.pakkasmarja.services.erp.model.BPAddress
+import fi.metatavu.pakkasmarja.services.erp.model.BPBankAccount
+import fi.metatavu.pakkasmarja.services.erp.model.BusinessPartner
 import javax.enterprise.context.ApplicationScoped
-import javax.inject.Inject
 
 /**
  * The translator class for SAP business partners
  */
 @ApplicationScoped
-class BusinessPartnerTranslator() {
-
-    @Inject
-    private lateinit var logger: Logger
+class BusinessPartnerTranslator: AbstractTranslator<BusinessPartner, SapBusinessPartner>() {
 
     /**
      * Translates a business partner from SAP into the format expected by spec
      *
-     * @param businessPartner business partner to be translated
+     * @param sapEntity business partner to be translated
      * @return translated business partner
      */
-    fun translate(businessPartner: JsonNode): SapBusinessPartner? {
-        return try {
-            SapBusinessPartner(
-                code = businessPartner.get("CardCode").asText().toInt(),
-                email = businessPartner.get("Email").asText(),
-                phoneNumbers = listOf(businessPartner.get("Phone1").asText(), businessPartner.get("Phone2").asText()),
-                addresses = businessPartner.get("BPAddresses").map(this::translateAddress),
-                companyName = businessPartner.get("CardName").asText(),
-                federalTaxId = businessPartner.get("FederalTaxID").asText(),
-                vatLiable = translateVatLiable(businessPartner.get("VatLiable").asText()),
-                updated = getUpdatedDateTime(businessPartner.get("UpdatedDate").asText(), businessPartner.get("UpdatedTime").asText()),
-                bankAccounts = businessPartner.get("BPBankAccounts").map(this::translateBankAccount)
-            )
-        } catch (e: Exception) {
-            logger.error("Failed to translate a business partner from SAP: ${e.message}")
-            null
-        }
-
-    }
-
-    /**
-     * Combines UpdatedDate and UpdatedTime from SAP into a single OffsetDateTime-object
-     *
-     * @param updatedDate updated date
-     * @param updatedTime updated time
-     * @return updated datetime
-     */
-    private fun getUpdatedDateTime(updatedDate: String, updatedTime: String): OffsetDateTime {
-        val date = LocalDate.parse(updatedDate)
-        val time = LocalTime.parse(updatedTime)
-        val zone = ZoneId.of("Europe/Helsinki")
-        val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-        return OffsetDateTime.of(date, time, zoneOffset)
+    override fun translate(sapEntity: BusinessPartner): SapBusinessPartner {
+        return SapBusinessPartner(
+            code = sapEntity.cardCode.toInt(),
+            email = sapEntity.emailAddress ?: "",
+            phoneNumbers = listOf(sapEntity.phone1 ?: "", sapEntity.phone2 ?: ""),
+            addresses = sapEntity.bPAddresses.map(this::translateAddress),
+            companyName = sapEntity.cardName,
+            federalTaxId = sapEntity.federalTaxID,
+            vatLiable = translateVatLiable(sapEntity.vatLiable),
+            updated = getUpdatedDateTime(sapEntity.updateDate, sapEntity.updateTime),
+            bankAccounts = sapEntity.bPBankAccounts.map(this::translateBankAccount),
+            legacyCode = sapEntity.legCardCode
+        )
     }
 
     /**
@@ -66,8 +42,8 @@ class BusinessPartnerTranslator() {
      * @param bankAccount bank account to translate
      * @return translated bank account
      */
-    private fun translateBankAccount(bankAccount: JsonNode): SapBankAccount {
-        return SapBankAccount(BIC = bankAccount.get("BICSwiftCode").asText(), IBAN = bankAccount.get("IBAN").asText())
+    private fun translateBankAccount(bankAccount: BPBankAccount): SapBankAccount {
+        return SapBankAccount(bic = bankAccount.bicSwiftCode, iban = bankAccount.iban)
     }
 
     /**
@@ -76,7 +52,7 @@ class BusinessPartnerTranslator() {
      * @param vatLiable vatLiable from SAP
      * @return translated vatLiable
      */
-    private fun translateVatLiable(vatLiable: String): SapBusinessPartner.VatLiable? {
+    private fun translateVatLiable(vatLiable: String?): SapBusinessPartner.VatLiable? {
         return when (vatLiable) {
             "vLiable" -> SapBusinessPartner.VatLiable.FI
             "vExempted" -> SapBusinessPartner.VatLiable.NOT_LIABLE
@@ -91,13 +67,13 @@ class BusinessPartnerTranslator() {
      * @param address address from SAP
      * @return translated address
      */
-    private fun translateAddress(address: JsonNode): SapAddress {
+    private fun translateAddress(address: BPAddress): SapAddress {
         return SapAddress(
-            type = resolveSapAddressType(address.get("AddressType").asText()),
-            name = address.get("AddressName").asText(),
-            streetAddress = address.get("Street").asText(),
-            city = address.get("City").asText(),
-            postalCode = address.get("ZipCode").asText(),
+            type = resolveSapAddressType(address.addressType),
+            name = address.addressName,
+            streetAddress = address.street,
+            city = address.city,
+            postalCode = address.zipCode,
         )
     }
 

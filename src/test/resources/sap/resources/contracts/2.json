@@ -1,0 +1,20 @@
+{
+  "DocNum": 2,
+  "AgreementNo": 2,
+  "BPCode": "24",
+  "ContactPersonCode": 64,
+  "Status": "asOnHold",
+  "StartDate": "2022-01-01",
+  "EndDate": "2022-12-31",
+  "SigningDate": "2022-01-01",
+  "TerminateDate": "2022-12-31",
+  "Remarks": "Some remarks",
+  "BlanketAgreements_ItemsLines": [
+    {
+      "ItemNo": "1"
+    },
+    {
+      "ItemNo": "3"
+    }
+  ]
+}

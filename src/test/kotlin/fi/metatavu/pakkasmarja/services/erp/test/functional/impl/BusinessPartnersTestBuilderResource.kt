@@ -34,8 +34,8 @@ class BusinessPartnersTestBuilderResource(
      * Lists business partners
      *
      * @param updatedAfter Filter results by updated after given date time (optional)
-     * @param firstResult First result. Defaults to 0 (optional)
-     * @param maxResults Max results. Defaults to 10 (optional)
+     * @param firstResult first result
+     * @param maxResults max results
      * @return list of business partners
      */
     fun listBusinessPartners(
@@ -56,8 +56,8 @@ class BusinessPartnersTestBuilderResource(
      *
      * @param expectedStatus expected status
      * @param updatedAfter Filter results by updated after given date time (optional)
-     * @param firstResult First result. Defaults to 0 (optional)
-     * @param maxResults Max results. Defaults to 10 (optional)
+     * @param firstResult first result
+     * @param maxResults max results
      */
     fun assertListFailStatus(
         expectedStatus: Int,

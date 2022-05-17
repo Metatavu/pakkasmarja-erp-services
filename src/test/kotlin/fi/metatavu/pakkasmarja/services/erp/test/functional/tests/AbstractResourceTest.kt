@@ -4,6 +4,7 @@ import fi.metatavu.pakkasmarja.services.erp.test.functional.TestBuilder
 import io.quarkus.test.common.DevServicesContext
 import io.quarkus.test.junit.QuarkusTest
 import org.eclipse.microprofile.config.ConfigProvider
+import java.time.*
 
 /**
  * Abstract base class for resource tests
@@ -23,10 +24,25 @@ abstract class AbstractResourceTest {
     }
 
     /**
+     * Construct offset date time string
+     *
+     * @param dateFilter local date filter
+     * @param timeFilter local time filter
+     * @return constructed string
+     */
+    protected fun toOffsetDateTime(dateFilter: LocalDate, timeFilter: LocalTime): String {
+        val zone = ZoneId.of("Europe/Helsinki")
+        val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
+        val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
+
+        return updatedAfter.toString()
+    }
+
+    /**
      * Returns config for tests.
      *
      * If tests are running in native mode, method returns config from devServicesContext and
-     * when tests are runnig in JVM mode method returns config from the Quarkus config
+     * when tests are running in JVM mode method returns config from the Quarkus config
      *
      * @return config for tests
      */

@@ -4,6 +4,7 @@ import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapAddressType
 import fi.metatavu.pakkasmarja.services.erp.test.client.models.SapBusinessPartner
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.LocalTestProfile
 import fi.metatavu.pakkasmarja.services.erp.test.functional.resources.SapMockTestResource
+import fi.metatavu.pakkasmarja.services.erp.test.functional.sap.SapMock
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
@@ -13,6 +14,8 @@ import java.time.*
 
 /**
  * Tests for business partners
+ *
+ * TODO: Add support for invalid data testing
  *
  * @author Antti Leppä
  */
@@ -29,79 +32,101 @@ class BusinessPartnersResourceTest: AbstractResourceTest() {
     @Test
     fun testListBusinessPartners() {
         createTestBuilder().use {
-            val dateFilter = LocalDate.of(2022, 2, 17)
-            val timeFilter = LocalTime.of(10, 0, 0)
-            val zone = ZoneId.of("Europe/Helsinki")
-            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            val businessPartners = it.manager.businessPartners.listBusinessPartners(updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
-            assertEquals(3, businessPartners.size)
+            SapMock().use { sapMock ->
+                sapMock.mockBusinessPartners("1", "2", "3")
 
-            val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
-            assertEquals(1, partner.code)
-            assertEquals("jorma@example.com", partner.email)
+                val businessPartners = it.manager.businessPartners.listBusinessPartners(
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
 
-            val phoneNumbers = partner.phoneNumbers
-            assertNotNull(phoneNumbers)
-            assertEquals(2, phoneNumbers!!.size)
-            assertEquals("0440120122", phoneNumbers[0])
-            assertEquals("0440120123", phoneNumbers[1])
+                assertEquals(3, businessPartners.size)
 
-            val addresses = partner.addresses
-            assertNotNull(addresses)
-            assertEquals(1, addresses!!.size)
-            val address = addresses[0]
-            assertEquals(SapAddressType.DELIVERY, address.type)
-            assertEquals("Home", address.name)
-            assertEquals("Mikkeli", address.city)
-            assertEquals("Hallituskatu 7", address.streetAddress)
-            assertEquals("50100", address.postalCode)
+                val partner = businessPartners.find{ sapBusinessPartner -> sapBusinessPartner.vatLiable == SapBusinessPartner.VatLiable.EU }!!
+                assertEquals(3, partner.code)
+                assertEquals("jorma@example.com", partner.email)
 
-            assertEquals("MetaLab", partner.companyName)
-            assertEquals("0000000", partner.federalTaxId)
+                val phoneNumbers = partner.phoneNumbers
+                assertNotNull(phoneNumbers)
+                assertEquals(2, phoneNumbers!!.size)
+                assertEquals("0440120122", phoneNumbers[0])
+                assertEquals("0440120123", phoneNumbers[1])
 
-            val expectedDate = LocalDate.of(2022, 2, 18)
-            val expectedTime = LocalTime.of(8, 0, 12)
-            val expectedDateTime = OffsetDateTime.of(expectedDate, expectedTime, zoneOffset)
-            assertEquals(expectedDateTime.toString(), partner.updated)
+                val addresses = partner.addresses
+                assertNotNull(addresses)
+                assertEquals(1, addresses!!.size)
+                val address = addresses[0]
+                assertEquals(SapAddressType.DELIVERY, address.type)
+                assertEquals("Home", address.name)
+                assertEquals("Mikkeli", address.city)
+                assertEquals("Hallituskatu 7", address.streetAddress)
+                assertEquals("50100", address.postalCode)
 
-            val bankAccounts = partner.bankAccounts
-            assertNotNull(bankAccounts)
-            assertEquals(1, bankAccounts!!.size)
+                assertEquals("MetaLab", partner.companyName)
+                assertEquals("0000000", partner.federalTaxId)
 
-            val bankAccount = bankAccounts[0]
-            assertEquals("FI61000000000", bankAccount.IBAN)
-            assertEquals("SBANFIHH", bankAccount.BIC)
+                assertEquals(getTestValidationDate(), partner.updated)
+
+                val bankAccounts = partner.bankAccounts
+                assertNotNull(bankAccounts)
+                assertEquals(1, bankAccounts!!.size)
+
+                val bankAccount = bankAccounts[0]
+                assertEquals("FI61000000000", bankAccount.iban)
+                assertEquals("SBANFIHH", bankAccount.bic)
+
+                val withLegacyCode = businessPartners.find { sapBusinessPartner -> sapBusinessPartner.code == 3 }
+                assertNotNull(withLegacyCode)
+                assertEquals(3, withLegacyCode?.code)
+                assertEquals(12345, withLegacyCode?.legacyCode)
+
+                it.invalidAccess.businessPartners.assertListFailStatus(
+                    expectedStatus = 401,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+
+                it.nullAccess.businessPartners.assertListFailStatus(
+                    expectedStatus = 401,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+
+                it.user.businessPartners.assertListFailStatus(
+                    expectedStatus = 403,
+                    updatedAfter = getTestDate(),
+                    firstResult = null,
+                    maxResults = null
+                )
+            }
+
         }
     }
 
     /**
-     * Tests listing business partners with a null access token
+     * Get offset date-time for tests
+     *
+     * @return offset date-time in string format
      */
-    @Test
-    fun testListBusinessPartnersNullAccessToken() {
-        createTestBuilder().use {
-            val dateFilter = LocalDate.of(2022, 2, 17)
-            val timeFilter = LocalTime.of(10, 0, 0)
-            val zone = ZoneId.of("Europe/Helsinki")
-            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            it.nullAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
-        }
+    private fun getTestDate(): String {
+        val dateFilter = LocalDate.of(2022, 2, 17)
+        val timeFilter = LocalTime.of(10, 0, 0)
+
+        return toOffsetDateTime(dateFilter, timeFilter)
     }
 
     /**
-     * Tests listing business partners with an invalid access token
+     * Get offset date-time for test date validation
+     *
+     * @return offset date-time in string format
      */
-    @Test
-    fun testListBusinessPartnersInvalidAccessToken() {
-        createTestBuilder().use {
-            val dateFilter = LocalDate.of(2022, 2, 17)
-            val timeFilter = LocalTime.of(10, 0, 0)
-            val zone = ZoneId.of("Europe/Helsinki")
-            val zoneOffset = zone.rules.getOffset(LocalDateTime.now())
-            val updatedAfter = OffsetDateTime.of(dateFilter, timeFilter, zoneOffset)
-            it.invalidAccess.businessPartners.assertListFailStatus(expectedStatus = 401, updatedAfter = updatedAfter.toString(), firstResult = null, maxResults = null)
-        }
+    private fun getTestValidationDate(): String {
+        val dateFilter = LocalDate.of(2022, 2, 18)
+        val timeFilter = LocalTime.of(8, 0, 12)
+
+        return toOffsetDateTime(dateFilter, timeFilter)
     }
 }

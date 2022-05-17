@@ -1,23 +1,29 @@
 package fi.metatavu.pakkasmarja.services.erp.sap
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapCountFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapItemFetchException
 import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapModificationException
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapResponseReadException
+import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
+import org.slf4j.Logger
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.time.OffsetDateTime
-import java.util.concurrent.CompletableFuture
-import javax.enterprise.context.ApplicationScoped
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
+
 
 /**
  * Abstract SAP-resource controller
  */
-@ApplicationScoped
-abstract class AbstractSapResourceController {
+abstract class AbstractSapResourceController <T> {
+
+    @Inject
+    lateinit var logger: Logger
 
     /**
      * Creates an item to SAP
@@ -28,17 +34,52 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP session route id
      * @return created item
      */
-    fun createItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
+    fun createSapEntity(
+        targetClass: Class<T>,
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ): T {
         try {
-            return sendSapRequestWithItem(
+            return sendSapPostRequest(
+                targetClass = targetClass,
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
-                routeId = routeId,
-                method = "POST"
+                routeId = routeId
             )
         } catch (e: Exception) {
+            logger.error("Failed to create an item to SAP", e)
             throw SapModificationException("Failed to create an item to SAP: ${e.message}")
+        }
+    }
+
+    /**
+     * Updates an item to SAP
+     *
+     * @param item item to create
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @return created item
+     */
+    fun updateSapEntity(
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ) {
+        try {
+            sendSapPutRequest(
+                item = item,
+                resourceUrl = resourceUrl,
+                sessionId = sessionId,
+                routeId = routeId
+            )
+        } catch (e: Exception) {
+            logger.error("Failed to update an item to SAP", e)
+            throw SapModificationException("Failed to update an item to SAP: ${e.message}")
         }
     }
 
@@ -51,17 +92,54 @@ abstract class AbstractSapResourceController {
      * @param routeId SAP session route id
      * @return updated item
      */
-    fun updateItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String): JsonNode {
+    fun patchSapEntity(
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ) {
         try {
-            return sendSapRequestWithItem(
+            sendSapPatchRequest(
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
-                routeId = routeId,
-                method = "PATCH"
+                routeId = routeId
             )
         } catch (e: Exception) {
             throw SapModificationException("Failed to update an item to SAP: ${e.message}")
+        }
+    }
+    /**
+     * Finds item from SAP
+     *
+     * @param targetClass target class
+     * @param itemUrl item url
+     * @param sessionId SAP-session id
+     * @param routeId SAP-session route id
+     * @return found item or null
+     */
+    fun findSapEntity(
+        targetClass: Class<T>,
+        itemUrl: String,
+        sessionId: String,
+        routeId: String
+    ): T? {
+        try {
+            val client = HttpClient.newHttpClient()
+            val request = HttpRequest
+                .newBuilder(URI.create(itemUrl))
+                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .GET()
+                .build()
+
+            val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+            if (response.statusCode() !in 200..299) {
+                return null
+            }
+
+            return readSapResponse(targetClass, response.body())
+        } catch (e: Exception) {
+            throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
         }
     }
 
@@ -73,82 +151,251 @@ abstract class AbstractSapResourceController {
      */
     fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {
         val updateDate = updatedAfter.toLocalDate().toString()
-        val updateTime = updatedAfter.toLocalTime().toString().split(".")[0]
-        return "(UpdateDate gt '$updateDate' or (UpdateDate eq '$updateDate' and UpdateTime gt '$updateTime'))"
+        val updateTime = updatedAfter.format(DateTimeFormatter.ISO_LOCAL_TIME)
+        return "(UpdateDate gt $updateDate or (UpdateDate eq $updateDate and UpdateTime gt $updateTime))"
     }
 
     /**
-     * Gets items from SAP and converts them to JSON-nodes
+     * Constructs SAP request URL
      *
-     * @param resourceUrl resource url
-     * @param filter SAP-filter
-     * @param select SAP-field selector
-     * @param routeId SAP-session route id
-     * @param sessionId SAP-session id
-     * @return items
+     * @param baseUrl base URL
+     * @param select select string
+     * @param filter filter string
+     * @param firstResult first result
+     * @return list of SAP request URL
      */
-    fun getItemsAsJsonNodes(
-        resourceUrl: String,
-        filter: String,
+    fun constructSAPRequestUrl(
+        baseUrl: String,
         select: String,
-        routeId: String,
-        sessionId: String
-    ): List<JsonNode> {
-        val escapedFilter = escapeSapQuery(filter)
-        val countUrl = "$resourceUrl/\$count?$escapedFilter"
-        val count = getCount(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
-        val baseItemUrl = "$resourceUrl?$escapedFilter&$select"
-        val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
-        return getItems(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
+        filter: String?,
+        firstResult: Int?
+    ): String {
+        val list = mutableListOf<String>()
+
+        if (filter != null) {
+            list.add(escapeSapQuery(filter))
+        }
+
+        if (firstResult != null) {
+            list.add("\$skip=$firstResult")
+        }
+
+        return if (list.size > 0) {
+            "$baseUrl?$select&${list.joinToString("&")}"
+        } else {
+            "$baseUrl?$select"
+        }
     }
 
     /**
-     * Gets items from SAP and converts them to JSON-nodes
+     * Fetches items from multiple urls and combines them into a single list
      *
-     * @param resourceUrl resource url
-     * @param select SAP-field selector
-     * @param routeId SAP-session route id
-     * @param sessionId SAP-session id
-     * @return items
+     * @param targetClass target class
+     * @param requestUrl list SAP request URL's
+     * @param sapSession SAP-session
+     * @param <T> response generic type
+     * @return list of items
      */
-    fun getItemsAsJsonNodes(
-        resourceUrl: String,
-        select: String,
-        routeId: String,
-        sessionId: String
-    ): List<JsonNode> {
-        val countUrl = "$resourceUrl/\$count"
-        val count = getCount(countUrl = countUrl, sessionId = sessionId, routeId = routeId)
-        val baseItemUrl = "$resourceUrl?$select"
-        val itemUrls = getItemUrls(baseItemUrl = baseItemUrl, count = count)
-        return getItems(itemUrls = itemUrls, sessionId = sessionId, routeId = routeId)
+    fun sapListRequest(
+        targetClass: Class<T>,
+        requestUrl: String,
+        sapSession: SapSession,
+        maxResults: Int?
+    ): List<T>? {
+        try {
+            val client = HttpClient.newHttpClient()
+
+            val requestBuilder = HttpRequest
+                .newBuilder(URI.create(requestUrl))
+                .setHeader("Cookie", "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}")
+                .GET()
+
+            if (maxResults != null) {
+                requestBuilder.header("Prefer", "odata.maxpagesize=$maxResults")
+            }
+
+            val response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofByteArray())
+
+            if (response.statusCode() !in 200..299) {
+                return null
+            }
+
+            return readSapListResponse(targetClass, response.body())
+        } catch (e: Exception) {
+            throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
+        }
     }
 
     /**
-     * Sends a request to SAP with a body
+     * Gets item count from sap. Not currently needed but count will be useful in the future if SAP performance
+     * is insufficient for large requests
+     *
+     * @param resourceUrl resource URL
+     * @param sapSession current active SAP session
+     * @param filter filter string or null
+     * @return count of items
+     */
+    @Suppress("unused")
+    fun getCountFromSap(resourceUrl: String, sapSession: SapSession, filter: String? = null): Int? {
+        var countUrl = "$resourceUrl/\$count?"
+
+        if (filter != null) {
+            val escapedFilter = escapeSapQuery(filter)
+            countUrl = "$countUrl$escapedFilter"
+        }
+
+        return getCountRequest(countUrl = countUrl, sessionId = sapSession.sessionId, routeId = sapSession.routeId)
+    }
+
+    /**
+     * Translates a boolean value to the format used by SAP
+     *
+     * @param value a value to translate
+     * @return a boolean value in the format used by SAP
+     */
+    fun toSapItemPropertyBoolean(value: Boolean): String {
+        return when (value) {
+            true -> "tYES"
+            false -> "tNO"
+        }
+    }
+
+    /**
+     * Sends PATCH request to SAP
      *
      * @param item body to send
      * @param resourceUrl resource url
      * @param sessionId SAP session id
      * @param routeId SAP session route id
-     * @param method request method
+     * @param <T> response type
      * @return the response from SAP
      */
-    private fun sendSapRequestWithItem(item: JsonNode, resourceUrl: String, sessionId: String, routeId: String, method: String): JsonNode {
+    private fun sendSapPatchRequest(
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ) {
+        logger.info("Sending PATCH request to SAP: $resourceUrl")
+        logger.info("request body: $item")
+
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
+            .setHeader("Content-Type", "application/json")
             .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-            .setHeader("Prefer","odata.maxpagesize=100")
-            .method(method, HttpRequest.BodyPublishers.ofString(item.toString()))
+            .method("PATCH", HttpRequest.BodyPublishers.ofString(item))
             .build()
 
-        val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-            val objectMapper = ObjectMapper()
-            return@thenApply objectMapper.readTree(response.body()).get("value")
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+
+        if (response.statusCode() !in 200..299) {
+            throw SapModificationException("Failed send PATCH request to $resourceUrl")
+        }
+    }
+
+    /**
+     * Sends a POST request to SAP
+     *
+     * @param targetClass target class
+     * @param item body to send
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @param <T> response type
+     * @return the response from SAP
+     */
+    private fun <T> sendSapPostRequest(
+        targetClass: Class<T>,
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ): T {
+        logger.info("Sending POST request to SAP: $resourceUrl")
+        logger.info("request body: $item")
+
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest
+            .newBuilder(URI.create(resourceUrl))
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .method("POST", HttpRequest.BodyPublishers.ofString(item))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        val body = response.body() ?: throw SapModificationException("Failed to fetch items from SAP: ${response.statusCode()}")
+
+        if (response.statusCode() !in 200..299) {
+            throw SapModificationException("Failed send POST request to $resourceUrl: ${body.toString(Charsets.UTF_8)}")
         }
 
-        return response.get()
+        if (body.isEmpty()) {
+            throw SapModificationException("Failed send POST request to $resourceUrl: Empty response")
+        }
+
+        return readSapResponse(targetClass, body) ?: throw SapModificationException("Failed to read response from SAP: ${body.toString(Charsets.UTF_8)}")
+    }
+
+    /**
+     * Sends a POST request to SAP
+     *
+     * @param item body to send
+     * @param resourceUrl resource url
+     * @param sessionId SAP session id
+     * @param routeId SAP session route id
+     * @return the response from SAP
+     */
+    private fun sendSapPutRequest(
+        item: String,
+        resourceUrl: String,
+        sessionId: String,
+        routeId: String
+    ) {
+        logger.info("Sending PUT request to SAP: $resourceUrl")
+        logger.info("request body: $item")
+
+        val client = HttpClient.newHttpClient()
+        val request = HttpRequest
+            .newBuilder(URI.create(resourceUrl))
+            .setHeader("Content-Type", "application/json")
+            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .method("PUT", HttpRequest.BodyPublishers.ofString(item))
+            .build()
+
+        val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
+        if (response.statusCode() !in 200..299) {
+            throw SapModificationException("Failed send PUT request to $resourceUrl")
+        }
+    }
+
+    /**
+     * Sends get count request to SAP
+     *
+     * @param countUrl an url to get an item count
+     * @param sessionId SAP-session id
+     * @param routeId SAP-session route id
+     * @return item count
+     */
+    private fun getCountRequest(countUrl: String, sessionId: String, routeId: String): Int? {
+        try {
+            val client = HttpClient.newHttpClient()
+            val request = HttpRequest
+                .newBuilder(URI.create(countUrl))
+                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .GET()
+                .build()
+
+            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+
+            if (response.statusCode() !in 200..299) {
+                return null
+            }
+
+            return response.body().toInt()
+        } catch (e: Exception) {
+            throw SapCountFetchException("Failed to fetch item count from SAP, ${e.message}")
+        }
     }
 
     /**
@@ -162,81 +409,34 @@ abstract class AbstractSapResourceController {
     }
 
     /**
-     * Fetches items from multiple urls and combines them into a single list
+     * Reads SAP resnpose from raw response
      *
-     * @param itemUrls item urls
-     * @param sessionId SAP-session id
-     * @param routeId SAP-session route id
-     * @return items
+     * @param body response body
+     * @param targetClass target class
+     * @return SAP response
      */
-    private fun getItems(itemUrls: List<String>, sessionId: String, routeId: String): List<JsonNode> {
+    private fun <T> readSapResponse(targetClass: Class<T>, body: ByteArray): T {
         try {
-            val jsonNodes = mutableListOf<JsonNode>()
-            val client = HttpClient.newHttpClient()
-            val futures = mutableListOf<CompletableFuture<Unit>>()
-
-            itemUrls.forEach {
-                val request = HttpRequest
-                    .newBuilder(URI.create(it))
-                    .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                    .setHeader("Prefer","odata.maxpagesize=100")
-                    .GET()
-                    .build()
-
-                val future = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).thenApply { response ->
-                    val objectMapper = ObjectMapper()
-                    val items = objectMapper.readTree(response.body()).get("value")
-                    items.forEach { item ->
-                        jsonNodes.add(item)
-                    }
-                }
-                futures.add(future)
-            }
-
-            futures.forEach(CompletableFuture<Unit>::join)
-            return jsonNodes
+            val objectMapper = jacksonObjectMapper()
+            val type = objectMapper.typeFactory.constructType(targetClass)
+            return objectMapper.convertValue(ObjectMapper().readTree(body), type)
         } catch (e: Exception) {
-            throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
+            logger.error("Failed to read response ${body.toString(Charsets.UTF_8)} from SAP", e)
+            throw SapResponseReadException("Failed to read response ${body.toString(Charsets.UTF_8)} from SAP")
         }
     }
 
     /**
-     * Creates multiple urls in order to split a request
+     * Reads SAP list response from raw response
      *
-     * @param baseItemUrl base url for all requests
-     * @param count item count
-     * @return item urls
+     * @param body response body
+     * @param targetClass target class
+     * @return SAP list response
      */
-    private fun getItemUrls(baseItemUrl: String, count: Int): List<String> {
-        val itemUrls = mutableListOf<String>()
-        for (i in 0..count step 100) {
-            itemUrls.add("$baseItemUrl&\$skip=$i")
-        }
-
-        return itemUrls
-    }
-
-    /**
-     * Gets an item count
-     *
-     * @param countUrl an url to get an item count
-     * @param sessionId SAP-session id
-     * @param routeId SAP-session route id
-     * @return item count
-     */
-    private fun getCount(countUrl: String, sessionId: String, routeId: String): Int {
-        try {
-            val client = HttpClient.newHttpClient()
-            val request = HttpRequest
-                .newBuilder(URI.create(countUrl))
-                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
-                .GET()
-                .build()
-
-            val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-            return response.body().toInt()
-        } catch (e: Exception) {
-            throw SapCountFetchException("Failed to fetch item count from SAP, ${e.message}")
-        }
+    private fun <T> readSapListResponse(targetClass: Class<T>, body: ByteArray): List<T> {
+        val objectMapper = jacksonObjectMapper()
+        val responseValue = objectMapper.readTree(body).get("value").map { it }
+        val collectionType = objectMapper.typeFactory.constructCollectionType(ArrayList::class.java, targetClass)
+        return objectMapper.convertValue(responseValue, collectionType)
     }
 }
