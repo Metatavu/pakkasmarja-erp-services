@@ -250,8 +250,6 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             val itemGroupCode = itemGroupWithQuantity.key
             val cumulativeQuantity = itemGroupWithQuantity.value
 
-            println("item group code: $itemGroupCode, cumulative quantity: $cumulativeQuantity")
-
             SAPItemGroupContract(
                 startDate = contract.getStartDate(),
                 endDate = contract.getEndDate(),
@@ -302,8 +300,6 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 logger.error("Could not find item group for item $itemCode")
                 return@forEachIndexed
             }
-
-            println("contract line item: ${contractLine.getItemNo()}, itemGroupCode: $itemGroupCode, cumulative quantity: ${contractLine.getCumulativeQuantity()}")
 
             val cumulativeQuantity = contractLine.getCumulativeQuantity() ?: 0.0
             val existingQuantity = itemGroupsInContract[itemGroupCode] ?: 0.0
