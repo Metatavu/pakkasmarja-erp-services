@@ -301,7 +301,9 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 return@forEachIndexed
             }
 
+            println("contract line item: ${contractLine.getItemNo()}, itemGroupCode: $itemGroupCode, cumulative quantity: ${contractLine.getCumulativeQuantity()}")
             val cumulativeQuantity = contractLine.getCumulativeQuantity() ?: 0.0
+
             if (!itemGroupsInContract.containsKey(itemGroupCode)) {
                 itemGroupsInContract[itemGroupCode] = cumulativeQuantity
             } else {
