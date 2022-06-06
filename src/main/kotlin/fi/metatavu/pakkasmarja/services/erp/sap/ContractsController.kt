@@ -78,6 +78,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 filter = filter
             )
 
+            val items = itemsController.listItems(
+                sapSession = sapSession,
+                itemGroupCode = null,
+                updatedAfter = null
+            )
+
             if (contracts.isEmpty()) {
                 val newContract = buildNewSapContract(
                     sapContract = sapContract,
@@ -96,8 +102,8 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 )
 
                 val createdContracts = spreadContract(
-                    sapSession = sapSession,
-                    contract = createdContract
+                    contract = createdContract,
+                    items = items
                 )
 
                 return createdContracts.find { it.itemGroupCode == sapContract.itemGroupCode }
@@ -132,8 +138,8 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                     )
 
                     val updatedContracts = spreadContract(
-                        sapSession = sapSession,
-                        contract = contractForUpdate
+                        contract = contractForUpdate,
+                        items = items
                     )
 
                     return updatedContracts.find { it.itemGroupCode == sapContract.itemGroupCode }
@@ -210,10 +216,16 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         sapSession: SapSession,
         contracts: List<Contract>
     ): List<SAPItemGroupContract> {
+        val items = itemsController.listItems(
+            sapSession = sapSession,
+            itemGroupCode = null,
+            updatedAfter = null
+        )
+
         return contracts.flatMap { contract ->
             spreadContract(
-                sapSession = sapSession,
-                contract = contract
+                contract = contract,
+                items = items
             )
         }
     }
@@ -221,17 +233,17 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     /**
      * Spreads a contract to one contract per item group
      *
-     * @param sapSession sap session
      * @param contract a contract to spread
+     * @param items items
      * @return spread contract
      */
     fun spreadContract(
-        sapSession: SapSession,
-        contract: Contract
+        contract: Contract,
+        items: List<Item>
     ): List<SAPItemGroupContract> {
         val itemGroupsWithQuantities = getContractItemGroupsWithQuantities(
-            sapSession = sapSession,
-            contract = contract
+            contract = contract,
+            items = items
         )
 
         return itemGroupsWithQuantities.map { itemGroupWithQuantity ->
@@ -258,22 +270,16 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     /**
      * Returns map of contract item groups with cumulative quantities
      *
-     * @param sapSession current active SAP session
      * @param contract contract
+     * @param items items
      * @return map of contract item groups with cumulative quantities
      */
     private fun getContractItemGroupsWithQuantities(
-        sapSession: SapSession,
-        contract: Contract
+        contract: Contract,
+        items: List<Item>
     ): Map<Int, Double> {
         val itemGroupsInContract = mutableMapOf<Int, Double>()
         val groupProperties = configController.getGroupPropertiesFromConfigFile()
-
-        val items = itemsController.listItems(
-            sapSession = sapSession,
-            itemGroupCode = null,
-            updatedAfter = null
-        )
 
         contract.getContractLines().forEachIndexed { index, contractLine ->
             val itemCode = contractLine.getItemNo()?.toInt()
