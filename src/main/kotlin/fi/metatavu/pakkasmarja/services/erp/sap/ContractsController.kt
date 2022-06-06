@@ -269,6 +269,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         val itemGroupsInContract = mutableMapOf<Int, Double>()
         val groupProperties = configController.getGroupPropertiesFromConfigFile()
 
+        val items = itemsController.listItems(
+            sapSession = sapSession,
+            itemGroupCode = null,
+            updatedAfter = null
+        )
+
         contract.getContractLines().forEachIndexed { index, contractLine ->
             val itemCode = contractLine.getItemNo()?.toInt()
             if (itemCode == null) {
@@ -276,10 +282,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 return@forEachIndexed
             }
 
-            val item = itemsController.findItem(
-                sapSession = sapSession,
-                itemCode = itemCode
-            )
+            val item = items.find { item -> item.itemCode.toInt() == itemCode }
 
             if (item == null) {
                 logger.error("Could not find item with code $itemCode")
