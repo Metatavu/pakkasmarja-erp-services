@@ -186,7 +186,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             targetClass = Contract::class.java,
             requestUrl = requestUrl,
             sapSession = sapSession,
-            maxResults = null
+            maxResults = 9999
         ) ?: return emptyList()
     }
 
