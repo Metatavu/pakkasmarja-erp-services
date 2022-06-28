@@ -87,7 +87,7 @@ class PurchaseDeliveryNotesController: AbstractSapResourceController<PurchaseDel
      */
     fun buildNewBatchNumber(batchNumber: SapBatchNumber): BatchNumber {
         return BatchNumber(
-            batchNumberProperty = batchNumber.batchNumber,
+            batchNumber = batchNumber.batchNumber,
             quantity = batchNumber.quantity
         )
     }

@@ -60,7 +60,7 @@ class PurchaseDeliveryNoteTranslator: AbstractTranslator<PurchaseDeliveryNote, S
      */
     private fun translateBatchNumber(batchNumber: BatchNumber): SapBatchNumber {
         return SapBatchNumber(
-            batchNumber = batchNumber.batchNumberProperty,
+            batchNumber = batchNumber.batchNumber,
             quantity = batchNumber.quantity
         )
     }
