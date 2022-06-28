@@ -16,9 +16,10 @@ import io.quarkus.runtime.annotations.RegisterForReflection
 @JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
 data class BatchNumber(
 
-    @JsonProperty("BatchNumberProperty")
-    val batchNumberProperty: String,
+    @JsonProperty("BatchNumber")
+    val batchNumber: String,
 
     @JsonProperty("Quantity")
     val quantity: Double
+
 )
