@@ -94,9 +94,9 @@ class SapSessionController {
      */
     private fun parseLoginResponseHeaders(headers: HttpHeaders): SapSession {
         val cookies = headers.allValues("set-cookie").map(HttpCookie::parse)
-        val sessionId = cookies.find { cookie -> cookie[0].name == "B1SESSION" }?.get(0)?.value ?: throw SapSessionLoginException("session cookie not found")
-        val routeId = cookies.find { cookie -> cookie[0].name == "ROUTEID" }?.get(0)?.value ?: throw SapSessionLoginException("route cookie not found")
+        val sessionCookie = cookies.find { cookie -> cookie[0].name == "B1SESSION" }?.get(0)
+            ?: throw SapSessionLoginException("session cookie not found")
 
-        return SapSession(apiUrl = sapApiUrl, sessionId = sessionId, routeId = routeId)
+        return SapSession(apiUrl = sapApiUrl, sessionId = sessionCookie.value, path = sessionCookie.path)
     }
 }

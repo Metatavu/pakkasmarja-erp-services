@@ -68,7 +68,7 @@ class ItemsController: AbstractSapResourceController<Item>() {
             targetClass = Item::class.java,
             itemUrl = "${sapSession.apiUrl}/Items('$itemCode')",
             sessionId = sapSession.sessionId,
-            routeId = sapSession.routeId
+            path = sapSession.path
         )
     }
 

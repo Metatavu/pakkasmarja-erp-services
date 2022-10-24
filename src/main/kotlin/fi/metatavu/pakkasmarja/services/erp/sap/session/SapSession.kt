@@ -10,10 +10,10 @@ import java.net.http.HttpResponse
  * Closeable Sap session
  *
  * @param apiUrl api url
- * @param routeId route id
+ * @param path path
  * @param sessionId session id
  */
-class SapSession(val apiUrl: String, val routeId: String, val sessionId: String): AutoCloseable {
+class SapSession(val apiUrl: String, val path: String, val sessionId: String): AutoCloseable {
     /**
      * Closes a SAP session
      */
@@ -21,7 +21,7 @@ class SapSession(val apiUrl: String, val routeId: String, val sessionId: String)
         val client = HttpClient.newHttpClient()
         val request = HttpRequest
             .newBuilder(URI.create("$apiUrl/Logout"))
-            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .setHeader("Cookie", "B1SESSION=$sessionId; Path=$path")
             .POST(HttpRequest.BodyPublishers.noBody())
             .build()
 
