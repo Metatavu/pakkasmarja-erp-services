@@ -31,7 +31,7 @@ abstract class AbstractSapResourceController <T> {
      * @param item item to create
      * @param resourceUrl resource url
      * @param sessionId SAP session id
-     * @param routeId SAP session route id
+     * @param path SAP session path
      * @return created item
      */
     fun createSapEntity(
@@ -39,7 +39,7 @@ abstract class AbstractSapResourceController <T> {
         item: String,
         resourceUrl: String,
         sessionId: String,
-        routeId: String
+        path: String
     ): T {
         try {
             return sendSapPostRequest(
@@ -47,7 +47,7 @@ abstract class AbstractSapResourceController <T> {
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
-                routeId = routeId
+                path = path
             )
         } catch (e: Exception) {
             logger.error("Failed to create an item to SAP", e)
@@ -61,21 +61,21 @@ abstract class AbstractSapResourceController <T> {
      * @param item item to create
      * @param resourceUrl resource url
      * @param sessionId SAP session id
-     * @param routeId SAP session route id
+     * @param path SAP session path
      * @return created item
      */
     fun updateSapEntity(
         item: String,
         resourceUrl: String,
         sessionId: String,
-        routeId: String
+        path: String
     ) {
         try {
             sendSapPutRequest(
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
-                routeId = routeId
+                path = path
             )
         } catch (e: Exception) {
             logger.error("Failed to update an item to SAP", e)
@@ -89,21 +89,21 @@ abstract class AbstractSapResourceController <T> {
      * @param item item to update
      * @param resourceUrl resource url
      * @param sessionId SAP session id
-     * @param routeId SAP session route id
+     * @param path SAP session path
      * @return updated item
      */
     fun patchSapEntity(
         item: String,
         resourceUrl: String,
         sessionId: String,
-        routeId: String
+        path: String
     ) {
         try {
             sendSapPatchRequest(
                 item = item,
                 resourceUrl = resourceUrl,
                 sessionId = sessionId,
-                routeId = routeId
+                path = path
             )
         } catch (e: Exception) {
             throw SapModificationException("Failed to update an item to SAP: ${e.message}")
@@ -114,21 +114,21 @@ abstract class AbstractSapResourceController <T> {
      *
      * @param targetClass target class
      * @param itemUrl item url
-     * @param sessionId SAP-session id
-     * @param routeId SAP-session route id
+     * @param sessionId SAP session id
+     * @param path SAP session path
      * @return found item or null
      */
     fun findSapEntity(
         targetClass: Class<T>,
         itemUrl: String,
         sessionId: String,
-        routeId: String
+        path: String
     ): T? {
         try {
             val client = HttpClient.newHttpClient()
             val request = HttpRequest
                 .newBuilder(URI.create(itemUrl))
-                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .setHeader("Cookie", "B1SESSION=$sessionId; Path=$path")
                 .GET()
                 .build()
 
@@ -207,7 +207,7 @@ abstract class AbstractSapResourceController <T> {
 
             val requestBuilder = HttpRequest
                 .newBuilder(URI.create(requestUrl))
-                .setHeader("Cookie", "B1SESSION=${sapSession.sessionId}; ROUTEID=${sapSession.routeId}")
+                .setHeader("Cookie", "B1SESSION=${sapSession.sessionId}; Path=${sapSession.path}")
                 .GET()
 
             if (maxResults != null) {
@@ -244,7 +244,7 @@ abstract class AbstractSapResourceController <T> {
             countUrl = "$countUrl$escapedFilter"
         }
 
-        return getCountRequest(countUrl = countUrl, sessionId = sapSession.sessionId, routeId = sapSession.routeId)
+        return getCountRequest(countUrl = countUrl, sessionId = sapSession.sessionId, path = sapSession.path)
     }
 
     /**
@@ -266,7 +266,7 @@ abstract class AbstractSapResourceController <T> {
      * @param item body to send
      * @param resourceUrl resource url
      * @param sessionId SAP session id
-     * @param routeId SAP session route id
+     * @param path SAP session path
      * @param <T> response type
      * @return the response from SAP
      */
@@ -274,7 +274,7 @@ abstract class AbstractSapResourceController <T> {
         item: String,
         resourceUrl: String,
         sessionId: String,
-        routeId: String
+        path: String
     ) {
         logger.info("Sending PATCH request to SAP: $resourceUrl")
         logger.info("request body: $item")
@@ -283,7 +283,7 @@ abstract class AbstractSapResourceController <T> {
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
             .setHeader("Content-Type", "application/json")
-            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .setHeader("Cookie", "B1SESSION=$sessionId; Path=$path")
             .method("PATCH", HttpRequest.BodyPublishers.ofString(item))
             .build()
 
@@ -301,7 +301,7 @@ abstract class AbstractSapResourceController <T> {
      * @param item body to send
      * @param resourceUrl resource url
      * @param sessionId SAP session id
-     * @param routeId SAP session route id
+     * @param path SAP session path
      * @param <T> response type
      * @return the response from SAP
      */
@@ -310,7 +310,7 @@ abstract class AbstractSapResourceController <T> {
         item: String,
         resourceUrl: String,
         sessionId: String,
-        routeId: String
+        path: String
     ): T {
         logger.info("Sending POST request to SAP: $resourceUrl")
         logger.info("request body: $item")
@@ -319,7 +319,7 @@ abstract class AbstractSapResourceController <T> {
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
             .setHeader("Content-Type", "application/json")
-            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .setHeader("Cookie", "B1SESSION=$sessionId; Path=$path")
             .method("POST", HttpRequest.BodyPublishers.ofString(item))
             .build()
 
@@ -343,14 +343,14 @@ abstract class AbstractSapResourceController <T> {
      * @param item body to send
      * @param resourceUrl resource url
      * @param sessionId SAP session id
-     * @param routeId SAP session route id
+     * @param path SAP session path
      * @return the response from SAP
      */
     private fun sendSapPutRequest(
         item: String,
         resourceUrl: String,
         sessionId: String,
-        routeId: String
+        path: String
     ) {
         logger.info("Sending PUT request to SAP: $resourceUrl")
         logger.info("request body: $item")
@@ -359,7 +359,7 @@ abstract class AbstractSapResourceController <T> {
         val request = HttpRequest
             .newBuilder(URI.create(resourceUrl))
             .setHeader("Content-Type", "application/json")
-            .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+            .setHeader("Cookie", "B1SESSION=$sessionId; Path=$path")
             .method("PUT", HttpRequest.BodyPublishers.ofString(item))
             .build()
 
@@ -373,16 +373,16 @@ abstract class AbstractSapResourceController <T> {
      * Sends get count request to SAP
      *
      * @param countUrl an url to get an item count
-     * @param sessionId SAP-session id
-     * @param routeId SAP-session route id
+     * @param sessionId SAP session id
+     * @param path SAP session path
      * @return item count
      */
-    private fun getCountRequest(countUrl: String, sessionId: String, routeId: String): Int? {
+    private fun getCountRequest(countUrl: String, sessionId: String, path: String): Int? {
         try {
             val client = HttpClient.newHttpClient()
             val request = HttpRequest
                 .newBuilder(URI.create(countUrl))
-                .setHeader("Cookie", "B1SESSION=$sessionId; ROUTEID=$routeId")
+                .setHeader("Cookie", "B1SESSION=$sessionId; Path=$path")
                 .GET()
                 .build()
 
@@ -409,7 +409,7 @@ abstract class AbstractSapResourceController <T> {
     }
 
     /**
-     * Reads SAP resnpose from raw response
+     * Reads SAP response from raw response
      *
      * @param body response body
      * @param targetClass target class

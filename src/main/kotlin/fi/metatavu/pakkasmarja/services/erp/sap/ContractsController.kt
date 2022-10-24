@@ -98,7 +98,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                     item = payload,
                     resourceUrl = resourceUrl,
                     sessionId = sapSession.sessionId,
-                    routeId = sapSession.routeId
+                    path = sapSession.path
                 )
 
                 val createdContracts = spreadContract(
@@ -134,7 +134,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                         item = payload,
                         resourceUrl = resourceUpdateUrl,
                         sessionId = sapSession.sessionId,
-                        routeId = sapSession.routeId
+                        path = sapSession.path
                     )
 
                     val updatedContracts = spreadContract(
@@ -457,7 +457,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             item = payload,
             resourceUrl = resourceUrl,
             sessionId = sapSession.sessionId,
-            routeId = sapSession.routeId
+            path = sapSession.path
         )
     }
 
