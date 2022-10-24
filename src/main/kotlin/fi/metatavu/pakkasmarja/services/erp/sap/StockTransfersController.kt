@@ -39,7 +39,7 @@ class StockTransfersController: AbstractSapResourceController<StockTransfer>() {
                 item = payload,
                 resourceUrl = resourceUrl,
                 sessionId = sapSession.sessionId,
-                routeId = sapSession.routeId
+                path = sapSession.path
             )
         } catch (e: Exception) {
             logger.error("Failed to create stock transfer", e)
