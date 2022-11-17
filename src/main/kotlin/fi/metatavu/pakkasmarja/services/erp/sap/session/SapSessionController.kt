@@ -60,7 +60,7 @@ class SapSessionController {
             val response = client.send(request, HttpResponse.BodyHandlers.ofInputStream())
             when (val statusCode = response.statusCode()) {
                 200 -> {
-                    return parseLoginResponseHeaders(response.headers())
+                    return createSapSessionFromHeaders(response.headers())
                 }
                 else -> {
                     logger.error("Received error when logging in [{}]: {}. Used username {}", statusCode, readStream(response.body()), sapUserName)
@@ -92,8 +92,24 @@ class SapSessionController {
      * @param headers headers
      * @return sap session
      */
-    private fun parseLoginResponseHeaders(headers: HttpHeaders): SapSession {
+    private fun createSapSessionFromHeaders(headers: HttpHeaders): SapSession {
         val cookies = headers.allValues("set-cookie").map(HttpCookie::parse)
+        cookies.forEachIndexed { index, cookie ->
+            logger.info("COOKIE $index")
+            cookie.forEach {
+                logger.info("NAME: ${it.name}")
+                logger.info("PATH: ${it.path}")
+                logger.info("COMMENT: ${it.comment}")
+                logger.info("VALUE: ${it.value}")
+                logger.info("COMMENT URL: ${it.commentURL}")
+                logger.info("DISCARD: ${it.discard}")
+                logger.info("MAX AGE: ${it.maxAge}")
+                logger.info("IS HTTP ONLY: ${it.isHttpOnly}")
+                logger.info("SECURE: ${it.secure}")
+                logger.info("VERSION: ${it.version}")
+                logger.info("PORT LIST: ${it.portlist}")
+            }
+        }
         val sessionCookie = cookies.find { cookie -> cookie[0].name == "B1SESSION" }?.get(0)
             ?: throw SapSessionLoginException("session cookie not found")
 
