@@ -63,7 +63,7 @@ class SapSessionController {
                     return createSapSessionFromHeaders(response.headers())
                 }
                 else -> {
-                    logger.error("Received error when logging in [{}]: {}. Used username {}", statusCode, readStream(response.body()), sapUserName)
+                    logger.error("Received error when logging in [$statusCode]: ${readStream(response.body())}. Used username $sapUserName")
                     throw SapSessionLoginException("Status code $statusCode from SAP")
                 }
             }
@@ -95,19 +95,19 @@ class SapSessionController {
     private fun createSapSessionFromHeaders(headers: HttpHeaders): SapSession {
         val cookies = headers.allValues("set-cookie").map(HttpCookie::parse)
         cookies.forEachIndexed { index, cookie ->
-            logger.info("COOKIE $index")
+            println("COOKIE $index")
             cookie.forEach {
-                logger.info("NAME: ${it.name}")
-                logger.info("PATH: ${it.path}")
-                logger.info("COMMENT: ${it.comment}")
-                logger.info("VALUE: ${it.value}")
-                logger.info("COMMENT URL: ${it.commentURL}")
-                logger.info("DISCARD: ${it.discard}")
-                logger.info("MAX AGE: ${it.maxAge}")
-                logger.info("IS HTTP ONLY: ${it.isHttpOnly}")
-                logger.info("SECURE: ${it.secure}")
-                logger.info("VERSION: ${it.version}")
-                logger.info("PORT LIST: ${it.portlist}")
+                println("NAME: ${it.name}")
+                println("PATH: ${it.path}")
+                println("COMMENT: ${it.comment}")
+                println("VALUE: ${it.value}")
+                println("COMMENT URL: ${it.commentURL}")
+                println("DISCARD: ${it.discard}")
+                println("MAX AGE: ${it.maxAge}")
+                println("IS HTTP ONLY: ${it.isHttpOnly}")
+                println("SECURE: ${it.secure}")
+                println("VERSION: ${it.version}")
+                println("PORT LIST: ${it.portlist}")
             }
         }
         val sessionCookie = cookies.find { cookie -> cookie[0].name == "B1SESSION" }?.get(0)
