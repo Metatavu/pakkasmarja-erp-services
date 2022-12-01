@@ -94,25 +94,9 @@ class SapSessionController {
      */
     private fun createSapSessionFromHeaders(headers: HttpHeaders): SapSession {
         val cookies = headers.allValues("set-cookie").map(HttpCookie::parse)
-        cookies.forEachIndexed { index, cookie ->
-            println("COOKIE $index")
-            cookie.forEach {
-                println("NAME: ${it.name}")
-                println("PATH: ${it.path}")
-                println("COMMENT: ${it.comment}")
-                println("VALUE: ${it.value}")
-                println("COMMENT URL: ${it.commentURL}")
-                println("DISCARD: ${it.discard}")
-                println("MAX AGE: ${it.maxAge}")
-                println("IS HTTP ONLY: ${it.isHttpOnly}")
-                println("SECURE: ${it.secure}")
-                println("VERSION: ${it.version}")
-                println("PORT LIST: ${it.portlist}")
-            }
-        }
         val sessionCookie = cookies.find { cookie -> cookie[0].name == "B1SESSION" }?.get(0)
             ?: throw SapSessionLoginException("session cookie not found")
 
-        return SapSession(apiUrl = sapApiUrl, sessionId = sessionCookie.value, path = sessionCookie.path)
+        return SapSession(apiUrl = sapApiUrl, sessionId = sessionCookie.value, path = URI(sapApiUrl).path)
     }
 }
