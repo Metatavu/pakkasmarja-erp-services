@@ -150,7 +150,7 @@ abstract class AbstractSapResourceController <T> {
      * @return "updatedAfter"-filter
      */
     fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {
-        val updateDate = updatedAfter.toLocalDate().toString()
+        val updateDate = updatedAfter.toString()
         val updateTime = updatedAfter.format(DateTimeFormatter.ISO_LOCAL_TIME)
         return "(UpdateDate gt $updateDate or (UpdateDate eq $updateDate and UpdateTime gt $updateTime))"
     }
