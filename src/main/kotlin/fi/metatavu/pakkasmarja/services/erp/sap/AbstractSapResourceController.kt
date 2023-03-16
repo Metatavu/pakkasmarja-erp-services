@@ -150,7 +150,7 @@ abstract class AbstractSapResourceController <T> {
      * @return "updatedAfter"-filter
      */
     fun createdUpdatedAfterFilter (updatedAfter: OffsetDateTime): String {
-        val updateDate = updatedAfter.toLocalDate().toString()
+        val updateDate = updatedAfter.toString()
         val updateTime = updatedAfter.format(DateTimeFormatter.ISO_LOCAL_TIME)
         return "(UpdateDate gt $updateDate or (UpdateDate eq $updateDate and UpdateTime gt $updateTime))"
     }
@@ -215,13 +215,14 @@ abstract class AbstractSapResourceController <T> {
             }
 
             val response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofByteArray())
-
             if (response.statusCode() !in 200..299) {
+                logger.error("SAP list request to $requestUrl failed with [${response.statusCode()}]: ${response.body().toString(Charsets.UTF_8)}")
                 return null
             }
 
             return readSapListResponse(targetClass, response.body())
         } catch (e: Exception) {
+            logger.error("Failed to make SAP list request", e)
             throw SapItemFetchException("Failed to fetch items from SAP: ${e.message}")
         }
     }

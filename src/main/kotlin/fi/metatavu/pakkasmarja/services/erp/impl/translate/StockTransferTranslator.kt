@@ -7,8 +7,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.SapStockTransferLineBinAll
 import fi.metatavu.pakkasmarja.services.erp.model.StockTransfer
 import fi.metatavu.pakkasmarja.services.erp.model.StockTransferLine
 import fi.metatavu.pakkasmarja.services.erp.model.StockTransferLinesBinAllocation
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapTranslationException
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -24,20 +23,16 @@ class StockTransferTranslator: AbstractTranslator<StockTransfer, SapStockTransfe
      * @return translated contract
      */
     override fun translate(sapEntity: StockTransfer): SapStockTransfer {
-        val docDate = LocalDate.from(DateTimeFormatter.ISO_DATE.parse(sapEntity.getDocDate()))
+        val docDate = resolveLocalDate(sapEntity.getDocDate())
 
         return SapStockTransfer(
-            docDate = docDate,
+            docDate = docDate ?: throw SapTranslationException("Failed to parse docDate from SAP"),
             businessPartnerCode = sapEntity.getCardCode()?.toInt() ?: 0,
             salesPersonCode = sapEntity.getSalesPersonCode() ?: 0,
             fromWarehouse = sapEntity.getFromWarehouse() ?: "",
             toWarehouse = sapEntity.getToWarehouse() ?: "",
             comments = sapEntity.getComments(),
-            lines = sapEntity.getStockTransferLines().map {
-                this.translateLine(
-                    line = it
-                )
-            }
+            lines = sapEntity.getStockTransferLines().map(this::translateLine)
         )
     }
 

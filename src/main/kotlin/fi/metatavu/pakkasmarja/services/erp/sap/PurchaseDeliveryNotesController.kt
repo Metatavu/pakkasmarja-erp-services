@@ -8,7 +8,6 @@ import fi.metatavu.pakkasmarja.services.erp.model.BatchNumber
 import fi.metatavu.pakkasmarja.services.erp.model.PurchaseDeliveryNote
 import fi.metatavu.pakkasmarja.services.erp.model.PurchaseDeliveryNoteLine
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
-import java.time.format.DateTimeFormatter
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -55,7 +54,7 @@ class PurchaseDeliveryNotesController: AbstractSapResourceController<PurchaseDel
     private fun buildNewPurchaseDeliveryNote(sapPurchaseDeliveryNote: SapPurchaseDeliveryNote): PurchaseDeliveryNote {
         return PurchaseDeliveryNote(
             docObjectCode = "oPurchaseDeliveryNotes",
-            docDate = DateTimeFormatter.ISO_DATE.format(sapPurchaseDeliveryNote.docDate),
+            docDate = sapPurchaseDeliveryNote.docDate.atStartOfDay().toString(),
             cardCode = sapPurchaseDeliveryNote.businessPartnerCode.toString(),
             comments = sapPurchaseDeliveryNote.comments,
             salesPersonCode = sapPurchaseDeliveryNote.salesPersonCode,

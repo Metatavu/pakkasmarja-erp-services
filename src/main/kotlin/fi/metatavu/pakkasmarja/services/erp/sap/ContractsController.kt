@@ -398,13 +398,13 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         }
 
         return Contract(
-            startDate = sapContract.startDate.toString(),
-            endDate = sapContract.endDate.toString(),
+            startDate = sapContract.startDate?.atStartOfDay()?.toString(),
+            endDate = sapContract.endDate?.atStartOfDay()?.toString(),
             docNum = getDocNum(sapContract),
             bpCode = sapContract.businessPartnerCode.toString(),
             contactPersonCode = sapContract.contactPersonCode,
             status = contractStatusToSapFormat(SapContractStatus.APPROVED),
-            signingDate = sapContract.signingDate.toString(),
+            signingDate = sapContract.signingDate?.atStartOfDay()?.toString(),
             terminateDate = null,
             remarks = sapContract.remarks,
             agreementNo = null,

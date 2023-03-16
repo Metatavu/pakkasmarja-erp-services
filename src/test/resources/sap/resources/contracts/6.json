@@ -4,10 +4,10 @@
   "BPCode": "23",
   "ContactPersonCode": 64,
   "Status": "asApproved",
-  "StartDate": "2022-01-01",
-  "EndDate": "2022-12-31",
-  "SigningDate": "2022-01-01",
-  "TerminateDate": "2022-12-31",
+  "StartDate": "2022-01-01T00:00:00Z",
+  "EndDate": "2022-12-31T00:00:00Z",
+  "SigningDate": "2022-01-01T00:00:00Z",
+  "TerminateDate": "2022-12-31T00:00:00Z",
   "Remarks": "Some remarks",
   "BlanketAgreements_ItemsLines": []
 }
