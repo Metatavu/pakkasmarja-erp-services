@@ -4,8 +4,7 @@ import fi.metatavu.pakkasmarja.services.erp.api.model.*
 import fi.metatavu.pakkasmarja.services.erp.model.BatchNumber
 import fi.metatavu.pakkasmarja.services.erp.model.PurchaseDeliveryNote
 import fi.metatavu.pakkasmarja.services.erp.model.PurchaseDeliveryNoteLine
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import fi.metatavu.pakkasmarja.services.erp.sap.exception.SapTranslationException
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -21,10 +20,10 @@ class PurchaseDeliveryNoteTranslator: AbstractTranslator<PurchaseDeliveryNote, S
      * @return translated contract
      */
     override fun translate(sapEntity: PurchaseDeliveryNote): SapPurchaseDeliveryNote {
-        val docDate = LocalDate.from(DateTimeFormatter.ISO_DATE.parse(sapEntity.getDocDate()))
+        val docDate = resolveLocalDate(sapEntity.getDocDate())
 
         return SapPurchaseDeliveryNote(
-            docDate = docDate,
+            docDate = docDate ?: throw SapTranslationException("Failed to parse docDate from SAP"),
             businessPartnerCode = sapEntity.getCardCode()?.toInt() ?: 0,
             salesPersonCode = sapEntity.getSalesPersonCode() ?: 0,
             comments = sapEntity.getComments(),

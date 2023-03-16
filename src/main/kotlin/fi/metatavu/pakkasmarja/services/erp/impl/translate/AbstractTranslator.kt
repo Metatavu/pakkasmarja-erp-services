@@ -47,7 +47,11 @@ abstract class AbstractTranslator<E, R> {
         return try {
             LocalDate.parse(date)
         } catch (e: Exception) {
-            null
+            try {
+                OffsetDateTime.parse(date).toLocalDate()
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 

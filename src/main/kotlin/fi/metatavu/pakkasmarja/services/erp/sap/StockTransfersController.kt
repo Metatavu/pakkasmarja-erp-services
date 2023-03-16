@@ -9,7 +9,6 @@ import fi.metatavu.pakkasmarja.services.erp.model.StockTransfer
 import fi.metatavu.pakkasmarja.services.erp.model.StockTransferLine
 import fi.metatavu.pakkasmarja.services.erp.model.StockTransferLinesBinAllocation
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
-import java.time.format.DateTimeFormatter
 import javax.enterprise.context.ApplicationScoped
 
 /**
@@ -55,7 +54,7 @@ class StockTransfersController: AbstractSapResourceController<StockTransfer>() {
      */
     private fun buildNewStockTransfer(sapStockTransfer: SapStockTransfer): StockTransfer {
         return StockTransfer(
-            docDate = DateTimeFormatter.ISO_DATE.format(sapStockTransfer.docDate),
+            docDate = sapStockTransfer.docDate.atStartOfDay().toString(),
             cardCode = sapStockTransfer.businessPartnerCode.toString(),
             comments = sapStockTransfer.comments,
             salesPersonCode = sapStockTransfer.salesPersonCode,
