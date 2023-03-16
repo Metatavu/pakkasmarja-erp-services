@@ -1,20 +1,25 @@
 package fi.metatavu.pakkasmarja.services.erp.test.functional.testcontainer
 
+import org.slf4j.LoggerFactory
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 
 /**
  * Test container for SAP mock service
  */
-class SapMockTestContainer: GenericContainer<SapMockTestContainer>("metatavu/odata-mock") {
+class SapMockTestContainer: GenericContainer<SapMockTestContainer>("metatavu/odata-mock:1.0.1") {
 
     private var edmPath: String? = null
     private var companyDb: String? = null
     private var username: String? = null
     private var password: String? = null
+    private val logger = LoggerFactory.getLogger(SapMockTestContainer::class.java)
 
     init {
         withExposedPorts(8080)
+        withLogConsumer {
+            logger.info("SAP Mock: ${it.utf8String}")
+        }
     }
 
     override fun configure() {
