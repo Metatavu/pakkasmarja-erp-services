@@ -16,7 +16,7 @@
   "CardName": "MetaLab",
   "FederalTaxID": "0000000",
   "VatLiable": "vEC",
-  "UpdateDate": "2022-02-18T00:00:00Z",
+  "UpdateDate": "2022-02-18T08:00:12Z",
   "UpdateTime": "08:00:12",
   "BPBankAccounts": [
     {
@@ -24,5 +24,5 @@
       "IBAN": "FI61000000000"
     }
   ],
-  "U_PFZ_LegCardCode": "12345"
+  "U_PFZ_LegCardCode": 12345
 }
