@@ -218,5 +218,15 @@
       "Properties28": true,
       "Properties36": true
     }
+  },
+  {
+    "displayName": "Viherherukka pakastukseen",
+    "code": "169",
+    "constraints": {
+      "Properties13": true,
+      "Properties28": true,
+      "Properties21": false,
+      "Properties35": false
+    }
   }
 ]
