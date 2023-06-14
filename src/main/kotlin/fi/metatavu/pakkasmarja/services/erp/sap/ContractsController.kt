@@ -7,6 +7,9 @@ import fi.metatavu.pakkasmarja.services.erp.config.ConfigController
 import fi.metatavu.pakkasmarja.services.erp.model.*
 import fi.metatavu.pakkasmarja.services.erp.sap.session.SapSession
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import javax.enterprise.context.ApplicationScoped
 import javax.inject.Inject
 
@@ -69,7 +72,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     ): SAPItemGroupContract? {
         return try {
             val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
-            val startOfCurrentYear = LocalDate.now().withMonth(1).withDayOfMonth(1)
+            val startOfCurrentYear = OffsetDateTime.of(
+                LocalDate.now().withDayOfYear(1),
+                LocalTime.MIDNIGHT,
+                ZoneOffset.UTC
+            )
+
             val filter = "\$filter=StartDate ge $startOfCurrentYear and BPCode eq '${sapContract.businessPartnerCode}' and Status eq SAPB1.BlanketAgreementStatusEnum'asApproved'"
 
             val contracts = getContracts(
@@ -201,7 +209,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
     private fun getCombinedFilter(startDate: LocalDate?, businessPartnerCode: String?, contractStatus: SapContractStatus?): String {
         val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
         val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
-        val contractStatusFilter = contractStatus?.let { "Status eq '${contractStatusToSapFormat(contractStatus)}'" }
+        val contractStatusFilter = contractStatus?.let { "Status eq SAPB1.BlanketAgreementStatusEnum'${contractStatusToSapFormat(contractStatus)}'" }
         return listOfNotNull(startDateFilter, businessPartnerCodeFilter, contractStatusFilter).joinToString(" and ")
     }
 
