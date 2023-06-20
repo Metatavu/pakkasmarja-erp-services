@@ -291,7 +291,7 @@ abstract class AbstractSapResourceController <T> {
         val response = client.send(request, HttpResponse.BodyHandlers.ofByteArray())
 
         if (response.statusCode() !in 200..299) {
-            throw SapModificationException("Failed send PATCH request to $resourceUrl")
+            throw SapModificationException("Failed send PATCH request to $resourceUrl: ${response.body().toString(Charsets.UTF_8)}")
         }
     }
 
