@@ -41,8 +41,12 @@ class ContractsController: AbstractSapResourceController<Contract>() {
         contractStatus: SapContractStatus?
     ): List<SAPItemGroupContract> {
         val resourceUrl = "${sapSession.apiUrl}/BlanketAgreements"
+        val dateFilter =
+            if (startDate != null) OffsetDateTime.of(startDate, LocalTime.MIDNIGHT, ZoneOffset.UTC)
+            else null
+
         val combinedFilter = getCombinedFilter(
-            startDate = startDate,
+            startDate = dateFilter,
             businessPartnerCode = businessPartnerCode,
             contractStatus = contractStatus
         )
@@ -78,12 +82,16 @@ class ContractsController: AbstractSapResourceController<Contract>() {
                 ZoneOffset.UTC
             )
 
-            val filter = "\$filter=StartDate ge $startOfCurrentYear and BPCode eq '${sapContract.businessPartnerCode}' and Status eq SAPB1.BlanketAgreementStatusEnum'asApproved'"
+            val combinedFilter = getCombinedFilter(
+                startDate = startOfCurrentYear,
+                businessPartnerCode = sapContract.businessPartnerCode.toString(),
+                contractStatus = SapContractStatus.APPROVED
+            )
 
             val contracts = getContracts(
                 resourceUrl = resourceUrl,
                 sapSession = sapSession,
-                filter = filter
+                filter = "\$filter=$combinedFilter"
             )
 
             val items = itemsController.listItems(
@@ -206,7 +214,7 @@ class ContractsController: AbstractSapResourceController<Contract>() {
      * @param contractStatus contract status or null
      * @returns constructed filter string
      */
-    private fun getCombinedFilter(startDate: LocalDate?, businessPartnerCode: String?, contractStatus: SapContractStatus?): String {
+    private fun getCombinedFilter(startDate: OffsetDateTime?, businessPartnerCode: String?, contractStatus: SapContractStatus?): String {
         val startDateFilter = startDate?.let { "StartDate ge '$startDate'" }
         val businessPartnerCodeFilter = businessPartnerCode?.let { "BPCode eq '$businessPartnerCode'" }
         val contractStatusFilter = contractStatus?.let { "Status eq SAPB1.BlanketAgreementStatusEnum'${contractStatusToSapFormat(contractStatus)}'" }
@@ -405,14 +413,26 @@ class ContractsController: AbstractSapResourceController<Contract>() {
             )
         }
 
+        val startDate = if (sapContract.startDate != null) {
+            OffsetDateTime.of(sapContract.startDate, LocalTime.MIN, ZoneOffset.UTC).toString()
+        } else null
+
+        val endDate = if (sapContract.endDate != null) {
+            OffsetDateTime.of(sapContract.endDate, LocalTime.MIN, ZoneOffset.UTC).toString()
+        } else null
+
+        val signingDate = if (sapContract.signingDate != null) {
+            OffsetDateTime.of(sapContract.signingDate, LocalTime.MIN, ZoneOffset.UTC).toString()
+        } else null
+
         return Contract(
-            startDate = sapContract.startDate?.atStartOfDay()?.toString(),
-            endDate = sapContract.endDate?.atStartOfDay()?.toString(),
+            startDate = startDate,
+            endDate = endDate,
             docNum = getDocNum(sapContract),
             bpCode = sapContract.businessPartnerCode.toString(),
             contactPersonCode = sapContract.contactPersonCode,
             status = contractStatusToSapFormat(SapContractStatus.APPROVED),
-            signingDate = sapContract.signingDate?.atStartOfDay()?.toString(),
+            signingDate = signingDate,
             terminateDate = null,
             remarks = sapContract.remarks,
             agreementNo = null,
