@@ -10,15 +10,6 @@
   },
   {
     "displayName": "Test",
-    "code": 101,
-    "constraints": {
-      "Properties2": true,
-      "Properties21": false,
-      "Properties28": false
-    }
-  },
-  {
-    "displayName": "Test",
     "code": 102,
     "constraints": {
       "Properties3": true,
