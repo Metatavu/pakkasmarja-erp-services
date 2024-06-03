@@ -219,5 +219,29 @@
       "Properties21": false,
       "Properties35": false
     }
+  },
+  {
+    "displayName": "Karhunvadelma",
+    "code": "170",
+    "constraints": {
+      "Properties15": true,
+      "Properties28": true,
+      "Properties32": true,
+      "Properties37": true,
+      "Properties62": true,
+      "Properties64": true
+    }
+  },
+  {
+    "displayName": "Valkoherukka",
+    "code": "172",
+    "constraints": {
+      "Properties17": true,
+      "Properties26": true,
+      "Properties28": true,
+      "Properties37": true,
+      "Properties62": true,
+      "Properties64": true
+    }
   }
 ]
