@@ -233,6 +233,18 @@
     }
   },
   {
+    "displayName": "Vadelma kaupinta",
+    "code": "171",
+    "constraints": {
+      "Properties2": true,
+      "Properties28": true,
+      "Properties32": true,
+      "Properties37": true,
+      "Properties49": true,
+      "Properties64": true
+    }
+  },
+  {
     "displayName": "Valkoherukka",
     "code": "172",
     "constraints": {
