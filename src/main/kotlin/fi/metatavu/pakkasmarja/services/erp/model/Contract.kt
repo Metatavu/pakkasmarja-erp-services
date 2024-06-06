@@ -13,8 +13,8 @@ import io.quarkus.runtime.annotations.RegisterForReflection
  * @author Antti Leppä
  */
 @RegisterForReflection
-@JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategies.UpperCamelCaseStrategy::class)
 class Contract() {
 
     @JsonProperty("StartDate")

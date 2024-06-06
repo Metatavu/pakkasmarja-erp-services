@@ -42,7 +42,7 @@ class ContractsResourceTest: AbstractResourceTest() {
                 assertEquals(2, onHolds.size)
                 assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.DRAFT })
                 assertNotNull(contracts.find { contract -> contract.status == SapContractStatus.TERMINATED })
-                assertNotNull(contracts.find { contract -> contract.itemGroupCode == 101 })
+                assertNotNull(contracts.find { contract -> contract.itemGroupCode == 102 })
 
                 assertEquals(SapContractStatus.APPROVED, contractToTest!!.status)
                 assertEquals(64, contractToTest.contactPersonCode)
